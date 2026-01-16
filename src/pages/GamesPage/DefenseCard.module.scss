@@ -1,0 +1,116 @@
+@import '@/styles/variables.scss';
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-md;
+  background: $white;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-sm;
+  cursor: pointer;
+  transition: all $transition-fast;
+  border: 2px solid $gray-100;
+  min-width: 100px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+
+  &--own {
+    border-color: $blue-200;
+    background: linear-gradient(135deg, $blue-50 0%, $white 100%);
+  }
+
+  &--active {
+    border-color: $red-300;
+    background: linear-gradient(135deg, $red-50 0%, $white 100%);
+  }
+}
+
+.header {
+  position: relative;
+  margin-bottom: $spacing-sm;
+}
+
+.roleIcon {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  font-size: 12px;
+  background: $white;
+  border-radius: $radius-full;
+  padding: 2px;
+  line-height: 1;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: $spacing-sm;
+}
+
+.betLabel {
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+.betRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.star {
+  color: $yellow-500;
+  font-size: $text-sm;
+}
+
+.betAmount {
+  font-size: $text-lg;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.multiplier {
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swordCircle {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $red-100;
+  border-radius: $radius-full;
+  font-size: 16px;
+}
+
+.checkCircle {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $primary-100;
+  border-radius: $radius-full;
+  font-size: 16px;
+  color: $primary-600;
+}

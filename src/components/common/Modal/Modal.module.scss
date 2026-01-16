@@ -1,0 +1,67 @@
+@import '@/styles/variables.scss';
+
+.modalRoot {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: $z-modal;
+  padding: $spacing-lg;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba($black, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 428px;
+  max-height: 90vh;
+  background: $white;
+  border-radius: $radius-xl $radius-xl 0 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-lg $spacing-xl;
+  border-bottom: 1px solid $gray-200;
+}
+
+.title {
+  font-size: $text-lg;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-full;
+  color: $gray-500;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: $gray-100;
+    color: $gray-700;
+  }
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing-xl;
+}

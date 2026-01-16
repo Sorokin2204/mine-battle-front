@@ -1,0 +1,68 @@
+@import '@/styles/variables.scss';
+
+.container {
+  padding: $spacing-sm $spacing-lg;
+  background: $bg;
+  overflow: hidden;
+}
+
+.slider {
+  display: flex;
+  gap: $spacing-sm;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: $spacing-xs 0;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-full;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-size: $text-sm;
+  font-weight: 600;
+  transition: all $transition-fast;
+
+  &--my_defense_waiting {
+    background: $blue-500;
+    color: $white;
+  }
+
+  &--my_defense_attacked {
+    background: $white;
+    border: 2px solid $blue-500;
+    color: $blue-700;
+  }
+
+  &--my_attack {
+    background: $red-500;
+    color: $white;
+  }
+}
+
+.avatarPlaceholder {
+  width: 24px;
+  height: 24px;
+  border-radius: $radius-full;
+  border: 2px dashed rgba($white, 0.6);
+  background: transparent;
+}
+
+.time {
+  font-variant-numeric: tabular-nums;
+}
+
+.icon {
+  font-size: $text-md;
+  display: flex;
+  align-items: center;
+}

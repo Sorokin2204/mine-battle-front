@@ -1,0 +1,138 @@
+@import '@/styles/variables.scss';
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-2xl;
+  border-radius: $radius-xl;
+  background: linear-gradient(135deg, $red-500 0%, $red-600 100%);
+  color: $white;
+  cursor: pointer;
+  transition: all $transition-fast;
+  box-shadow: 0 8px 24px rgba($red-600, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba($red-600, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.bannerDefense {
+  background: linear-gradient(135deg, $blue-500 0%, $blue-600 100%);
+  box-shadow: 0 8px 24px rgba($blue-600, 0.3);
+
+  &:hover {
+    box-shadow: 0 12px 32px rgba($blue-600, 0.4);
+  }
+}
+
+.bannerContent {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+}
+
+.bannerIcon {
+  font-size: 48px;
+}
+
+.bannerText {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.bannerTitle {
+  font-size: $text-xl;
+  font-weight: 700;
+  margin: 0;
+}
+
+.bannerDesc {
+  font-size: $text-sm;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.bannerRight {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 $spacing-sm;
+  background: rgba($white, 0.2);
+  border-radius: $radius-full;
+  font-size: $text-sm;
+  font-weight: 700;
+}
+
+.bannerArrow {
+  font-size: $text-2xl;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.info {
+  background: $white;
+  padding: $spacing-2xl;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-md;
+}
+
+.infoTitle {
+  font-size: $text-lg;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0 0 $spacing-lg;
+}
+
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.infoItem {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+}
+
+.infoNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: $primary-100;
+  color: $primary-700;
+  border-radius: $radius-full;
+  font-size: $text-sm;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.infoItem p {
+  font-size: $text-sm;
+  color: $gray-600;
+  margin: 0;
+  line-height: 1.5;
+}

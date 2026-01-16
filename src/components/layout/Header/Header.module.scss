@@ -1,0 +1,91 @@
+@import '@/styles/variables.scss';
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: $z-header;
+  background: $white;
+  box-shadow: $shadow-sm;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 428px;
+  margin: 0 auto;
+  padding: $spacing-md $spacing-lg;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  cursor: pointer;
+}
+
+.logoIcon {
+  font-size: $text-2xl;
+}
+
+.logoText {
+  font-size: $text-lg;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.balance {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-md;
+  background: $gray-100;
+  border-radius: $radius-full;
+}
+
+.balanceIcon {
+  font-size: $text-md;
+}
+
+.balanceAmount {
+  font-size: $text-sm;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.devLogin {
+  padding: $spacing-xs $spacing-md;
+  background: $purple-100;
+  color: $purple-700;
+  border-radius: $radius-full;
+  font-size: $text-sm;
+  font-weight: 600;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: $purple-200;
+  }
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: $red-100;
+  color: $red-600;
+  border-radius: $radius-full;
+  font-size: $text-md;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: $red-200;
+  }
+}

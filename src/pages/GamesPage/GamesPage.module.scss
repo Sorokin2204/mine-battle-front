@@ -1,0 +1,253 @@
+@import '@/styles/variables.scss';
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: $text-2xl;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0;
+}
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.filterBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: $white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  color: $gray-500;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: $primary-300;
+    color: $primary-600;
+  }
+
+  &--active {
+    border-color: $primary-500;
+    color: $primary-600;
+  }
+}
+
+.filterDot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background: $red-500;
+  border-radius: $radius-full;
+}
+
+.tabs {
+  display: flex;
+  flex: 1;
+  gap: $spacing-xs;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tab {
+  padding: $spacing-sm $spacing-md;
+  background: $white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-full;
+  font-size: $text-sm;
+  font-weight: 500;
+  color: $gray-600;
+  white-space: nowrap;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: $primary-300;
+  }
+
+  &--active {
+    background: $primary-500;
+    border-color: $primary-500;
+    color: $white;
+  }
+}
+
+.sortBtn {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: $spacing-sm $spacing-md;
+  background: $white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  color: $yellow-500;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: $yellow-400;
+  }
+}
+
+.sortIcon {
+  font-size: $text-md;
+}
+
+.sortArrow {
+  color: $gray-500;
+  transition: transform $transition-fast;
+
+  &--asc {
+    transform: rotate(180deg);
+  }
+}
+
+.historyBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: $white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  color: $gray-500;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: $primary-300;
+    color: $primary-600;
+  }
+}
+
+.filterPopup {
+  background: $white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  box-shadow: $shadow-lg;
+}
+
+.filterInputs {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.filterField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+
+  label {
+    font-size: $text-xs;
+    color: $gray-500;
+  }
+
+  input {
+    padding: $spacing-sm;
+    border: 1px solid $gray-200;
+    border-radius: $radius-md;
+    font-size: $text-sm;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-400;
+    }
+  }
+}
+
+.filterDash {
+  color: $gray-400;
+  margin-top: $spacing-lg;
+}
+
+.filterActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-sm;
+}
+
+.filterApply,
+.filterReset {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-md;
+  transition: all $transition-fast;
+}
+
+.filterApply {
+  background: $primary-500;
+  color: $white;
+
+  &:hover {
+    background: $primary-600;
+  }
+}
+
+.filterReset {
+  background: $gray-100;
+  color: $gray-600;
+
+  &:hover {
+    background: $gray-200;
+  }
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-3xl;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 64px;
+  margin-bottom: $spacing-lg;
+}
+
+.emptyText {
+  font-size: $text-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0 0 $spacing-xs;
+}
+
+.emptyHint {
+  font-size: $text-sm;
+  color: $gray-500;
+  margin: 0;
+}

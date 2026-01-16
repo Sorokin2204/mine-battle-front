@@ -1,0 +1,51 @@
+@import '@/styles/variables.scss';
+
+.toast {
+  position: fixed;
+  top: $spacing-lg;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-xl;
+  border-radius: $radius-full;
+  font-size: $text-sm;
+  font-weight: 600;
+  box-shadow: $shadow-lg;
+  z-index: $z-tooltip;
+  cursor: pointer;
+
+  &--success {
+    background: $primary-500;
+    color: $white;
+  }
+
+  &--error {
+    background: $red-500;
+    color: $white;
+  }
+
+  &--info {
+    background: $blue-500;
+    color: $white;
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: rgba($white, 0.2);
+  border-radius: $radius-full;
+  font-size: $text-xs;
+}
+
+.message {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

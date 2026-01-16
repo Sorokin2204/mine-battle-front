@@ -1,0 +1,192 @@
+@import '@/styles/variables.scss';
+
+.lobby {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+.statusSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
+}
+
+.players {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-lg;
+  background: $gray-50;
+  border-radius: $radius-lg;
+}
+
+.player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+  flex: 1;
+}
+
+.playerName {
+  font-size: $text-sm;
+  font-weight: 600;
+  color: $text-primary;
+  text-align: center;
+}
+
+.playerRole {
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+.emptyAvatar {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $gray-200;
+  border-radius: $radius-full;
+  font-size: $text-xl;
+  color: $gray-400;
+}
+
+.vs {
+  font-size: $text-lg;
+  font-weight: 700;
+  color: $gray-400;
+  padding: 0 $spacing-md;
+}
+
+.boardSection {
+  display: flex;
+  justify-content: center;
+}
+
+.gameInfo {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  background: $gray-50;
+  border-radius: $radius-lg;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  font-size: $text-md;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.infoIcon {
+  font-size: $text-lg;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.statLabel {
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+.statValue {
+  font-size: $text-md;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.tools {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.tool {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-md;
+  background: $white;
+  border-radius: $radius-lg;
+  border: 2px solid $gray-200;
+  transition: all $transition-fast;
+
+  &:hover:not(:disabled) {
+    border-color: $purple-300;
+    background: $purple-50;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.active {
+    border-color: $purple-500;
+    background: $purple-100;
+  }
+}
+
+.toolIcon {
+  font-size: $text-2xl;
+}
+
+.toolName {
+  font-size: $text-sm;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.toolCount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: $gray-100;
+  border-radius: $radius-full;
+  font-size: $text-xs;
+  font-weight: 700;
+  color: $gray-600;
+
+  .active & {
+    background: $purple-500;
+    color: $white;
+  }
+}
+
+.toolConfirm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: $purple-50;
+  border-radius: $radius-lg;
+  border: 2px solid $purple-200;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}

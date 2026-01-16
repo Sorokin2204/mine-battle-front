@@ -1,0 +1,165 @@
+@import '@/styles/variables.scss';
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  background: $white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  cursor: pointer;
+  transition: all $transition-fast;
+  border: 1px solid $gray-100;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+
+  &--win {
+    border-color: $primary-200;
+    background: linear-gradient(135deg, $white 0%, $primary-50 100%);
+  }
+
+  &--lose {
+    border-color: $red-200;
+    background: linear-gradient(135deg, $white 0%, $red-50 100%);
+  }
+
+  &--waiting {
+    border-color: $blue-200;
+  }
+
+  &--active {
+    border-color: $red-300;
+    background: linear-gradient(135deg, $white 0%, $red-50 100%);
+  }
+}
+
+.left {
+  position: relative;
+}
+
+.emptyAvatar {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $gray-200;
+  border: 2px dashed $gray-300;
+  border-radius: $radius-full;
+  font-size: $text-md;
+  color: $gray-400;
+}
+
+.roleIcon {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  font-size: 14px;
+  background: $white;
+  border-radius: $radius-full;
+  padding: 2px;
+}
+
+.center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.betRow,
+.resultRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.betLabel,
+.resultLabel {
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+.betAmount {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-lg;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.resultAmount {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-lg;
+  font-weight: 700;
+
+  &--win {
+    color: $primary-600;
+  }
+
+  &--lose {
+    color: $red-600;
+  }
+}
+
+.star {
+  color: $yellow-500;
+  font-size: $text-md;
+}
+
+.multiplier {
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.resultIcon {
+  font-size: 32px;
+}
+
+.trophy {
+  background: $primary-100;
+  border-radius: $radius-full;
+  padding: $spacing-xs;
+  display: flex;
+}
+
+.defeat {
+  background: $red-100;
+  border-radius: $radius-full;
+  padding: $spacing-xs;
+  display: flex;
+}
+
+.statusInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.hourglassIcon {
+  font-size: 20px;
+}
+
+.swordIcon {
+  font-size: 20px;
+}
+
+.timeLeft {
+  font-size: $text-xs;
+  font-weight: 600;
+  color: $red-500;
+  font-variant-numeric: tabular-nums;
+}

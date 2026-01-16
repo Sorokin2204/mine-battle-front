@@ -1,0 +1,48 @@
+@import '@/styles/variables.scss';
+
+.card {
+  background: $white;
+  border-radius: $radius-lg;
+  transition: all $transition-fast;
+
+  &--default {
+    box-shadow: $shadow-sm;
+  }
+
+  &--outlined {
+    border: 1px solid $gray-200;
+  }
+
+  &--elevated {
+    box-shadow: $shadow-lg;
+  }
+
+  &--padding-none {
+    padding: 0;
+  }
+
+  &--padding-sm {
+    padding: $spacing-sm;
+  }
+
+  &--padding-md {
+    padding: $spacing-lg;
+  }
+
+  &--padding-lg {
+    padding: $spacing-2xl;
+  }
+
+  &--clickable {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-lg;
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}

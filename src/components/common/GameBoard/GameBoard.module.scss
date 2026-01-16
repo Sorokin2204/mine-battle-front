@@ -1,0 +1,182 @@
+@import '@/styles/variables.scss';
+
+.board {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.grid {
+  display: grid;
+  gap: 8px;
+  background: $white;
+  padding: $spacing-md;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+}
+
+.cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, $gray-100, $gray-200);
+  border: 2px solid transparent;
+  border-radius: $radius-md;
+  font-size: 24px;
+  cursor: default;
+  transition: all $transition-fast;
+  position: relative;
+  overflow: hidden;
+
+  &--clickable {
+    cursor: pointer;
+
+    &:hover:not(.cell--disabled) {
+      background: linear-gradient(145deg, $gray-200, $gray-300);
+      border-color: $primary-300;
+    }
+  }
+
+  &--selected {
+    background: linear-gradient(145deg, $red-100, $red-200);
+    border-color: $red-400;
+  }
+
+  &--revealed {
+    pointer-events: none;
+  }
+
+  &--bomb {
+    background: linear-gradient(145deg, $primary-200, $primary-300);
+    border-color: $primary-500;
+  }
+
+  &--safe {
+    background: linear-gradient(145deg, $red-100, $red-200);
+    border-color: $red-400;
+  }
+
+  &--scanner {
+    background: linear-gradient(145deg, $purple-100, $purple-200);
+    border-color: $purple-400;
+    box-shadow: 0 0 10px rgba($purple-500, 0.3);
+  }
+
+  &--radar {
+    background: linear-gradient(145deg, $blue-100, $blue-200);
+    border-color: $blue-400;
+    box-shadow: 0 0 10px rgba($blue-500, 0.3);
+  }
+
+  &--disabled {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+}
+
+.bombIcon,
+.safeIcon,
+.hiddenBomb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.safeIcon {
+  color: $red-600;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.hiddenBomb {
+  opacity: 0.3;
+}
+
+.scannerOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba($purple-600, 0.9);
+  color: $white;
+  padding: $spacing-md $spacing-xl;
+  border-radius: $radius-full;
+  font-size: $text-2xl;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.scannerCount {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+
+  &::before {
+    content: '💣';
+    font-size: $text-lg;
+  }
+}
+
+.scannerOverlay--preview {
+  background: rgba($purple-500, 0.7);
+  border: 2px dashed $white;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.scannerPreviewText {
+  font-size: $text-lg;
+}
+
+.radarOverlay {
+  position: absolute;
+  background: rgba($blue-600, 0.9);
+  color: $white;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-full;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 10;
+
+  &--row {
+    left: -40px;
+    transform: translateY(-50%);
+  }
+
+  &--column {
+    bottom: -40px;
+    transform: translateX(-50%);
+  }
+}
+
+.radarCount {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+
+  &::before {
+    content: '💣';
+    font-size: $text-sm;
+  }
+}
+
+.radarOverlay--preview {
+  background: rgba($blue-500, 0.7);
+  border: 2px dashed $white;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.radarPreviewText {
+  font-size: $text-lg;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}

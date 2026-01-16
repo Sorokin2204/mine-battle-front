@@ -1,0 +1,45 @@
+@import '@/styles/variables.scss';
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-full;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &--sm {
+    padding: 2px $spacing-sm;
+    font-size: $text-xs;
+  }
+
+  &--md {
+    padding: $spacing-xs $spacing-md;
+    font-size: $text-sm;
+  }
+
+  &--primary {
+    background: $primary-100;
+    color: $primary-700;
+  }
+
+  &--success {
+    background: $primary-100;
+    color: $primary-700;
+  }
+
+  &--warning {
+    background: $yellow-100;
+    color: $yellow-700;
+  }
+
+  &--error {
+    background: $red-100;
+    color: $red-700;
+  }
+
+  &--info {
+    background: $blue-100;
+    color: $blue-700;
+  }
+}

@@ -1,0 +1,86 @@
+@import '@/styles/variables.scss';
+
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: $white;
+  box-shadow: 0 -4px 20px rgba($black, 0.08);
+  z-index: $z-header;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 428px;
+  margin: 0 auto;
+  padding: $spacing-sm $spacing-md;
+  gap: $spacing-xs;
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-lg;
+  transition: all $transition-fast;
+  background: transparent;
+  min-width: 56px;
+
+  &:hover {
+    background: $gray-100;
+  }
+
+  &.active {
+    .icon {
+      transform: scale(1.1);
+    }
+
+    .label {
+      color: $primary-600;
+      font-weight: 600;
+    }
+  }
+}
+
+.icon {
+  font-size: 24px;
+  line-height: 1;
+  transition: transform $transition-fast;
+}
+
+.label {
+  font-size: 10px;
+  color: $gray-500;
+  transition: all $transition-fast;
+}
+
+.myGamesBtn {
+  padding: $spacing-sm $spacing-xl;
+  background: $gradient-primary;
+  color: $white;
+  border-radius: $radius-full;
+  font-size: $text-sm;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba($primary-600, 0.3);
+  transition: all $transition-fast;
+
+  &:hover {
+    box-shadow: 0 6px 16px rgba($primary-600, 0.4);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &.active {
+    background: $primary-700;
+    box-shadow: 0 4px 12px rgba($primary-700, 0.4);
+  }
+}

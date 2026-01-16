@@ -1,0 +1,53 @@
+@import '@/styles/variables.scss';
+
+.timer {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+
+  &--countdown {
+    font-size: $text-lg;
+  }
+
+  &--badge {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $radius-full;
+    font-size: $text-sm;
+  }
+
+  &--default {
+    color: $text-primary;
+
+    &.timer--badge {
+      background: $gray-100;
+    }
+  }
+
+  &--warning {
+    color: $yellow-600;
+
+    &.timer--badge {
+      background: $yellow-100;
+    }
+  }
+
+  &--danger {
+    color: $red-600;
+    animation: pulse 1s ease-in-out infinite;
+
+    &.timer--badge {
+      background: $red-100;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}

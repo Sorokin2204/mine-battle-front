@@ -1,0 +1,65 @@
+import React, { useEffect, useState } from 'react';
+import clsx from 'clsx';
+import styles from './Timer.module.scss';
+
+interface TimerProps {
+  endTime: number;
+  type?: 'countdown' | 'badge';
+  variant?: 'default' | 'warning' | 'danger';
+  prefix?: string;
+  suffix?: string;
+  onExpire?: () => void;
+}
+
+const Timer: React.FC<TimerProps> = ({
+  endTime,
+  type = 'countdown',
+  variant = 'default',
+  prefix,
+  suffix,
+  onExpire,
+}) => {
+  const [timeLeft, setTimeLeft] = useState(Math.max(0, endTime - Date.now()));
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const remaining = Math.max(0, endTime - Date.now());
+      setTimeLeft(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+        onExpire?.();
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [endTime, onExpire]);
+
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.ceil(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    if (minutes > 0) {
+      return `${minutes}м ${seconds.toString().padStart(2, '0')}с`;
+    }
+    return `${seconds}с`;
+  };
+
+  const getVariant = () => {
+    if (variant !== 'default') return variant;
+    if (timeLeft < 10000) return 'danger';
+    if (timeLeft < 30000) return 'warning';
+    return 'default';
+  };
+
+  return (
+    <span className={clsx(styles.timer, styles[`timer--${type}`], styles[`timer--${getVariant()}`])}>
+      {prefix}
+      {formatTime(timeLeft)}
+      {suffix}
+    </span>
+  );
+};
+
+export default Timer;

@@ -1,0 +1,84 @@
+@import '@/styles/variables.scss';
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: $z-modal + 10;
+  padding: $spacing-xl;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba($black, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  background: $white;
+  border-radius: $radius-xl;
+  padding: $spacing-3xl $spacing-2xl;
+  text-align: center;
+  box-shadow: $shadow-xl;
+}
+
+.emoji {
+  font-size: 80px;
+  line-height: 1;
+  margin-bottom: $spacing-lg;
+}
+
+.title {
+  font-size: $text-xl;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0 0 $spacing-xs;
+}
+
+.subtitle {
+  font-size: $text-sm;
+  color: $gray-500;
+  margin: 0 0 $spacing-2xl;
+}
+
+.reward {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-lg;
+  background: $primary-50;
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-2xl;
+}
+
+.rewardLabel {
+  font-size: $text-sm;
+  color: $primary-600;
+  font-weight: 500;
+}
+
+.rewardAmount {
+  font-size: $text-3xl;
+  font-weight: 700;
+  color: $primary-700;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.star {
+  font-size: $text-2xl;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
