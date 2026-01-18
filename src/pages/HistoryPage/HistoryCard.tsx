@@ -2,7 +2,9 @@ import React from 'react';
 import clsx from 'clsx';
 import styles from './HistoryCard.module.scss';
 import Avatar from '@/components/common/Avatar';
+import DifficultyIndicator from '@/components/common/DifficultyIndicator';
 import { DefensePublic } from '@/types';
+import { formatRelativeTime } from '@/utils/formatTime';
 
 interface HistoryCardProps {
   defense: DefensePublic;
@@ -41,6 +43,7 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ defense, currentUserId, onCli
   };
 
   const result = getResultInfo();
+  const finishedTime = formatRelativeTime(defense.finishedAt);
 
   return (
     <div className={clsx(styles.card, styles[`card--${result.variant}`])} onClick={onClick}>
@@ -49,7 +52,7 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ defense, currentUserId, onCli
           <Avatar src={defense.creator.photoUrl} name={defense.creator.firstName || defense.creator.username} size="sm" />
           <span className={styles.role}>&#128737;&#65039;</span>
         </div>
-        <span className={styles.vs}>VS</span>
+        <DifficultyIndicator difficulty={defense.difficulty} />
         <div className={styles.player}>
           <Avatar src={defense.attacker?.photoUrl} name={defense.attacker?.firstName || defense.attacker?.username} size="sm" />
           <span className={styles.role}>&#9876;&#65039;</span>
@@ -66,6 +69,7 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ defense, currentUserId, onCli
             <span className={styles.star}>&#9733;</span>
           </span>
         </div>
+        {finishedTime && <span className={styles.finishedTime}>{finishedTime}</span>}
         <div className={styles.resultIcon}>
           {result.variant === 'win' && <span className={styles.trophy}>&#127942;</span>}
           {result.variant === 'lose' && <span className={styles.defeat}>&#128546;</span>}

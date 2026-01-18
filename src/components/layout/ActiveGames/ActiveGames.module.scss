@@ -2,7 +2,7 @@
 
 .container {
   padding: $spacing-sm $spacing-lg;
-  background: $bg;
+  background: $bg-primary;
   overflow: hidden;
 }
 
@@ -31,20 +31,25 @@
   font-size: $text-sm;
   font-weight: 600;
   transition: all $transition-fast;
+  border: 1px solid transparent;
+
+  &:hover {
+    transform: scale(1.02);
+  }
 
   &--my_defense_waiting {
-    background: $blue-500;
+    background: $gradient-primary;
     color: $white;
   }
 
   &--my_defense_attacked {
-    background: $white;
-    border: 2px solid $blue-500;
-    color: $blue-700;
+    background: transparent;
+    border: 2px solid $primary-400;
+    color: $primary-400;
   }
 
   &--my_attack {
-    background: $red-500;
+    background: $gradient-red;
     color: $white;
   }
 }
@@ -53,7 +58,7 @@
   width: 24px;
   height: 24px;
   border-radius: $radius-full;
-  border: 2px dashed rgba($white, 0.6);
+  border: 2px dashed rgba($white, 0.5);
   background: transparent;
 }
 

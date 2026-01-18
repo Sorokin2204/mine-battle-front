@@ -10,11 +10,13 @@
   font-weight: 600;
   overflow: hidden;
   flex-shrink: 0;
+  border: 2px solid rgba($primary-400, 0.3);
 
   &--xs {
     width: 24px;
     height: 24px;
     font-size: 10px;
+    border-width: 1px;
   }
 
   &--sm {

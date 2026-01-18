@@ -23,6 +23,11 @@ const ActiveGames: React.FC = () => {
 
   if (user) {
     defenses.forEach((defense) => {
+      // Skip expired defenses (time ran out)
+      if (defense.status === 'WAITING' && new Date(defense.expiresAt).getTime() <= Date.now()) {
+        return;
+      }
+
       // My defense waiting for attack
       if (defense.creator.id === user.id && defense.status === 'WAITING') {
         activeGames.push({ defense, type: 'my_defense_waiting' });

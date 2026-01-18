@@ -5,74 +5,84 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: $white;
-  box-shadow: 0 -4px 20px rgba($black, 0.08);
   z-index: $z-header;
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  background: $bg-secondary;
+  border-top: 1px solid $border-color;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
   max-width: 428px;
   margin: 0 auto;
-  padding: $spacing-sm $spacing-md;
-  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-lg;
+  position: relative;
 }
 
-.navItem {
+.item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: $spacing-xs;
   padding: $spacing-sm $spacing-md;
   border-radius: $radius-lg;
+  color: $text-muted;
   transition: all $transition-fast;
-  background: transparent;
-  min-width: 56px;
+  min-width: 60px;
+  position: relative;
 
   &:hover {
-    background: $gray-100;
+    color: $text-secondary;
   }
 
   &.active {
-    .icon {
-      transform: scale(1.1);
-    }
+    color: $primary-400;
 
-    .label {
-      color: $primary-600;
-      font-weight: 600;
+    .icon {
+      background: rgba($primary-500, 0.15);
     }
   }
 }
 
 .icon {
-  font-size: 24px;
-  line-height: 1;
-  transition: transform $transition-fast;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-lg;
+  font-size: $text-xl;
+  transition: all $transition-fast;
 }
 
 .label {
-  font-size: 10px;
-  color: $gray-500;
-  transition: all $transition-fast;
+  font-size: $text-xs;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-.myGamesBtn {
-  padding: $spacing-sm $spacing-xl;
+// Central action button (create defense)
+.centerBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-top: -$spacing-xl;
   background: $gradient-primary;
+  border-radius: $radius-lg;
   color: $white;
-  border-radius: $radius-full;
-  font-size: $text-sm;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba($primary-600, 0.3);
+  font-size: $text-2xl;
+  box-shadow: $shadow-glow-blue;
   transition: all $transition-fast;
 
   &:hover {
-    box-shadow: 0 6px 16px rgba($primary-600, 0.4);
-    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba($primary-500, 0.5);
+    transform: translateY(-2px);
   }
 
   &:active {
@@ -80,7 +90,24 @@
   }
 
   &.active {
-    background: $primary-700;
-    box-shadow: 0 4px 12px rgba($primary-700, 0.4);
+    background: $gradient-primary-hover;
   }
+}
+
+// Badge for notifications
+.badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 $spacing-xs;
+  background: $red-500;
+  border-radius: $radius-full;
+  font-size: 10px;
+  font-weight: 700;
+  color: $white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

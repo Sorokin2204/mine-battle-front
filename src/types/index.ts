@@ -1,6 +1,7 @@
 export type DefenseStatus = 'WAITING' | 'IN_PROGRESS' | 'FINISHED' | 'EXPIRED' | 'CANCELLED';
 export type GameResult = 'ATTACKER_WIN' | 'DEFENDER_WIN' | 'ATTACKER_TOOK_HALF' | 'TIMEOUT' | 'EXPIRED';
 export type MoveType = 'CLICK' | 'SCANNER' | 'RADAR' | 'TAKE_HALF';
+export type DifficultyLevel = 'EASY' | 'MEDIUM' | 'HARD';
 
 export interface UserPublic {
   id: number;
@@ -29,6 +30,7 @@ export interface DefensePublic {
   creator: UserPublic;
   attacker: UserPublic | null;
   bet: number;
+  difficulty: DifficultyLevel;
   status: DefenseStatus;
   expiresAt: string;
   attackStartedAt: string | null;
@@ -38,6 +40,7 @@ export interface DefensePublic {
   radarsUsed: number;
   bombsFound: number;
   revealedCells: number[];
+  foundBombPositions: number[]; // Positions where bombs were found during game
   scannerResults: ScannerResult[] | null;
   radarResults: RadarResult[] | null;
   result: GameResult | null;

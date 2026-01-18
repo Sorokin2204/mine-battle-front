@@ -4,8 +4,8 @@
   position: sticky;
   top: 0;
   z-index: $z-header;
-  background: $white;
-  box-shadow: $shadow-sm;
+  background: $bg-secondary;
+  border-bottom: 1px solid $border-color;
 }
 
 .container {
@@ -29,9 +29,12 @@
 }
 
 .logoText {
-  font-size: $text-lg;
+  font-family: $font-family-heading;
+  font-size: $text-xl;
   font-weight: 700;
-  color: $text-primary;
+  color: $primary-400;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .right {
@@ -43,14 +46,22 @@
 .balance {
   display: flex;
   align-items: center;
-  gap: $spacing-xs;
-  padding: $spacing-xs $spacing-md;
-  background: $gray-100;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-lg;
+  background: $bg-card;
+  border: 1px solid $border-color;
   border-radius: $radius-full;
 }
 
 .balanceIcon {
-  font-size: $text-md;
+  width: 20px;
+  height: 20px;
+  background: $gradient-primary;
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $text-xs;
 }
 
 .balanceAmount {
@@ -59,17 +70,56 @@
   color: $text-primary;
 }
 
-.devLogin {
-  padding: $spacing-xs $spacing-md;
-  background: $purple-100;
-  color: $purple-700;
-  border-radius: $radius-full;
-  font-size: $text-sm;
-  font-weight: 600;
+.addBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-left: $spacing-xs;
+  background: $gradient-primary;
+  border-radius: $radius-sm;
+  color: $white;
+  font-size: $text-md;
   transition: all $transition-fast;
 
   &:hover {
-    background: $purple-200;
+    transform: scale(1.05);
+  }
+}
+
+.devLogin {
+  padding: $spacing-sm $spacing-md;
+  background: $purple-100;
+  color: $purple-400;
+  border-radius: $radius-lg;
+  font-size: $text-sm;
+  font-weight: 600;
+  transition: all $transition-fast;
+  border: 1px solid rgba($purple-400, 0.3);
+
+  &:hover {
+    background: rgba($purple-400, 0.2);
+  }
+}
+
+.profileBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  color: $text-secondary;
+  font-size: $text-lg;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: $bg-card-hover;
+    border-color: $border-color-hover;
+    color: $text-primary;
   }
 }
 
@@ -77,15 +127,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: $red-100;
-  color: $red-600;
-  border-radius: $radius-full;
+  width: 36px;
+  height: 36px;
+  background: $red-50;
+  color: $red-400;
+  border-radius: $radius-lg;
   font-size: $text-md;
   transition: all $transition-fast;
+  border: 1px solid rgba($red-400, 0.2);
 
   &:hover {
-    background: $red-200;
+    background: rgba($red-400, 0.2);
+    border-color: rgba($red-400, 0.3);
   }
 }

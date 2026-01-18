@@ -21,24 +21,27 @@
     color: $text-primary;
 
     &.timer--badge {
-      background: $gray-100;
+      background: $bg-card;
+      border: 1px solid $border-color;
     }
   }
 
   &--warning {
-    color: $yellow-600;
+    color: $yellow-400;
 
     &.timer--badge {
-      background: $yellow-100;
+      background: rgba($yellow-500, 0.15);
+      border: 1px solid rgba($yellow-500, 0.3);
     }
   }
 
   &--danger {
-    color: $red-600;
+    color: $red-400;
     animation: pulse 1s ease-in-out infinite;
 
     &.timer--badge {
-      background: $red-100;
+      background: rgba($red-500, 0.15);
+      border: 1px solid rgba($red-500, 0.3);
     }
   }
 }

@@ -18,7 +18,14 @@ const HistoryPage: React.FC = () => {
       try {
         setIsLoading(true);
         const data = await socketService.getDefenses({ includeFinished: true });
-        const finished = data.filter((d) => d.status === 'FINISHED');
+        const finished = data
+          .filter((d) => d.status === 'FINISHED')
+          .sort((a, b) => {
+            // Sort by finishedAt descending (newest first)
+            const dateA = a.finishedAt ? new Date(a.finishedAt).getTime() : 0;
+            const dateB = b.finishedAt ? new Date(b.finishedAt).getTime() : 0;
+            return dateB - dateA;
+          });
         setFinishedGames(finished);
       } catch (error) {
         console.error('Failed to load history:', error);

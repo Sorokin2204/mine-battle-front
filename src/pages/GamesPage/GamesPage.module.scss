@@ -13,13 +13,23 @@
 }
 
 .title {
+  font-family: $font-family-heading;
   font-size: $text-2xl;
   font-weight: 700;
   color: $text-primary;
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .filterBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.headerRight {
   display: flex;
   align-items: center;
   gap: $spacing-sm;
@@ -32,20 +42,21 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: $white;
-  border: 1px solid $gray-200;
+  background: $bg-card;
+  border: 1px solid $border-color;
   border-radius: $radius-lg;
-  color: $gray-500;
+  color: $text-secondary;
   transition: all $transition-fast;
 
   &:hover {
-    border-color: $primary-300;
-    color: $primary-600;
+    border-color: $border-color-hover;
+    color: $text-primary;
   }
 
   &--active {
     border-color: $primary-500;
-    color: $primary-600;
+    color: $primary-400;
+    background: rgba($primary-500, 0.1);
   }
 }
 
@@ -59,53 +70,108 @@
   border-radius: $radius-full;
 }
 
-.tabs {
+.historyBtn {
   display: flex;
-  flex: 1;
-  gap: $spacing-xs;
-  overflow-x: auto;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-.tab {
-  padding: $spacing-sm $spacing-md;
-  background: $white;
-  border: 1px solid $gray-200;
-  border-radius: $radius-full;
-  font-size: $text-sm;
-  font-weight: 500;
-  color: $gray-600;
-  white-space: nowrap;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  color: $text-secondary;
   transition: all $transition-fast;
 
   &:hover {
-    border-color: $primary-300;
+    border-color: $border-color-hover;
+    color: $text-primary;
+  }
+}
+
+.filterPopup {
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-xl;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.filterSectionLabel {
+  font-size: $text-xs;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.tabs {
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.tab {
+  flex: 1;
+  padding: $spacing-sm $spacing-md;
+  background: $bg-secondary;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: 500;
+  color: $text-secondary;
+  white-space: nowrap;
+  transition: all $transition-fast;
+  text-align: center;
+
+  &:hover {
+    border-color: $border-color-hover;
+    color: $text-primary;
   }
 
   &--active {
-    background: $primary-500;
-    border-color: $primary-500;
+    background: $gradient-primary;
+    border-color: transparent;
     color: $white;
   }
 }
 
-.sortBtn {
+.sortOptions {
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.sortOption {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 2px;
+  justify-content: center;
+  gap: $spacing-xs;
   padding: $spacing-sm $spacing-md;
-  background: $white;
-  border: 1px solid $gray-200;
-  border-radius: $radius-lg;
-  color: $yellow-500;
+  background: $bg-secondary;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: 500;
+  color: $text-secondary;
   transition: all $transition-fast;
 
   &:hover {
+    border-color: $border-color-hover;
+    color: $text-primary;
+  }
+
+  &--active {
     border-color: $yellow-400;
+    color: $yellow-400;
+    background: rgba($yellow-400, 0.1);
   }
 }
 
@@ -113,109 +179,60 @@
   font-size: $text-md;
 }
 
-.sortArrow {
-  color: $gray-500;
-  transition: transform $transition-fast;
-
-  &--asc {
-    transform: rotate(180deg);
-  }
-}
-
-.historyBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: $white;
-  border: 1px solid $gray-200;
-  border-radius: $radius-lg;
-  color: $gray-500;
-  transition: all $transition-fast;
-
-  &:hover {
-    border-color: $primary-300;
-    color: $primary-600;
-  }
-}
-
-.filterPopup {
-  background: $white;
-  border: 1px solid $gray-200;
-  border-radius: $radius-lg;
-  padding: $spacing-md;
-  box-shadow: $shadow-lg;
-}
-
 .filterInputs {
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  margin-bottom: $spacing-md;
 }
 
 .filterField {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   flex: 1;
 
-  label {
-    font-size: $text-xs;
-    color: $gray-500;
-  }
-
   input {
-    padding: $spacing-sm;
-    border: 1px solid $gray-200;
+    width: 100%;
+    padding: $spacing-sm $spacing-md;
+    background: $bg-input;
+    border: 1px solid $border-color;
     border-radius: $radius-md;
     font-size: $text-sm;
+    color: $text-primary;
 
     &:focus {
       outline: none;
-      border-color: $primary-400;
+      border-color: $primary-500;
+    }
+
+    &::placeholder {
+      color: $text-muted;
     }
   }
 }
 
 .filterDash {
-  color: $gray-400;
-  margin-top: $spacing-lg;
+  color: $text-muted;
 }
 
 .filterActions {
   display: flex;
-  justify-content: flex-end;
-  gap: $spacing-sm;
-}
-
-.filterApply,
-.filterReset {
-  display: flex;
-  align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: $radius-md;
-  transition: all $transition-fast;
-}
-
-.filterApply {
-  background: $primary-500;
-  color: $white;
-
-  &:hover {
-    background: $primary-600;
-  }
+  padding-top: $spacing-sm;
+  border-top: 1px solid $border-color;
 }
 
 .filterReset {
-  background: $gray-100;
-  color: $gray-600;
+  padding: $spacing-sm $spacing-xl;
+  background: transparent;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: 500;
+  color: $text-secondary;
+  transition: all $transition-fast;
 
   &:hover {
-    background: $gray-200;
+    border-color: $red-400;
+    color: $red-400;
+    background: rgba($red-400, 0.1);
   }
 }
 
@@ -226,6 +243,7 @@
 }
 
 .empty {
+  grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -237,6 +255,7 @@
 .emptyIcon {
   font-size: 64px;
   margin-bottom: $spacing-lg;
+  opacity: 0.5;
 }
 
 .emptyText {
@@ -248,6 +267,6 @@
 
 .emptyHint {
   font-size: $text-sm;
-  color: $gray-500;
+  color: $text-secondary;
   margin: 0;
 }

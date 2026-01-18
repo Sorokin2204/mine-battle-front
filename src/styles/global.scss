@@ -1,5 +1,60 @@
 @import './variables.scss';
 
+// Font faces - GothamPro
+@font-face {
+  font-family: 'GothamPro';
+  src: url('/fonts/GothamPro/GothamPro-Light.woff') format('woff'),
+       url('/fonts/GothamPro/GothamPro-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GothamPro';
+  src: url('/fonts/GothamPro/GothamPro.woff') format('woff'),
+       url('/fonts/GothamPro/GothamPro.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GothamPro';
+  src: url('/fonts/GothamPro/GothamPro-Medium.woff') format('woff'),
+       url('/fonts/GothamPro/GothamPro-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GothamPro';
+  src: url('/fonts/GothamPro/GothamPro-Bold.woff') format('woff'),
+       url('/fonts/GothamPro/GothamPro-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GothamPro';
+  src: url('/fonts/GothamPro/GothamPro-Black.woff') format('woff'),
+       url('/fonts/GothamPro/GothamPro-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Halvar Breit';
+  src: url('/fonts/Halvar/HalvarBreit-Bd.woff2') format('woff2'),
+       url('/fonts/Halvar/HalvarBreit-Bd.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -11,18 +66,20 @@ body {
   height: 100%;
   font-family: $font-family;
   font-size: $text-md;
-  background-color: $bg;
+  background-color: $bg-primary;
   color: $text-primary;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   user-select: none;
   overflow-x: hidden;
+  line-height: 1.4;
 }
 
 #root {
   min-height: 100%;
   display: flex;
   flex-direction: column;
+  background: $bg-primary;
 }
 
 a {
@@ -35,12 +92,19 @@ button {
   background: none;
   cursor: pointer;
   font-family: inherit;
+  color: inherit;
 }
 
 input {
   font-family: inherit;
   border: none;
   outline: none;
+  background: $bg-input;
+  color: $text-primary;
+
+  &::placeholder {
+    color: $text-muted;
+  }
 }
 
 ul, ol {
@@ -52,19 +116,30 @@ img {
   height: auto;
 }
 
-// Scrollbar styles
+// Scrollbar styles (dark theme)
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: $bg-secondary;
+  border-radius: $radius-full;
 }
 
 ::-webkit-scrollbar-thumb {
   background: $gray-400;
   border-radius: $radius-full;
+
+  &:hover {
+    background: $gray-500;
+  }
+}
+
+// Selection
+::selection {
+  background: rgba($primary-500, 0.3);
+  color: $white;
 }
 
 // Utility classes
@@ -105,4 +180,45 @@ img {
 
 .h-full {
   height: 100%;
+}
+
+.text-secondary {
+  color: $text-secondary;
+}
+
+.text-muted {
+  color: $text-muted;
+}
+
+// Card base style
+.card {
+  background: $bg-card;
+  border-radius: $radius-lg;
+  border: 1px solid $border-color;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: $border-color-hover;
+  }
+}
+
+// Input base style
+.input {
+  width: 100%;
+  padding: $spacing-md $spacing-lg;
+  background: $bg-input;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  color: $text-primary;
+  font-size: $text-md;
+  transition: all $transition-fast;
+
+  &:focus {
+    border-color: $primary-500;
+    box-shadow: 0 0 0 3px rgba($primary-500, 0.2);
+  }
+
+  &::placeholder {
+    color: $text-muted;
+  }
 }

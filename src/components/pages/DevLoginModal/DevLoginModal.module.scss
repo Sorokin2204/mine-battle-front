@@ -10,13 +10,13 @@
 
 .hint {
   font-size: $text-sm;
-  color: $gray-600;
+  color: $text-secondary;
   margin: 0;
 }
 
 .codes {
   font-size: $text-xs;
-  color: $gray-400;
+  color: $text-muted;
   margin: 0;
 }
 
@@ -28,11 +28,17 @@
   font-weight: 700;
   text-align: center;
   letter-spacing: 0.5em;
-  background: $gray-100;
+  background: $bg-input;
+  border: 1px solid $border-color;
   border-radius: $radius-lg;
   color: $text-primary;
 
+  &:focus {
+    border-color: $primary-500;
+  }
+
   &::placeholder {
-    color: $gray-300;
+    color: $text-muted;
+    letter-spacing: normal;
   }
 }

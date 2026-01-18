@@ -13,21 +13,25 @@
   font-size: $text-sm;
   font-weight: 600;
   box-shadow: $shadow-lg;
-  z-index: $z-tooltip;
+  z-index: $z-toast;
   cursor: pointer;
+  border: 1px solid transparent;
 
   &--success {
-    background: $primary-500;
+    background: rgba($green-500, 0.95);
+    border-color: $green-400;
     color: $white;
   }
 
   &--error {
-    background: $red-500;
+    background: rgba($red-500, 0.95);
+    border-color: $red-400;
     color: $white;
   }
 
   &--info {
-    background: $blue-500;
+    background: rgba($primary-500, 0.95);
+    border-color: $primary-400;
     color: $white;
   }
 }

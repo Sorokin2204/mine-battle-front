@@ -10,10 +10,10 @@
 .grid {
   display: grid;
   gap: 8px;
-  background: $white;
+  background: $bg-card;
   padding: $spacing-md;
   border-radius: $radius-lg;
-  box-shadow: $shadow-md;
+  border: 1px solid $border-color;
 }
 
 .cell {
@@ -21,8 +21,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(145deg, $gray-100, $gray-200);
-  border: 2px solid transparent;
+  background: $bg-secondary;
+  border: 2px solid $border-color;
   border-radius: $radius-md;
   font-size: 24px;
   cursor: default;
@@ -34,13 +34,13 @@
     cursor: pointer;
 
     &:hover:not(.cell--disabled) {
-      background: linear-gradient(145deg, $gray-200, $gray-300);
-      border-color: $primary-300;
+      background: $bg-card-hover;
+      border-color: $primary-400;
     }
   }
 
   &--selected {
-    background: linear-gradient(145deg, $red-100, $red-200);
+    background: rgba($red-500, 0.2);
     border-color: $red-400;
   }
 
@@ -49,45 +49,52 @@
   }
 
   &--bomb {
-    background: linear-gradient(145deg, $primary-200, $primary-300);
-    border-color: $primary-500;
+    background: rgba($green-500, 0.2);
+    border-color: $green-400;
   }
 
   &--safe {
-    background: linear-gradient(145deg, $red-100, $red-200);
+    background: rgba($red-500, 0.2);
     border-color: $red-400;
   }
 
   &--scanner {
-    background: linear-gradient(145deg, $purple-100, $purple-200);
+    background: rgba($purple-500, 0.2);
     border-color: $purple-400;
-    box-shadow: 0 0 10px rgba($purple-500, 0.3);
+    box-shadow: 0 0 15px rgba($purple-500, 0.3);
   }
 
   &--radar {
-    background: linear-gradient(145deg, $blue-100, $blue-200);
-    border-color: $blue-400;
-    box-shadow: 0 0 10px rgba($blue-500, 0.3);
+    background: rgba($primary-500, 0.2);
+    border-color: $primary-400;
+    box-shadow: 0 0 15px rgba($primary-500, 0.3);
   }
 
   &--disabled {
-    opacity: 0.7;
+    opacity: 0.5;
     pointer-events: none;
   }
 }
 
 .bombIcon,
 .safeIcon,
-.hiddenBomb {
+.hiddenBomb,
+.foundBombIcon {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .safeIcon {
-  color: $red-600;
+  color: $red-400;
   font-weight: bold;
   font-size: 20px;
+}
+
+.foundBombIcon {
+  color: $green-400;
+  font-weight: bold;
+  font-size: 22px;
 }
 
 .hiddenBomb {
@@ -99,7 +106,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba($purple-600, 0.9);
+  background: rgba($purple-600, 0.95);
   color: $white;
   padding: $spacing-md $spacing-xl;
   border-radius: $radius-full;
@@ -107,6 +114,8 @@
   font-weight: bold;
   pointer-events: none;
   z-index: 10;
+  border: 2px solid $purple-400;
+  box-shadow: 0 4px 20px rgba($purple-500, 0.5);
 }
 
 .scannerCount {
@@ -121,7 +130,7 @@
 }
 
 .scannerOverlay--preview {
-  background: rgba($purple-500, 0.7);
+  background: rgba($purple-500, 0.8);
   border: 2px dashed $white;
   animation: pulse 1s ease-in-out infinite;
 }
@@ -132,13 +141,15 @@
 
 .radarOverlay {
   position: absolute;
-  background: rgba($blue-600, 0.9);
+  background: rgba($primary-600, 0.95);
   color: $white;
   padding: $spacing-sm $spacing-md;
   border-radius: $radius-full;
   font-weight: bold;
   pointer-events: none;
   z-index: 10;
+  border: 2px solid $primary-400;
+  box-shadow: 0 4px 20px rgba($primary-500, 0.5);
 
   &--row {
     left: -40px;
@@ -163,7 +174,7 @@
 }
 
 .radarOverlay--preview {
-  background: rgba($blue-500, 0.7);
+  background: rgba($primary-500, 0.8);
   border: 2px dashed $white;
   animation: pulse 1s ease-in-out infinite;
 }
@@ -179,4 +190,78 @@
   50% {
     opacity: 0.6;
   }
+}
+
+// Draggable Scanner
+.draggableScanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba($purple-500, 0.3);
+  border: 3px dashed $purple-400;
+  border-radius: $radius-lg;
+  box-shadow: 0 0 20px rgba($purple-500, 0.4);
+  animation: pulse 1.5s ease-in-out infinite;
+  user-select: none;
+
+  &--dragging {
+    background: rgba($purple-500, 0.5);
+    border-style: solid;
+    box-shadow: 0 0 30px rgba($purple-500, 0.6);
+    animation: none;
+  }
+}
+
+.scannerDragIcon {
+  font-size: 28px;
+  margin-bottom: $spacing-xs;
+}
+
+.scannerDragText {
+  font-size: $text-sm;
+  font-weight: bold;
+  color: $white;
+  background: rgba($purple-600, 0.9);
+  padding: $spacing-2xs $spacing-sm;
+  border-radius: $radius-sm;
+}
+
+// Draggable Radar
+.draggableRadar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  background: rgba($primary-500, 0.3);
+  border: 3px dashed $primary-400;
+  border-radius: $radius-full;
+  box-shadow: 0 0 20px rgba($primary-500, 0.4);
+  animation: pulse 1.5s ease-in-out infinite;
+  user-select: none;
+
+  &--row {
+    flex-direction: row;
+  }
+
+  &--column {
+    flex-direction: column;
+  }
+
+  &--dragging {
+    background: rgba($primary-500, 0.5);
+    border-style: solid;
+    box-shadow: 0 0 30px rgba($primary-500, 0.6);
+    animation: none;
+  }
+}
+
+.radarDragIcon {
+  font-size: 20px;
+}
+
+.radarDragText {
+  font-size: $text-md;
+  font-weight: bold;
+  color: $white;
 }

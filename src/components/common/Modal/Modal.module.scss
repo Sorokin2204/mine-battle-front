@@ -13,8 +13,8 @@
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba($black, 0.5);
-  backdrop-filter: blur(4px);
+  background: rgba($black, 0.7);
+  backdrop-filter: blur(8px);
 }
 
 .modal {
@@ -22,8 +22,10 @@
   width: 100%;
   max-width: 428px;
   max-height: 90vh;
-  background: $white;
+  background: $bg-secondary;
   border-radius: $radius-xl $radius-xl 0 0;
+  border: 1px solid $border-color;
+  border-bottom: none;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -34,7 +36,8 @@
   align-items: center;
   justify-content: space-between;
   padding: $spacing-lg $spacing-xl;
-  border-bottom: 1px solid $gray-200;
+  border-bottom: 1px solid $border-color;
+  background: $bg-card;
 }
 
 .title {
@@ -42,21 +45,26 @@
   font-weight: 700;
   color: $text-primary;
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .closeBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: $radius-full;
-  color: $gray-500;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-lg;
+  color: $text-secondary;
   transition: all $transition-fast;
+  background: transparent;
+  border: 1px solid transparent;
 
   &:hover {
-    background: $gray-100;
-    color: $gray-700;
+    background: rgba($white, 0.05);
+    border-color: $border-color;
+    color: $text-primary;
   }
 }
 
@@ -64,4 +72,19 @@
   flex: 1;
   overflow-y: auto;
   padding: $spacing-xl;
+  background: $bg-secondary;
+}
+
+// Dashed border separator (BetusX style)
+.separator {
+  width: 100%;
+  height: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    $border-color 0,
+    $border-color 8px,
+    transparent 8px,
+    transparent 16px
+  );
+  margin: $spacing-lg 0;
 }

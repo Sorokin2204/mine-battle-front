@@ -7,20 +7,34 @@
 }
 
 .banner {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: $spacing-2xl;
   border-radius: $radius-xl;
-  background: linear-gradient(135deg, $red-500 0%, $red-600 100%);
+  background: linear-gradient(135deg, #DC2626 0%, #EF4444 50%, #F87171 100%);
   color: $white;
   cursor: pointer;
   transition: all $transition-fast;
-  box-shadow: 0 8px 24px rgba($red-600, 0.3);
+  box-shadow: 0 8px 32px rgba(#DC2626, 0.4);
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: rgba($white, 0.1);
+    border-radius: 50%;
+    pointer-events: none;
+  }
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba($red-600, 0.4);
+    box-shadow: 0 12px 40px rgba(#DC2626, 0.5);
   }
 
   &:active {
@@ -29,18 +43,82 @@
 }
 
 .bannerDefense {
-  background: linear-gradient(135deg, $blue-500 0%, $blue-600 100%);
-  box-shadow: 0 8px 24px rgba($blue-600, 0.3);
+  background: linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%);
+  box-shadow: 0 8px 32px rgba(#2563EB, 0.4);
 
   &:hover {
-    box-shadow: 0 12px 32px rgba($blue-600, 0.4);
+    box-shadow: 0 12px 40px rgba(#2563EB, 0.5);
   }
+}
+
+// Attack section with split buttons
+.attackSection {
+  background: linear-gradient(135deg, #DC2626 0%, #EF4444 50%, #F87171 100%);
+  border-radius: $radius-xl;
+  padding: $spacing-md;
+  box-shadow: 0 8px 32px rgba(#DC2626, 0.4);
+}
+
+.attackButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-sm;
+}
+
+.attackBtn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  background: rgba($white, 0.1);
+  backdrop-filter: blur(4px);
+  border-radius: $radius-lg;
+  cursor: pointer;
+  transition: all $transition-fast;
+  border: 1px solid rgba($white, 0.1);
+  color: $white;
+  position: relative;
+
+  &:hover {
+    background: rgba($white, 0.2);
+    border-color: rgba($white, 0.2);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.attackIcon {
+  font-size: 28px;
+}
+
+.attackText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.attackTitle {
+  font-family: $font-family-heading;
+  font-size: $text-sm;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.attackDesc {
+  font-size: $text-xs;
+  opacity: 0.8;
 }
 
 .bannerContent {
   display: flex;
   align-items: center;
   gap: $spacing-lg;
+  position: relative;
+  z-index: 1;
 }
 
 .bannerIcon {
@@ -54,9 +132,12 @@
 }
 
 .bannerTitle {
+  font-family: $font-family-heading;
   font-size: $text-xl;
   font-weight: 700;
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .bannerDesc {
@@ -69,19 +150,23 @@
   display: flex;
   align-items: center;
   gap: $spacing-sm;
+  position: relative;
+  z-index: 1;
 }
 
 .counter {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 28px;
-  height: 28px;
+  min-width: 32px;
+  height: 32px;
   padding: 0 $spacing-sm;
   background: rgba($white, 0.2);
+  backdrop-filter: blur(4px);
   border-radius: $radius-full;
   font-size: $text-sm;
   font-weight: 700;
+  border: 1px solid rgba($white, 0.2);
 }
 
 .bannerArrow {
@@ -91,10 +176,10 @@
 }
 
 .info {
-  background: $white;
+  background: $bg-card;
   padding: $spacing-2xl;
   border-radius: $radius-xl;
-  box-shadow: $shadow-md;
+  border: 1px solid $border-color;
 }
 
 .infoTitle {
@@ -102,6 +187,8 @@
   font-weight: 700;
   color: $text-primary;
   margin: 0 0 $spacing-lg;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .infoList {
@@ -122,17 +209,18 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  background: $primary-100;
-  color: $primary-700;
+  background: $primary-50;
+  color: $primary-400;
   border-radius: $radius-full;
   font-size: $text-sm;
   font-weight: 700;
   flex-shrink: 0;
+  border: 1px solid rgba($primary-400, 0.3);
 }
 
 .infoItem p {
   font-size: $text-sm;
-  color: $gray-600;
+  color: $text-secondary;
   margin: 0;
   line-height: 1.5;
 }

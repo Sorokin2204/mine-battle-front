@@ -5,34 +5,39 @@
   align-items: center;
   gap: $spacing-md;
   padding: $spacing-md $spacing-lg;
-  background: $white;
+  background: $bg-card;
   border-radius: $radius-lg;
-  box-shadow: $shadow-sm;
   cursor: pointer;
   transition: all $transition-fast;
-  border: 1px solid $gray-100;
+  border: 1px solid $border-color;
 
   &:hover {
-    box-shadow: $shadow-md;
+    border-color: $border-color-hover;
+    background: $bg-card-hover;
   }
 
   &--win {
-    border-color: $primary-200;
-    background: linear-gradient(135deg, $white 0%, $primary-50 100%);
+    border-color: rgba($green-500, 0.3);
+    background: linear-gradient(135deg, $bg-card 0%, rgba($green-500, 0.1) 100%);
   }
 
   &--lose {
-    border-color: $red-200;
-    background: linear-gradient(135deg, $white 0%, $red-50 100%);
+    border-color: rgba($red-500, 0.3);
+    background: linear-gradient(135deg, $bg-card 0%, rgba($red-500, 0.1) 100%);
   }
 
   &--waiting {
-    border-color: $blue-200;
+    border-color: rgba($primary-500, 0.3);
   }
 
   &--active {
-    border-color: $red-300;
-    background: linear-gradient(135deg, $white 0%, $red-50 100%);
+    border-color: rgba($red-500, 0.3);
+    background: linear-gradient(135deg, $bg-card 0%, rgba($red-500, 0.1) 100%);
+  }
+
+  &--refund {
+    border-color: rgba($gray-500, 0.3);
+    background: linear-gradient(135deg, $bg-card 0%, rgba($gray-500, 0.1) 100%);
   }
 }
 
@@ -46,21 +51,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $gray-200;
-  border: 2px dashed $gray-300;
+  background: $bg-secondary;
+  border: 2px dashed $border-color-hover;
   border-radius: $radius-full;
   font-size: $text-md;
-  color: $gray-400;
+  color: $text-muted;
+}
+
+.roleInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
 }
 
 .roleIcon {
-  position: absolute;
-  bottom: -4px;
-  right: -4px;
   font-size: 14px;
-  background: $white;
-  border-radius: $radius-full;
-  padding: 2px;
 }
 
 .center {
@@ -80,7 +86,7 @@
 .betLabel,
 .resultLabel {
   font-size: $text-xs;
-  color: $gray-500;
+  color: $text-muted;
 }
 
 .betAmount {
@@ -100,11 +106,15 @@
   font-weight: 700;
 
   &--win {
-    color: $primary-600;
+    color: $green-400;
   }
 
   &--lose {
-    color: $red-600;
+    color: $red-400;
+  }
+
+  &--refund {
+    color: $gray-400;
   }
 }
 
@@ -115,7 +125,7 @@
 
 .multiplier {
   font-size: $text-xs;
-  color: $gray-500;
+  color: $text-muted;
 }
 
 .right {
@@ -129,17 +139,26 @@
 }
 
 .trophy {
-  background: $primary-100;
+  background: rgba($green-500, 0.2);
   border-radius: $radius-full;
   padding: $spacing-xs;
   display: flex;
 }
 
 .defeat {
-  background: $red-100;
+  background: rgba($red-500, 0.2);
   border-radius: $radius-full;
   padding: $spacing-xs;
   display: flex;
+}
+
+.refund {
+  background: rgba($gray-500, 0.2);
+  border-radius: $radius-full;
+  padding: $spacing-xs;
+  display: flex;
+  font-size: 24px;
+  color: $gray-400;
 }
 
 .statusInfo {
@@ -160,6 +179,12 @@
 .timeLeft {
   font-size: $text-xs;
   font-weight: 600;
-  color: $red-500;
+  color: $red-400;
   font-variant-numeric: tabular-nums;
+}
+
+.finishedTime {
+  font-size: $text-xs;
+  color: $text-muted;
+  white-space: nowrap;
 }

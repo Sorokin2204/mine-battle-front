@@ -11,45 +11,168 @@
 }
 
 .title {
+  font-family: $font-family-heading;
   font-size: $text-2xl;
   font-weight: 700;
   color: $text-primary;
   margin: 0 0 $spacing-xs;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .subtitle {
   font-size: $text-sm;
-  color: $gray-500;
+  color: $text-secondary;
   margin: 0;
 }
 
-.betSection {
-  background: $white;
+.difficultySection {
+  background: $bg-card;
   padding: $spacing-xl;
   border-radius: $radius-xl;
-  box-shadow: $shadow-md;
+  border: 1px solid $border-color;
+}
+
+.difficultyButtons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.difficultyBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-2xs;
+  padding: $spacing-md $spacing-sm;
+  background: $bg-secondary;
+  border: 2px solid $border-color;
+  border-radius: $radius-lg;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: $border-color-hover;
+  }
+
+  &.active {
+    border-color: $primary-400;
+    background: rgba($primary-500, 0.1);
+  }
+
+  &--easy {
+    &.active {
+      border-color: $green-400;
+      background: rgba($green-500, 0.1);
+
+      .difficultyLabel {
+        color: $green-400;
+      }
+    }
+  }
+
+  &--medium {
+    &.active {
+      border-color: $yellow-400;
+      background: rgba($yellow-500, 0.1);
+
+      .difficultyLabel {
+        color: $yellow-400;
+      }
+    }
+  }
+
+  &--hard {
+    &.active {
+      border-color: $red-400;
+      background: rgba($red-500, 0.1);
+
+      .difficultyLabel {
+        color: $red-400;
+      }
+    }
+  }
+}
+
+.difficultyLabel {
+  font-size: $text-sm;
+  font-weight: 700;
+  color: $text-primary;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.difficultyDesc {
+  font-size: $text-xs;
+  color: $text-muted;
+}
+
+.difficultyStats {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-lg;
+  padding-top: $spacing-sm;
+  border-top: 1px solid $border-color;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.statIcon {
+  font-size: $text-sm;
+}
+
+.statValue {
+  font-size: $text-xs;
+  color: $text-secondary;
+  font-weight: 500;
+}
+
+.betSection {
+  background: $bg-card;
+  padding: $spacing-xl;
+  border-radius: $radius-xl;
+  border: 1px solid $border-color;
 }
 
 .label {
   display: block;
   font-size: $text-sm;
   font-weight: 600;
-  color: $gray-600;
+  color: $text-secondary;
   margin-bottom: $spacing-sm;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .betInput {
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  background: $gray-100;
+  background: $bg-input;
   padding: $spacing-md $spacing-lg;
   border-radius: $radius-lg;
   margin-bottom: $spacing-md;
+  border: 1px solid $border-color;
+
+  &:focus-within {
+    border-color: $primary-500;
+  }
 }
 
 .betIcon {
   font-size: $text-xl;
+  width: 28px;
+  height: 28px;
+  background: $gradient-primary;
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $text-sm;
 }
 
 .input {
@@ -60,7 +183,7 @@
   color: $text-primary;
 
   &::placeholder {
-    color: $gray-400;
+    color: $text-muted;
   }
 }
 
@@ -72,20 +195,23 @@
 
 .quickBet {
   padding: $spacing-sm;
-  background: $gray-100;
+  background: $bg-secondary;
+  border: 1px solid $border-color;
   border-radius: $radius-md;
   font-size: $text-sm;
   font-weight: 600;
-  color: $gray-600;
+  color: $text-secondary;
   transition: all $transition-fast;
 
   &:hover {
-    background: $gray-200;
+    border-color: $border-color-hover;
+    color: $text-primary;
   }
 
   &.active {
-    background: $primary-100;
-    color: $primary-700;
+    background: rgba($primary-500, 0.15);
+    border-color: $primary-400;
+    color: $primary-400;
   }
 }
 
@@ -109,11 +235,11 @@
 
 .clearBtn {
   font-size: $text-sm;
-  color: $red-500;
+  color: $red-400;
   font-weight: 500;
 
   &:hover {
-    color: $red-600;
+    color: $red-300;
   }
 }
 
@@ -124,10 +250,10 @@
 }
 
 .summary {
-  background: $white;
+  background: $bg-card;
   padding: $spacing-lg;
   border-radius: $radius-lg;
-  box-shadow: $shadow-sm;
+  border: 1px solid $border-color;
 }
 
 .summaryRow {
@@ -138,7 +264,7 @@
   font-size: $text-sm;
 
   span:first-child {
-    color: $gray-500;
+    color: $text-secondary;
   }
 
   span:last-child {

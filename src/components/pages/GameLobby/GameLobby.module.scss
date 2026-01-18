@@ -18,8 +18,9 @@
   align-items: center;
   justify-content: space-between;
   padding: $spacing-lg;
-  background: $gray-50;
+  background: $bg-card;
   border-radius: $radius-lg;
+  border: 1px solid $border-color;
 }
 
 .player {
@@ -39,7 +40,9 @@
 
 .playerRole {
   font-size: $text-xs;
-  color: $gray-500;
+  color: $text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .emptyAvatar {
@@ -48,16 +51,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $gray-200;
+  background: $bg-secondary;
+  border: 2px dashed $border-color;
   border-radius: $radius-full;
   font-size: $text-xl;
-  color: $gray-400;
+  color: $text-muted;
 }
 
 .vs {
   font-size: $text-lg;
   font-weight: 700;
-  color: $gray-400;
+  color: $text-muted;
   padding: 0 $spacing-md;
 }
 
@@ -71,8 +75,9 @@
   flex-direction: column;
   gap: $spacing-md;
   padding: $spacing-lg;
-  background: $gray-50;
+  background: $bg-card;
   border-radius: $radius-lg;
+  border: 1px solid $border-color;
 }
 
 .infoItem {
@@ -104,7 +109,9 @@
 
 .statLabel {
   font-size: $text-xs;
-  color: $gray-500;
+  color: $text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .statValue {
@@ -125,14 +132,14 @@
   align-items: center;
   gap: $spacing-xs;
   padding: $spacing-md;
-  background: $white;
+  background: $bg-card;
   border-radius: $radius-lg;
-  border: 2px solid $gray-200;
+  border: 1px solid $border-color;
   transition: all $transition-fast;
 
   &:hover:not(:disabled) {
-    border-color: $purple-300;
-    background: $purple-50;
+    border-color: $purple-400;
+    background: rgba($purple-500, 0.1);
   }
 
   &:disabled {
@@ -141,8 +148,8 @@
   }
 
   &.active {
-    border-color: $purple-500;
-    background: $purple-100;
+    border-color: $purple-400;
+    background: rgba($purple-500, 0.15);
   }
 }
 
@@ -162,14 +169,16 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  background: $gray-100;
+  background: $bg-secondary;
+  border: 1px solid $border-color;
   border-radius: $radius-full;
   font-size: $text-xs;
   font-weight: 700;
-  color: $gray-600;
+  color: $text-secondary;
 
   .active & {
     background: $purple-500;
+    border-color: $purple-400;
     color: $white;
   }
 }
@@ -180,13 +189,134 @@
   justify-content: center;
   gap: $spacing-sm;
   padding: $spacing-md;
-  background: $purple-50;
+  background: rgba($purple-500, 0.1);
   border-radius: $radius-lg;
-  border: 2px solid $purple-200;
+  border: 1px solid rgba($purple-400, 0.3);
 }
 
 .actions {
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
+}
+
+// Pre-attack win info section
+.winInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: $spacing-md;
+  background: rgba($green-500, 0.1);
+  border-radius: $radius-lg;
+  border: 1px solid rgba($green-500, 0.2);
+}
+
+.winLabel {
+  font-size: $text-md;
+  font-weight: 700;
+  color: $green-400;
+}
+
+.winSubtext {
+  font-size: $text-xs;
+  color: $text-muted;
+}
+
+.winAmount {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-2xl;
+  font-weight: 700;
+  color: $green-400;
+}
+
+.star {
+  font-size: $text-lg;
+  color: $yellow-500;
+}
+
+// Defender bet info section
+.betInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: $spacing-md;
+  background: rgba($primary-500, 0.1);
+  border-radius: $radius-lg;
+  border: 1px solid rgba($primary-500, 0.2);
+}
+
+.betLabel {
+  font-size: $text-md;
+  font-weight: 700;
+  color: $primary-400;
+}
+
+.betAmount {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-2xl;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+// Finished game result card
+.resultCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-lg;
+  border-radius: $radius-lg;
+  border: 1px solid;
+
+  &--win {
+    background: rgba($green-500, 0.1);
+    border-color: rgba($green-500, 0.3);
+  }
+
+  &--lose {
+    background: rgba($red-500, 0.1);
+    border-color: rgba($red-500, 0.3);
+  }
+
+  &--refund {
+    background: rgba($gray-500, 0.1);
+    border-color: rgba($gray-500, 0.3);
+  }
+}
+
+.resultLabel {
+  font-size: $text-md;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.resultAmount {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-2xl;
+  font-weight: 700;
+
+  &--win {
+    color: $green-400;
+  }
+
+  &--lose {
+    color: $red-400;
+  }
+
+  &--refund {
+    color: $gray-400;
+  }
+}
+
+.finishedTime {
+  font-size: $text-sm;
+  color: $text-muted;
 }

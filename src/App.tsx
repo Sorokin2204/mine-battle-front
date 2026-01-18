@@ -8,6 +8,7 @@ import CreateDefensePage from './pages/CreateDefensePage';
 import GamesPage from './pages/GamesPage';
 import HistoryPage from './pages/HistoryPage';
 import MyGamesPage from './pages/MyGamesPage';
+import SearchAttackPage from './pages/SearchAttackPage';
 import GameLobby from './components/pages/GameLobby';
 import ResultModal from './components/pages/ResultModal';
 import DevLoginModal from './components/pages/DevLoginModal';
@@ -26,6 +27,7 @@ const AppContent: React.FC = () => {
             <Route index element={<HomePage />} />
             <Route path="create-defense" element={<CreateDefensePage />} />
             <Route path="games" element={<GamesPage />} />
+            <Route path="search-attack" element={<SearchAttackPage />} />
             <Route path="history" element={<HistoryPage />} />
             <Route path="my-games" element={<MyGamesPage />} />
           </Route>

@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { SOCKET_URL } from '@/config/game.config';
-import { DefensePublic, MoveResult, SocketResponse, UserWithBalance, MoveType } from '@/types';
+import { DefensePublic, MoveResult, SocketResponse, UserWithBalance, MoveType, DifficultyLevel } from '@/types';
 
 interface ServerToClientEvents {
   defenseCreated: (defense: DefensePublic) => void;
@@ -12,11 +12,13 @@ interface ServerToClientEvents {
   timerUpdate: (data: { defenseId: number; timeLeft: number; type: 'move' | 'defense' }) => void;
   balanceUpdated: (data: { balance: number }) => void;
   error: (data: { message: string; code?: string }) => void;
+  matchFound: (data: { defenseId: number; defense: DefensePublic }) => void;
+  matchmakingStarted: (data: { queuePosition: number }) => void;
 }
 
 interface ClientToServerEvents {
   createDefense: (
-    data: { bet: number; bombPositions: number[] },
+    data: { bet: number; bombPositions: number[]; difficulty: DifficultyLevel },
     callback: (response: SocketResponse<DefensePublic>) => void
   ) => void;
   attackDefense: (
@@ -32,7 +34,7 @@ interface ClientToServerEvents {
     callback: (response: SocketResponse<DefensePublic>) => void
   ) => void;
   getDefenses: (
-    dataOrCallback: { includeFinished?: boolean } | ((response: SocketResponse<DefensePublic[]>) => void),
+    dataOrCallback: { includeFinished?: boolean; includeExpired?: boolean } | ((response: SocketResponse<DefensePublic[]>) => void),
     callback?: (response: SocketResponse<DefensePublic[]>) => void
   ) => void;
   getDefense: (
@@ -42,6 +44,11 @@ interface ClientToServerEvents {
   joinDefenseRoom: (data: { defenseId: number }) => void;
   leaveDefenseRoom: (data: { defenseId: number }) => void;
   getMe: (callback: (response: SocketResponse<UserWithBalance>) => void) => void;
+  startMatchmaking: (
+    data: { minBet: number; maxBet: number; difficulty?: DifficultyLevel },
+    callback: (response: SocketResponse<{ queuePosition: number }>) => void
+  ) => void;
+  stopMatchmaking: (callback: (response: SocketResponse<null>) => void) => void;
 }
 
 type GameSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -105,6 +112,8 @@ class SocketService {
       'timerUpdate',
       'balanceUpdated',
       'error',
+      'matchFound',
+      'matchmakingStarted',
     ];
 
     events.forEach((event) => {
@@ -130,14 +139,14 @@ class SocketService {
   }
 
   // Game methods
-  createDefense(bet: number, bombPositions: number[]): Promise<DefensePublic> {
+  createDefense(bet: number, bombPositions: number[], difficulty: DifficultyLevel): Promise<DefensePublic> {
     return new Promise((resolve, reject) => {
       if (!this.socket) {
         reject(new Error('Socket not connected'));
         return;
       }
 
-      this.socket.emit('createDefense', { bet, bombPositions }, (response) => {
+      this.socket.emit('createDefense', { bet, bombPositions, difficulty }, (response) => {
         if (response.success && response.data) {
           resolve(response.data);
         } else {
@@ -203,7 +212,7 @@ class SocketService {
     });
   }
 
-  getDefenses(options?: { includeFinished?: boolean }): Promise<DefensePublic[]> {
+  getDefenses(options?: { includeFinished?: boolean; includeExpired?: boolean }): Promise<DefensePublic[]> {
     return new Promise((resolve, reject) => {
       if (!this.socket) {
         reject(new Error('Socket not connected'));
@@ -218,8 +227,11 @@ class SocketService {
         }
       };
 
-      if (options?.includeFinished) {
-        this.socket.emit('getDefenses', { includeFinished: true }, callback);
+      if (options?.includeFinished || options?.includeExpired) {
+        this.socket.emit('getDefenses', {
+          includeFinished: options.includeFinished ?? false,
+          includeExpired: options.includeExpired ?? false
+        }, callback);
       } else {
         this.socket.emit('getDefenses', callback);
       }
@@ -263,6 +275,40 @@ class SocketService {
           resolve(response.data);
         } else {
           reject(new Error(response.error || 'Failed to get user'));
+        }
+      });
+    });
+  }
+
+  startMatchmaking(minBet: number, maxBet: number, difficulty?: DifficultyLevel): Promise<{ queuePosition: number }> {
+    return new Promise((resolve, reject) => {
+      if (!this.socket) {
+        reject(new Error('Socket not connected'));
+        return;
+      }
+
+      this.socket.emit('startMatchmaking', { minBet, maxBet, difficulty }, (response) => {
+        if (response.success && response.data) {
+          resolve(response.data);
+        } else {
+          reject(new Error(response.error || 'Failed to start matchmaking'));
+        }
+      });
+    });
+  }
+
+  stopMatchmaking(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!this.socket) {
+        reject(new Error('Socket not connected'));
+        return;
+      }
+
+      this.socket.emit('stopMatchmaking', (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error(response.error || 'Failed to stop matchmaking'));
         }
       });
     });

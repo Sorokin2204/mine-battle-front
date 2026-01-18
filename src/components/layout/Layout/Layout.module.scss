@@ -4,6 +4,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: $bg-primary;
 }
 
 .main {
@@ -12,5 +13,5 @@
   width: 100%;
   margin: 0 auto;
   padding: $spacing-lg;
-  padding-bottom: 80px; // Space for bottom nav
+  padding-bottom: 100px; // Space for bottom nav
 }

@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { motion } from 'framer-motion';
 import styles from './DefenseCard.module.scss';
 import Avatar from '@/components/common/Avatar';
+import DifficultyIndicator from '@/components/common/DifficultyIndicator';
 import { DefensePublic } from '@/types';
 
 interface DefenseCardProps {
@@ -29,7 +30,7 @@ const DefenseCard: React.FC<DefenseCardProps> = ({ defense, isOwn, onClick }) =>
           name={defense.creator.firstName || defense.creator.username}
           size="sm"
         />
-        <div className={styles.roleIcon}>&#128737;&#65039;</div>
+        <DifficultyIndicator difficulty={defense.difficulty} />
       </div>
 
       <div className={styles.body}>

@@ -13,18 +13,19 @@
 .backdrop {
   position: absolute;
   inset: 0;
-  background: rgba($black, 0.7);
-  backdrop-filter: blur(8px);
+  background: rgba($black, 0.8);
+  backdrop-filter: blur(12px);
 }
 
 .modal {
   position: relative;
   width: 100%;
   max-width: 320px;
-  background: $white;
+  background: $bg-secondary;
   border-radius: $radius-xl;
   padding: $spacing-3xl $spacing-2xl;
   text-align: center;
+  border: 1px solid $border-color;
   box-shadow: $shadow-xl;
 }
 
@@ -35,15 +36,18 @@
 }
 
 .title {
+  font-family: $font-family-heading;
   font-size: $text-xl;
   font-weight: 700;
   color: $text-primary;
   margin: 0 0 $spacing-xs;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .subtitle {
   font-size: $text-sm;
-  color: $gray-500;
+  color: $text-secondary;
   margin: 0 0 $spacing-2xl;
 }
 
@@ -53,21 +57,24 @@
   align-items: center;
   gap: $spacing-xs;
   padding: $spacing-lg;
-  background: $primary-50;
+  background: rgba($green-500, 0.15);
+  border: 1px solid rgba($green-400, 0.3);
   border-radius: $radius-lg;
   margin-bottom: $spacing-2xl;
 }
 
 .rewardLabel {
   font-size: $text-sm;
-  color: $primary-600;
+  color: $green-400;
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .rewardAmount {
   font-size: $text-3xl;
   font-weight: 700;
-  color: $primary-700;
+  color: $green-400;
   display: flex;
   align-items: center;
   gap: $spacing-sm;

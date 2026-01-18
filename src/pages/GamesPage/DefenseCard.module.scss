@@ -5,27 +5,27 @@
   flex-direction: column;
   align-items: center;
   padding: $spacing-md;
-  background: $white;
+  background: $bg-card;
   border-radius: $radius-xl;
-  box-shadow: $shadow-sm;
   cursor: pointer;
   transition: all $transition-fast;
-  border: 2px solid $gray-100;
+  border: 1px solid $border-color;
   min-width: 100px;
 
   &:hover {
     transform: translateY(-2px);
+    border-color: $border-color-hover;
     box-shadow: $shadow-md;
   }
 
   &--own {
-    border-color: $blue-200;
-    background: linear-gradient(135deg, $blue-50 0%, $white 100%);
+    border-color: rgba($primary-400, 0.3);
+    background: linear-gradient(180deg, rgba($primary-500, 0.1) 0%, $bg-card 100%);
   }
 
   &--active {
-    border-color: $red-300;
-    background: linear-gradient(135deg, $red-50 0%, $white 100%);
+    border-color: rgba($red-400, 0.4);
+    background: linear-gradient(180deg, rgba($red-500, 0.1) 0%, $bg-card 100%);
   }
 }
 
@@ -39,10 +39,11 @@
   bottom: -4px;
   right: -4px;
   font-size: 12px;
-  background: $white;
+  background: $bg-secondary;
   border-radius: $radius-full;
   padding: 2px;
   line-height: 1;
+  border: 1px solid $border-color;
 }
 
 .body {
@@ -55,7 +56,9 @@
 
 .betLabel {
   font-size: $text-xs;
-  color: $gray-500;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .betRow {
@@ -65,7 +68,7 @@
 }
 
 .star {
-  color: $yellow-500;
+  color: $yellow-400;
   font-size: $text-sm;
 }
 
@@ -77,7 +80,8 @@
 
 .multiplier {
   font-size: $text-xs;
-  color: $gray-500;
+  color: $green-400;
+  font-weight: 600;
 }
 
 .footer {
@@ -98,7 +102,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $red-100;
+  background: rgba($red-500, 0.15);
+  border: 1px solid rgba($red-400, 0.3);
   border-radius: $radius-full;
   font-size: 16px;
 }
@@ -109,8 +114,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $primary-100;
+  background: rgba($green-500, 0.15);
+  border: 1px solid rgba($green-400, 0.3);
   border-radius: $radius-full;
   font-size: 16px;
-  color: $primary-600;
+  color: $green-400;
 }

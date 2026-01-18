@@ -26,22 +26,23 @@
 
 .tab {
   padding: $spacing-sm $spacing-md;
-  background: $white;
-  border: 1px solid $gray-200;
+  background: $bg-card;
+  border: 1px solid $border-color;
   border-radius: $radius-full;
   font-size: $text-sm;
   font-weight: 500;
-  color: $gray-600;
+  color: $text-secondary;
   white-space: nowrap;
   transition: all $transition-fast;
 
   &:hover {
-    border-color: $primary-300;
+    border-color: $primary-400;
+    color: $text-primary;
   }
 
   &--active {
-    background: $primary-500;
-    border-color: $primary-500;
+    background: $gradient-primary;
+    border-color: transparent;
     color: $white;
   }
 }
@@ -64,6 +65,7 @@
 .emptyIcon {
   font-size: 64px;
   margin-bottom: $spacing-lg;
+  opacity: 0.5;
 }
 
 .emptyText {
@@ -75,6 +77,6 @@
 
 .emptyHint {
   font-size: $text-sm;
-  color: $gray-500;
+  color: $text-muted;
   margin: 0;
 }

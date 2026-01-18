@@ -54,25 +54,37 @@ const HomePage: React.FC = () => {
 
   return (
     <div className={styles.page}>
+      {/* Attack section - split into two buttons */}
       <motion.div
-        className={styles.banner}
+        className={styles.attackSection}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        onClick={() => navigate('/games')}
       >
-        <div className={styles.bannerContent}>
-          <span className={styles.bannerIcon}>&#9876;&#65039;</span>
-          <div className={styles.bannerText}>
-            <h2 className={styles.bannerTitle}>Атаковать</h2>
-            <p className={styles.bannerDesc}>Найди бомбы и выиграй</p>
+        <div className={styles.attackButtons}>
+          <div
+            className={styles.attackBtn}
+            onClick={() => navigate('/games')}
+          >
+            <span className={styles.attackIcon}>&#9876;&#65039;</span>
+            <div className={styles.attackText}>
+              <span className={styles.attackTitle}>Список атак</span>
+              <span className={styles.attackDesc}>Выбери цель</span>
+            </div>
+            {waitingDefensesCount > 0 && (
+              <span className={styles.counter}>{waitingDefensesCount}</span>
+            )}
           </div>
-        </div>
-        <div className={styles.bannerRight}>
-          {waitingDefensesCount > 0 && (
-            <span className={styles.counter}>{waitingDefensesCount}</span>
-          )}
-          <div className={styles.bannerArrow}>&#8594;</div>
+          <div
+            className={styles.attackBtn}
+            onClick={() => navigate('/search-attack')}
+          >
+            <span className={styles.attackIcon}>&#128269;</span>
+            <div className={styles.attackText}>
+              <span className={styles.attackTitle}>Поиск атаки</span>
+              <span className={styles.attackDesc}>Автоподбор</span>
+            </div>
+          </div>
         </div>
       </motion.div>
 
@@ -103,11 +115,11 @@ const HomePage: React.FC = () => {
         <div className={styles.infoList}>
           <div className={styles.infoItem}>
             <span className={styles.infoNumber}>1</span>
-            <p>Создай защиту: поставь ставку и спрячь 2 бомбы на поле 4x4</p>
+            <p>Создай защиту: поставь ставку и спрячь бомбы на поле</p>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoNumber}>2</span>
-            <p>Или атакуй чужую защиту: у тебя 4 попытки найти бомбы</p>
+            <p>Или атакуй чужую защиту: найди все бомбы</p>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoNumber}>3</span>
@@ -115,7 +127,7 @@ const HomePage: React.FC = () => {
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoNumber}>4</span>
-            <p>Найди обе бомбы - выиграй 100% ставки!</p>
+            <p>Найди все бомбы - выиграй ставку!</p>
           </div>
         </div>
       </motion.div>

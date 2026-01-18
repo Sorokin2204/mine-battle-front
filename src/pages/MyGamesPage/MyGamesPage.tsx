@@ -21,7 +21,7 @@ const MyGamesPage: React.FC = () => {
   useEffect(() => {
     const loadDefenses = async () => {
       try {
-        const data = await socketService.getDefenses({ includeFinished: true });
+        const data = await socketService.getDefenses({ includeFinished: true, includeExpired: true });
         dispatch(setDefenses(data));
       } catch (error) {
         console.error('Failed to load defenses:', error);
@@ -57,10 +57,19 @@ const MyGamesPage: React.FC = () => {
     dispatch(openGameLobby(defenseId));
   };
 
+  // Sort function - newest first based on createdAt
+  const sortByNewest = (games: DefensePublic[]) => {
+    return [...games].sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateB - dateA;
+    });
+  };
+
   // Filter games based on user
-  const myAttacks = defenses.filter((d) => d.attacker?.id === user?.id);
-  const myDefenses = defenses.filter((d) => d.creator.id === user?.id);
-  const allMyGames = [...new Map([...myAttacks, ...myDefenses].map((d) => [d.id, d])).values()];
+  const myAttacks = sortByNewest(defenses.filter((d) => d.attacker?.id === user?.id));
+  const myDefenses = sortByNewest(defenses.filter((d) => d.creator.id === user?.id));
+  const allMyGames = sortByNewest([...new Map([...myAttacks, ...myDefenses].map((d) => [d.id, d])).values()]);
 
   let filteredGames: DefensePublic[] = [];
   let pageTitle = '';

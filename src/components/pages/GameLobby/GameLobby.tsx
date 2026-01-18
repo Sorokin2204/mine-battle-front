@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import styles from './GameLobby.module.scss';
 import Modal from '@/components/common/Modal';
@@ -8,18 +7,20 @@ import GameBoard from '@/components/common/GameBoard';
 import Avatar from '@/components/common/Avatar';
 import Badge from '@/components/common/Badge';
 import Timer from '@/components/common/Timer';
+import DifficultyIndicator from '@/components/common/DifficultyIndicator';
 import { useAppSelector, useAppDispatch } from '@/hooks/useAppDispatch';
 import { setActiveDefense, setLastMoveResult, setAttacking } from '@/redux/slices/game.slice';
 import { closeGameLobby, openResultModal, showToast } from '@/redux/slices/ui.slice';
 import { updateBalance } from '@/redux/slices/auth.slice';
 import { socketService } from '@/services/socket';
-import { gameConfig } from '@/config/game.config';
-import { DefensePublic, MoveResult, MoveType } from '@/types';
+import { getConfigByDifficulty } from '@/config/game.config';
+import { DefensePublic, MoveResult } from '@/types';
+import { formatRelativeTime } from '@/utils/formatTime';
 
 const GameLobby: React.FC = () => {
   const dispatch = useAppDispatch();
   const { isOpen, defenseId } = useAppSelector((state) => state.ui.gameLobbyModal);
-  const { activeDefense, lastMoveResult, isAttacking } = useAppSelector((state) => state.game);
+  const { activeDefense, isAttacking } = useAppSelector((state) => state.game);
   const { user } = useAppSelector((state) => state.auth);
 
   const [activeTool, setActiveTool] = useState<'click' | 'scanner' | 'radar' | null>(null);
@@ -89,10 +90,11 @@ const GameLobby: React.FC = () => {
           }),
         );
       } else if (isWinner) {
+        // Show net profit (opponent's bet), not total received
         dispatch(
           openResultModal({
             type: 'win',
-            amount: defense.bet * 2,
+            amount: defense.bet,
           }),
         );
       } else if (isAttacker || defense.creator.id === user.id) {
@@ -152,9 +154,11 @@ const GameLobby: React.FC = () => {
     setScannerPreview(positions);
   };
 
-  const handleRadarPreview = (position: number) => {
-    // Default to row based on position, bombCount -1 indicates preview mode
-    setRadarPreview({ type: 'row', index: position, bombCount: -1 });
+  const handleRadarPreview = (index: number) => {
+    // Keep current type if we have one, otherwise default to row
+    // bombCount -1 indicates preview mode
+    const currentType = radarPreview?.type || 'row';
+    setRadarPreview({ type: currentType, index, bombCount: -1 });
   };
 
   // Toggle radar type (row/column)
@@ -221,12 +225,16 @@ const GameLobby: React.FC = () => {
 
   if (!activeDefense) return null;
 
+  // Get config based on defense difficulty
+  const gameConfig = getConfigByDifficulty(activeDefense.difficulty);
+
   const isDefender = activeDefense.creator.id === user?.id;
   const isAttackerRole = activeDefense.attacker?.id === user?.id;
   const isGameActive = activeDefense.status === 'IN_PROGRESS';
   const isWaiting = activeDefense.status === 'WAITING';
   const isFinished = activeDefense.status === 'FINISHED';
-  const canAttack = isWaiting && !isDefender && user;
+  const isExpired = activeDefense.status === 'EXPIRED' || (activeDefense.status === 'WAITING' && new Date(activeDefense.expiresAt).getTime() <= Date.now());
+  const canAttack = isWaiting && !isDefender && user && !isExpired;
   const canMakeMove = isGameActive && isAttackerRole && !isProcessingMove;
 
   const attemptsLeft = gameConfig.attempts - activeDefense.attemptsUsed;
@@ -234,7 +242,14 @@ const GameLobby: React.FC = () => {
   const radarsLeft = gameConfig.radars - activeDefense.radarsUsed;
   const canTakeHalf = activeDefense.bombsFound >= 1 && isAttackerRole && isGameActive;
 
+  // Calculate potential win - net profit is defender's bet (attacker gets their bet back + defender's bet)
+  // No commission currently applied
+  const potentialWin = activeDefense.bet;
+
   const getStatusBadge = () => {
+    if (isExpired) {
+      return <Badge variant="warning">Истекла ⏰</Badge>;
+    }
     if (isWaiting) {
       return <Badge variant="info">Ожидание атаки ⏳</Badge>;
     }
@@ -246,7 +261,46 @@ const GameLobby: React.FC = () => {
     }
     return null;
   };
-  console.log('canMakeMove', canMakeMove);
+
+  // Get result info for finished or expired games
+  const getResultInfo = () => {
+    // Expired defense - show refund for defender
+    if (isExpired && isDefender) {
+      return { label: 'Возврат', variant: 'refund' as const, amount: activeDefense.bet };
+    }
+
+    if (!isFinished || !user) return null;
+
+    const isWinner = activeDefense.winnerId === user.id;
+    const isAttacker = activeDefense.attacker?.id === user.id;
+    const isCreator = activeDefense.creator.id === user.id;
+
+    if (activeDefense.result === 'ATTACKER_TOOK_HALF') {
+      if (isAttacker) {
+        return { label: 'Вы забрали половину', variant: 'win' as const, amount: Math.floor(activeDefense.bet / 2) };
+      }
+      if (isCreator) {
+        return { label: 'Противник забрал половину', variant: 'lose' as const, amount: Math.floor(activeDefense.bet / 2) };
+      }
+    }
+
+    if (isWinner) {
+      // Winner gets: their bet back + opponent's bet = bet * 2 total
+      // But show net profit: just the opponent's bet (= activeDefense.bet)
+      return { label: 'Победа!', variant: 'win' as const, amount: activeDefense.bet };
+    }
+
+    if (isAttacker || isCreator) {
+      // Loser loses their bet
+      return { label: 'Поражение', variant: 'lose' as const, amount: activeDefense.bet };
+    }
+
+    return null;
+  };
+
+  const resultInfo = getResultInfo();
+  // For expired defenses, use expiresAt since finishedAt is null
+  const finishedTime = isFinished ? formatRelativeTime(activeDefense.finishedAt) : isExpired ? formatRelativeTime(activeDefense.expiresAt) : null;
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={`Битва #${activeDefense.id}`}>
@@ -254,7 +308,9 @@ const GameLobby: React.FC = () => {
         {/* Status */}
         <div className={styles.statusSection}>
           {getStatusBadge()}
+          <DifficultyIndicator difficulty={activeDefense.difficulty} showLabel />
           {isGameActive && activeDefense.moveDeadline && <Timer endTime={new Date(activeDefense.moveDeadline).getTime()} type="badge" prefix="⏱️ " />}
+          {(isFinished || isExpired) && finishedTime && <span className={styles.finishedTime}>{finishedTime}</span>}
         </div>
 
         {/* Players */}
@@ -289,6 +345,7 @@ const GameLobby: React.FC = () => {
             mode={isGameActive && isAttackerRole ? 'play' : 'view'}
             revealedCells={activeDefense.revealedCells}
             bombPositions={activeDefense.bombPositions || []}
+            foundBombPositions={activeDefense.foundBombPositions || []}
             onCellClick={canMakeMove && !activeTool ? handleCellClick : undefined}
             activeTool={activeTool}
             onScannerPlaced={canMakeMove ? handleScannerPreview : undefined}
@@ -297,6 +354,7 @@ const GameLobby: React.FC = () => {
             scannerResult={!scannerPreview && activeDefense.scannerResults?.length ? activeDefense.scannerResults[activeDefense.scannerResults.length - 1].bombCount : undefined}
             radarResult={radarPreview || (activeDefense.radarResults?.length ? activeDefense.radarResults[activeDefense.radarResults.length - 1] : null)}
             disabled={!canMakeMove}
+            fieldSize={gameConfig.fieldSize}
           />
         </div>
 
@@ -317,7 +375,48 @@ const GameLobby: React.FC = () => {
           </div>
         )}
 
-        {/* Game Info */}
+        {/* Pre-attack Game Info (for waiting games - both defender and attacker) */}
+        {isWaiting && !isExpired && (
+          <div className={styles.gameInfo}>
+            <div className={styles.infoItem}>
+              <span className={styles.infoIcon}>🎯</span>
+              <span>Найди {gameConfig.bombsCount} 💣 бомбы</span>
+            </div>
+            <div className={styles.infoRow}>
+              <div className={styles.stat}>
+                <span className={styles.statLabel}>☝️ Попытки</span>
+                <span className={styles.statValue}>{gameConfig.attempts}</span>
+              </div>
+              <div className={styles.stat}>
+                <span className={styles.statLabel}>📡 Радары</span>
+                <span className={styles.statValue}>{gameConfig.radars}</span>
+              </div>
+              <div className={styles.stat}>
+                <span className={styles.statLabel}>📶 Сканеры</span>
+                <span className={styles.statValue}>{gameConfig.scanners}</span>
+              </div>
+            </div>
+            {isDefender ? (
+              <div className={styles.betInfo}>
+                <div className={styles.betLabel}>Ставка</div>
+                <div className={styles.betAmount}>
+                  <span className={styles.star}>⭐</span>
+                  {activeDefense.bet}
+                </div>
+              </div>
+            ) : (
+              <div className={styles.winInfo}>
+                <div className={styles.winLabel}>Выигрыш</div>
+                <div className={styles.winAmount}>
+                  <span className={styles.star}>⭐</span>
+                  {potentialWin}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Active Game Info */}
         {isGameActive && (
           <div className={styles.gameInfo}>
             <div className={styles.infoItem}>
@@ -342,18 +441,55 @@ const GameLobby: React.FC = () => {
             {/* Tools */}
             {isAttackerRole && (
               <div className={styles.tools}>
-                <button className={clsx(styles.tool, { [styles.active]: activeTool === 'scanner' })} onClick={() => setActiveTool(activeTool === 'scanner' ? null : 'scanner')} disabled={scannersLeft <= 0 || isProcessingMove}>
+                <button
+                  className={clsx(styles.tool, { [styles.active]: activeTool === 'scanner' })}
+                  onClick={() => {
+                    if (activeTool === 'scanner') {
+                      cancelTool();
+                    } else {
+                      setActiveTool('scanner');
+                      // Initialize scanner at position [0,0]
+                      const positions = [0, 1, gameConfig.fieldSize, gameConfig.fieldSize + 1];
+                      setScannerPreview(positions);
+                    }
+                  }}
+                  disabled={scannersLeft <= 0 || isProcessingMove}
+                >
                   <span className={styles.toolIcon}>🔍</span>
                   <span className={styles.toolName}>Сканер</span>
                   <span className={styles.toolCount}>{scannersLeft}</span>
                 </button>
-                <button className={clsx(styles.tool, { [styles.active]: activeTool === 'radar' })} onClick={() => setActiveTool(activeTool === 'radar' ? null : 'radar')} disabled={radarsLeft <= 0 || isProcessingMove}>
+                <button
+                  className={clsx(styles.tool, { [styles.active]: activeTool === 'radar' })}
+                  onClick={() => {
+                    if (activeTool === 'radar') {
+                      cancelTool();
+                    } else {
+                      setActiveTool('radar');
+                      // Initialize radar at row 0
+                      setRadarPreview({ type: 'row', index: 0, bombCount: -1 });
+                    }
+                  }}
+                  disabled={radarsLeft <= 0 || isProcessingMove}
+                >
                   <span className={styles.toolIcon}>📡</span>
                   <span className={styles.toolName}>Радар</span>
                   <span className={styles.toolCount}>{radarsLeft}</span>
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Finished/Expired Game Result */}
+        {(isFinished || isExpired) && resultInfo && (
+          <div className={clsx(styles.resultCard, styles[`resultCard--${resultInfo.variant}`])}>
+            <div className={styles.resultLabel}>{resultInfo.label}</div>
+            <div className={clsx(styles.resultAmount, styles[`resultAmount--${resultInfo.variant}`])}>
+              {resultInfo.variant === 'win' || resultInfo.variant === 'refund' ? '+' : '-'}
+              {resultInfo.amount}
+              <span className={styles.star}>⭐</span>
+            </div>
           </div>
         )}
 
@@ -371,7 +507,7 @@ const GameLobby: React.FC = () => {
             </Button>
           )}
 
-          {isFinished && (
+          {(isFinished || isExpired) && (
             <Button color="secondary" size="lg" fullWidth onClick={handleClose}>
               Закрыть
             </Button>

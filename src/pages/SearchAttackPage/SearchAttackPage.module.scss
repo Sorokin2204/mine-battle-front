@@ -1,0 +1,220 @@
+@import '@/styles/variables.scss';
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2xl;
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  font-family: $font-family-heading;
+  font-size: $text-2xl;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0 0 $spacing-xs;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.subtitle {
+  font-size: $text-sm;
+  color: $text-secondary;
+  margin: 0;
+}
+
+.paramsSection {
+  background: $bg-card;
+  padding: $spacing-xl;
+  border-radius: $radius-xl;
+  border: 1px solid $border-color;
+}
+
+.label {
+  display: block;
+  font-size: $text-sm;
+  font-weight: 600;
+  color: $text-secondary;
+  margin-bottom: $spacing-md;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.betRange {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+}
+
+.betInput {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  background: $bg-input;
+  padding: $spacing-md $spacing-lg;
+  border-radius: $radius-lg;
+  border: 1px solid $border-color;
+
+  &:focus-within {
+    border-color: $primary-500;
+  }
+}
+
+.betIcon {
+  font-size: $text-lg;
+}
+
+.betLabel {
+  font-size: $text-sm;
+  color: $text-muted;
+  font-weight: 500;
+}
+
+.input {
+  flex: 1;
+  background: transparent;
+  font-size: $text-md;
+  font-weight: 600;
+  color: $text-primary;
+  text-align: right;
+  min-width: 0;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.searchSection {
+  display: flex;
+  justify-content: center;
+  padding: $spacing-xl 0;
+}
+
+.searchButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 180px;
+  height: 180px;
+  background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all $transition-fast;
+  box-shadow: 0 8px 32px rgba(#DC2626, 0.4);
+  color: $white;
+  border: 4px solid rgba($white, 0.2);
+
+  &:hover {
+    box-shadow: 0 12px 48px rgba(#DC2626, 0.5);
+  }
+
+  &.searching {
+    background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+    box-shadow: 0 8px 32px rgba(#F59E0B, 0.4);
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: 0 12px 48px rgba(#F59E0B, 0.5);
+    }
+  }
+
+  &.found {
+    background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+    box-shadow: 0 8px 32px rgba(#10B981, 0.4);
+    cursor: default;
+  }
+}
+
+.searchIcon {
+  font-size: 48px;
+  margin-bottom: $spacing-xs;
+}
+
+.searchText {
+  font-family: $font-family-heading;
+  font-size: $text-lg;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cancelHint {
+  font-size: $text-xs;
+  opacity: 0.8;
+  margin-top: $spacing-xs;
+}
+
+.matchInfo {
+  font-size: $text-md;
+  font-weight: 600;
+  margin-top: $spacing-xs;
+}
+
+.info {
+  background: $bg-card;
+  padding: $spacing-xl;
+  border-radius: $radius-xl;
+  border: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.infoItem {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+}
+
+.infoIcon {
+  font-size: $text-lg;
+  flex-shrink: 0;
+}
+
+.infoItem p {
+  font-size: $text-sm;
+  color: $text-secondary;
+  margin: 0;
+  line-height: 1.5;
+}
+
+// Confirm Modal
+.confirmModal {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding: $spacing-md 0;
+}
+
+.confirmText {
+  font-size: $text-md;
+  color: $text-primary;
+  text-align: center;
+  margin: 0;
+}
+
+.confirmRange {
+  font-size: $text-sm;
+  color: $text-secondary;
+  text-align: center;
+  margin: 0;
+
+  strong {
+    color: $yellow-400;
+  }
+}
+
+.confirmButtons {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}

@@ -5,25 +5,25 @@
   align-items: center;
   justify-content: space-between;
   padding: $spacing-md $spacing-lg;
-  background: $white;
+  background: $bg-card;
   border-radius: $radius-lg;
-  box-shadow: $shadow-sm;
   cursor: pointer;
   transition: all $transition-fast;
-  border: 1px solid $gray-100;
+  border: 1px solid $border-color;
 
   &:hover {
-    box-shadow: $shadow-md;
+    border-color: $border-color-hover;
+    background: $bg-card-hover;
   }
 
   &--win {
-    border-color: $primary-200;
-    background: linear-gradient(135deg, $white 0%, $primary-50 100%);
+    border-color: rgba($green-500, 0.3);
+    background: linear-gradient(135deg, $bg-card 0%, rgba($green-500, 0.1) 100%);
   }
 
   &--lose {
-    border-color: $red-200;
-    background: linear-gradient(135deg, $white 0%, $red-50 100%);
+    border-color: rgba($red-500, 0.3);
+    background: linear-gradient(135deg, $bg-card 0%, rgba($red-500, 0.1) 100%);
   }
 }
 
@@ -47,7 +47,7 @@
 .vs {
   font-size: $text-xs;
   font-weight: 600;
-  color: $gray-400;
+  color: $text-muted;
   margin: 0 $spacing-xs;
 }
 
@@ -66,7 +66,7 @@
 
 .betLabel {
   font-size: $text-xs;
-  color: $gray-500;
+  color: $text-muted;
 }
 
 .betAmount {
@@ -78,11 +78,11 @@
   color: $text-primary;
 
   &--win {
-    color: $primary-600;
+    color: $green-400;
   }
 
   &--lose {
-    color: $red-600;
+    color: $red-400;
   }
 }
 
@@ -96,14 +96,14 @@
 }
 
 .trophy {
-  background: $primary-100;
+  background: rgba($green-500, 0.2);
   border-radius: $radius-full;
   padding: $spacing-sm;
   display: flex;
 }
 
 .defeat {
-  background: $red-100;
+  background: rgba($red-500, 0.2);
   border-radius: $radius-full;
   padding: $spacing-sm;
   display: flex;
@@ -111,4 +111,9 @@
 
 .check {
   display: flex;
+}
+
+.finishedTime {
+  font-size: $text-xs;
+  color: $text-muted;
 }

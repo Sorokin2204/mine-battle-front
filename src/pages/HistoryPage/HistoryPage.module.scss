@@ -21,10 +21,11 @@
 
 .count {
   font-size: $text-sm;
-  color: $gray-500;
-  background: $gray-100;
+  color: $text-secondary;
+  background: $bg-card;
   padding: $spacing-xs $spacing-md;
   border-radius: $radius-full;
+  border: 1px solid $border-color;
 }
 
 .list {
@@ -36,7 +37,7 @@
 .loading {
   text-align: center;
   padding: $spacing-3xl;
-  color: $gray-500;
+  color: $text-muted;
 }
 
 .empty {
@@ -51,6 +52,7 @@
 .emptyIcon {
   font-size: 64px;
   margin-bottom: $spacing-lg;
+  opacity: 0.5;
 }
 
 .emptyText {
@@ -62,6 +64,6 @@
 
 .emptyHint {
   font-size: $text-sm;
-  color: $gray-500;
+  color: $text-muted;
   margin: 0;
 }

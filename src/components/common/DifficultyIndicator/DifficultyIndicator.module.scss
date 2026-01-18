@@ -1,0 +1,96 @@
+@import '@/styles/variables.scss';
+
+.indicator {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+
+  &--sm {
+    .bars {
+      gap: 2px;
+    }
+
+    .bar {
+      width: 4px;
+      height: 10px;
+
+      &:nth-child(2) {
+        height: 13px;
+      }
+
+      &:nth-child(3) {
+        height: 16px;
+      }
+    }
+
+    .label {
+      font-size: $text-xs;
+    }
+  }
+
+  &--md {
+    .bars {
+      gap: 3px;
+    }
+
+    .bar {
+      width: 5px;
+      height: 12px;
+
+      &:nth-child(2) {
+        height: 16px;
+      }
+
+      &:nth-child(3) {
+        height: 20px;
+      }
+    }
+
+    .label {
+      font-size: $text-sm;
+    }
+  }
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+}
+
+.bar {
+  border-radius: 2px;
+  background: $gray-400;
+  transition: background $transition-fast;
+
+  &--active {
+    &.bar--easy {
+      background: $green-400;
+    }
+
+    &.bar--medium {
+      background: $yellow-400;
+    }
+
+    &.bar--hard {
+      background: $red-400;
+    }
+  }
+}
+
+.label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  &--easy {
+    color: $green-400;
+  }
+
+  &--medium {
+    color: $yellow-400;
+  }
+
+  &--hard {
+    color: $red-400;
+  }
+}

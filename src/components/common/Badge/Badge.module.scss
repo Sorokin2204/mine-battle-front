@@ -19,27 +19,32 @@
   }
 
   &--primary {
-    background: $primary-100;
-    color: $primary-700;
+    background: rgba($primary-500, 0.2);
+    color: $primary-400;
+    border: 1px solid rgba($primary-500, 0.3);
   }
 
   &--success {
-    background: $primary-100;
-    color: $primary-700;
+    background: rgba($green-500, 0.2);
+    color: $green-400;
+    border: 1px solid rgba($green-500, 0.3);
   }
 
   &--warning {
-    background: $yellow-100;
-    color: $yellow-700;
+    background: rgba($yellow-500, 0.2);
+    color: $yellow-400;
+    border: 1px solid rgba($yellow-500, 0.3);
   }
 
   &--error {
-    background: $red-100;
-    color: $red-700;
+    background: rgba($red-500, 0.2);
+    color: $red-400;
+    border: 1px solid rgba($red-500, 0.3);
   }
 
   &--info {
-    background: $blue-100;
-    color: $blue-700;
+    background: rgba($blue-500, 0.2);
+    color: $blue-400;
+    border: 1px solid rgba($blue-500, 0.3);
   }
 }

@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   gap: $spacing-sm;
-  border-radius: $radius-full;
+  border-radius: $radius-lg;
   font-weight: 600;
   cursor: pointer;
   transition: all $transition-fast;
@@ -13,6 +13,8 @@
   white-space: nowrap;
   border: none;
   outline: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 
   &:disabled {
     opacity: 0.5;
@@ -25,31 +27,32 @@
 
   // Sizes
   &--xs {
-    height: 30px;
+    height: 32px;
     padding: 0 $spacing-md;
     font-size: $text-xs;
+    border-radius: $radius-md;
   }
 
   &--sm {
-    height: 34px;
+    height: 38px;
     padding: 0 $spacing-lg;
     font-size: $text-sm;
   }
 
   &--md {
-    height: 42px;
+    height: 46px;
     padding: 0 $spacing-xl;
     font-size: $text-md;
   }
 
   &--lg {
-    height: 48px;
+    height: 52px;
     padding: 0 $spacing-2xl;
     font-size: $text-lg;
   }
 
   &--xl {
-    height: 56px;
+    height: 58px;
     padding: 0 $spacing-3xl;
     font-size: $text-xl;
   }
@@ -58,59 +61,62 @@
   &--primary {
     background: $gradient-primary;
     color: $white;
-    box-shadow: 0 4px 14px rgba($primary-600, 0.4);
+    box-shadow: $shadow-glow-blue;
 
     &:hover:not(:disabled) {
-      box-shadow: 0 6px 20px rgba($primary-600, 0.5);
+      background: $gradient-primary-hover;
+      box-shadow: 0 6px 24px rgba($primary-500, 0.5);
     }
   }
 
   &--secondary {
-    background: $white;
+    background: $bg-card;
     color: $text-primary;
-    box-shadow: $shadow-md;
+    border: 1px solid $border-color;
 
     &:hover:not(:disabled) {
-      background: $gray-50;
+      background: $bg-card-hover;
+      border-color: $border-color-hover;
     }
   }
 
   &--error {
     background: $gradient-red;
     color: $white;
-    box-shadow: 0 4px 14px rgba($red-600, 0.4);
+    box-shadow: $shadow-glow-red;
 
     &:hover:not(:disabled) {
-      box-shadow: 0 6px 20px rgba($red-600, 0.5);
+      box-shadow: 0 6px 24px rgba($red-500, 0.5);
     }
   }
 
   &--success {
-    background: $gradient-primary;
+    background: $gradient-success;
     color: $white;
-    box-shadow: 0 4px 14px rgba($primary-600, 0.4);
+    box-shadow: $shadow-glow-green;
 
     &:hover:not(:disabled) {
-      box-shadow: 0 6px 20px rgba($primary-600, 0.5);
+      box-shadow: 0 6px 24px rgba($green-500, 0.5);
     }
   }
 
   &--warning {
-    background: linear-gradient(135deg, $yellow-500 0%, $yellow-600 100%);
+    background: $gradient-gold;
     color: $white;
-    box-shadow: 0 4px 14px rgba($yellow-600, 0.4);
+    box-shadow: 0 4px 20px rgba($yellow-500, 0.4);
 
     &:hover:not(:disabled) {
-      box-shadow: 0 6px 20px rgba($yellow-600, 0.5);
+      box-shadow: 0 6px 24px rgba($yellow-500, 0.5);
     }
   }
 
   &--ghost {
     background: transparent;
-    color: $text-primary;
+    color: $text-secondary;
 
     &:hover:not(:disabled) {
-      background: rgba($gray-500, 0.1);
+      background: rgba($white, 0.05);
+      color: $text-primary;
     }
   }
 
@@ -120,11 +126,11 @@
     aspect-ratio: 1;
     border-radius: $radius-md;
 
-    &.btn--xs { width: 30px; }
-    &.btn--sm { width: 34px; }
-    &.btn--md { width: 42px; }
-    &.btn--lg { width: 48px; }
-    &.btn--xl { width: 56px; }
+    &.btn--xs { width: 32px; }
+    &.btn--sm { width: 38px; }
+    &.btn--md { width: 46px; }
+    &.btn--lg { width: 52px; }
+    &.btn--xl { width: 58px; }
   }
 
   &--fullWidth {

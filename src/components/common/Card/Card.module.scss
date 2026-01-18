@@ -1,16 +1,17 @@
 @import '@/styles/variables.scss';
 
 .card {
-  background: $white;
+  background: $bg-card;
   border-radius: $radius-lg;
   transition: all $transition-fast;
+  border: 1px solid $border-color;
 
   &--default {
-    box-shadow: $shadow-sm;
+    // Default card style
   }
 
   &--outlined {
-    border: 1px solid $gray-200;
+    border: 1px solid $border-color;
   }
 
   &--elevated {
@@ -37,12 +38,12 @@
     cursor: pointer;
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: $shadow-lg;
+      border-color: $border-color-hover;
+      background: $bg-card-hover;
     }
 
     &:active {
-      transform: translateY(0);
+      transform: scale(0.99);
     }
   }
 }
