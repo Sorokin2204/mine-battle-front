@@ -10,10 +10,10 @@
 .grid {
   display: grid;
   gap: 8px;
-  background: $bg-card;
+  // background: $bg-card;
   padding: $spacing-md;
   border-radius: $radius-lg;
-  border: 1px solid $border-color;
+  // border: 1px solid $border-color;
 }
 
 .cell {
@@ -21,8 +21,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $bg-secondary;
-  border: 2px solid $border-color;
+  background: radial-gradient(63.64% 63.64% at 50% 88.64%, #24304a 34.37%, #293356 100%), #1b2030;
+  box-shadow: inset 0px 6px 0px #2e3560;
+  border: 2px solid transparent;
   border-radius: $radius-md;
   font-size: 24px;
   cursor: default;
@@ -34,14 +35,15 @@
     cursor: pointer;
 
     &:hover:not(.cell--disabled) {
-      background: $bg-card-hover;
-      border-color: $primary-400;
+      // background: $bg-card-hover;
+      // border-color: $primary-400;
     }
   }
 
   &--selected {
-    background: rgba($red-500, 0.2);
-    border-color: $red-400;
+    box-shadow: none;
+    background: linear-gradient(135deg, $bg-card-2 0%, rgba($red-500, 0.3) 100%);
+    border-color: $red-500;
   }
 
   &--revealed {
@@ -184,7 +186,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -198,10 +201,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba($purple-500, 0.3);
-  border: 3px dashed $purple-400;
+  background: rgba(69, 147, 33, 0.4);
+  border: 2px solid rgba(69, 147, 33, 1);
   border-radius: $radius-lg;
-  box-shadow: 0 0 20px rgba($purple-500, 0.4);
+  box-shadow: 0 0 20px rgba(69, 147, 33, 0.4);
   animation: pulse 1.5s ease-in-out infinite;
   user-select: none;
 
@@ -216,6 +219,11 @@
 .scannerDragIcon {
   font-size: 28px;
   margin-bottom: $spacing-xs;
+  & img {
+    display: block;
+    width: 40px;
+    height: 40px;
+  }
 }
 
 .scannerDragText {

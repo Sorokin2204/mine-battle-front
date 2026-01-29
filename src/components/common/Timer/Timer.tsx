@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import styles from './Timer.module.scss';
+import NumberFlow from '@number-flow/react';
 
 interface TimerProps {
   endTime: number;
@@ -11,14 +12,7 @@ interface TimerProps {
   onExpire?: () => void;
 }
 
-const Timer: React.FC<TimerProps> = ({
-  endTime,
-  type = 'countdown',
-  variant = 'default',
-  prefix,
-  suffix,
-  onExpire,
-}) => {
+const Timer: React.FC<TimerProps> = ({ endTime, type = 'countdown', variant = 'default', prefix, suffix, onExpire }) => {
   const [timeLeft, setTimeLeft] = useState(Math.max(0, endTime - Date.now()));
 
   useEffect(() => {
@@ -39,11 +33,25 @@ const Timer: React.FC<TimerProps> = ({
     const totalSeconds = Math.ceil(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-
-    if (minutes > 0) {
-      return `${minutes}м ${seconds.toString().padStart(2, '0')}с`;
-    }
-    return `${seconds}с`;
+    return (
+      <>
+        <div className={styles.timeBlock}>
+          <NumberFlow value={minutes} format={{ minimumIntegerDigits: 2 }} />
+        </div>
+        <div className={clsx(styles.timeDivider)}>:</div>
+        <div className={styles.timeBlock}>
+          <NumberFlow value={parseInt(seconds.toString().padStart(2, '0'))} format={{ minimumIntegerDigits: 2 }} />
+        </div>
+        {/* `${minutes}м ${seconds.toString().padStart(2, '0')}с` */}
+      </>
+    );
+    // if (minutes > 0) {
+    // }
+    // return (
+    //   <>
+    //     <NumberFlow value={seconds} format={{ minimumIntegerDigits: 2 }} />с
+    //   </>
+    // );
   };
 
   const getVariant = () => {

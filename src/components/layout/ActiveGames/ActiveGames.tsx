@@ -6,6 +6,8 @@ import Avatar from '@/components/common/Avatar';
 import { useAppSelector, useAppDispatch } from '@/hooks/useAppDispatch';
 import { openGameLobby } from '@/redux/slices/ui.slice';
 import { DefensePublic } from '@/types';
+import Lottie from 'lottie-react';
+import Waiting from '@/components/common/Waiting/Waiting';
 
 interface ActiveGameBadge {
   defense: DefensePublic;
@@ -72,65 +74,39 @@ const ActiveGames: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.slider} ref={scrollRef}>
         {activeGames.map(({ defense, type }) => (
-          <motion.div
-            key={defense.id}
-            className={clsx(styles.badge, styles[`badge--${type}`])}
-            onClick={() => handleBadgeClick(defense.id)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
+          <motion.div key={defense.id} className={clsx(styles.badge, styles[`badge--${type}`])} onClick={() => handleBadgeClick(defense.id)} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             {type === 'my_defense_waiting' && (
               <>
                 <div className={styles.avatarPlaceholder} />
-                <span className={styles.time}>
-                  {formatTime(defense.expiresAt)}
+                <span className={styles.time}>{formatTime(defense.expiresAt)}</span>
+                {/* <motion.span className={styles.icon} animate={{ rotateX: [0, 180, 360] }} transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}> */}
+                <span role="img" aria-label="hourglass">
+                  <Waiting />
                 </span>
-                <motion.span
-                  className={styles.icon}
-                  animate={{ rotateX: [0, 180, 360] }}
-                  transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-                >
-                  <span role="img" aria-label="hourglass">&#8987;</span>
-                </motion.span>
+                {/* </motion.span> */}
               </>
             )}
 
             {type === 'my_defense_attacked' && (
               <>
-                <Avatar
-                  src={defense.attacker?.photoUrl}
-                  name={defense.attacker?.firstName || defense.attacker?.username}
-                  size="xs"
-                />
-                <span className={styles.time}>
-                  {defense.moveDeadline ? formatTime(defense.moveDeadline) : '00:00'}
-                </span>
-                <motion.span
-                  className={styles.icon}
-                  animate={{ x: [0, 3, -3, 0], rotate: [0, 10, -10, 0] }}
-                  transition={{ repeat: Infinity, duration: 0.5 }}
-                >
-                  <span role="img" aria-label="sword">&#128481;&#65039;</span>
+                <Avatar src={defense.attacker?.photoUrl} name={defense.attacker?.firstName || defense.attacker?.username} size="xs" />
+                <span className={styles.time}>{defense.moveDeadline ? formatTime(defense.moveDeadline) : '00:00'}</span>
+                <motion.span className={styles.icon} animate={{ x: [0, 3, -3, 0], rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 0.5 }}>
+                  <span role="img" aria-label="sword">
+                    &#128481;&#65039;
+                  </span>
                 </motion.span>
               </>
             )}
 
             {type === 'my_attack' && (
               <>
-                <Avatar
-                  src={defense.creator.photoUrl}
-                  name={defense.creator.firstName || defense.creator.username}
-                  size="xs"
-                />
-                <span className={styles.time}>
-                  {defense.moveDeadline ? formatTime(defense.moveDeadline) : '00:00'}
-                </span>
-                <motion.span
-                  className={styles.icon}
-                  animate={{ opacity: [1, 0.3, 1] }}
-                  transition={{ repeat: Infinity, duration: 0.8 }}
-                >
-                  <span role="img" aria-label="warning">&#9888;&#65039;</span>
+                <Avatar src={defense.creator.photoUrl} name={defense.creator.firstName || defense.creator.username} size="xs" />
+                <span className={styles.time}>{defense.moveDeadline ? formatTime(defense.moveDeadline) : '00:00'}</span>
+                <motion.span className={styles.icon} animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 0.8 }}>
+                  <span role="img" aria-label="warning">
+                    &#9888;&#65039;
+                  </span>
                 </motion.span>
               </>
             )}

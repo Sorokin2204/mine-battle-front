@@ -1,6 +1,7 @@
 @import '@/styles/variables.scss';
 
 .card {
+  position: relative;
   display: flex;
   align-items: center;
   gap: $spacing-md;
@@ -9,21 +10,16 @@
   border-radius: $radius-lg;
   cursor: pointer;
   transition: all $transition-fast;
-  border: 1px solid $border-color;
-
-  &:hover {
-    border-color: $border-color-hover;
-    background: $bg-card-hover;
-  }
+  // border: 1px solid $border-color;
 
   &--win {
     border-color: rgba($green-500, 0.3);
-    background: linear-gradient(135deg, $bg-card 0%, rgba($green-500, 0.1) 100%);
+    background: linear-gradient(135deg, $bg-card-2 0%, rgba($green-500, 0.1) 100%);
   }
 
   &--lose {
     border-color: rgba($red-500, 0.3);
-    background: linear-gradient(135deg, $bg-card 0%, rgba($red-500, 0.1) 100%);
+    background: linear-gradient(135deg, $bg-card-2 0%, rgba($red-500, 0.1) 100%);
   }
 
   &--waiting {
@@ -32,12 +28,12 @@
 
   &--active {
     border-color: rgba($red-500, 0.3);
-    background: linear-gradient(135deg, $bg-card 0%, rgba($red-500, 0.1) 100%);
+    background: linear-gradient(135deg, $bg-card-2 0%, rgba($red-500, 0.1) 100%);
   }
 
   &--refund {
     border-color: rgba($gray-500, 0.3);
-    background: linear-gradient(135deg, $bg-card 0%, rgba($gray-500, 0.1) 100%);
+    background: linear-gradient(135deg, $bg-card-2 0%, rgba($gray-500, 0.1) 100%);
   }
 }
 
@@ -64,9 +60,18 @@
   align-items: center;
   gap: $spacing-xs;
 }
-
+.indicator {
+  top: 4px;
+  left: 4px;
+  position: absolute;
+}
 .roleIcon {
   font-size: 14px;
+  & span {
+    bottom: -8px;
+    right: -8px;
+    position: absolute;
+  }
 }
 
 .center {
@@ -79,6 +84,7 @@
 .betRow,
 .resultRow {
   display: flex;
+  align-items: end;
   flex-direction: column;
   gap: 2px;
 }
@@ -132,6 +138,7 @@
   display: flex;
   align-items: center;
   gap: $spacing-sm;
+  margin-left: auto;
 }
 
 .resultIcon {
@@ -139,6 +146,12 @@
 }
 
 .trophy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  aspect-ratio: 1 / 1;
   background: rgba($green-500, 0.2);
   border-radius: $radius-full;
   padding: $spacing-xs;
@@ -146,6 +159,11 @@
 }
 
 .defeat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   background: rgba($red-500, 0.2);
   border-radius: $radius-full;
   padding: $spacing-xs;
@@ -153,6 +171,11 @@
 }
 
 .refund {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: rgba($gray-500, 0.2);
   border-radius: $radius-full;
   padding: $spacing-xs;
@@ -184,6 +207,7 @@
 }
 
 .finishedTime {
+  margin-left: 2px;
   font-size: $text-xs;
   color: $text-muted;
   white-space: nowrap;

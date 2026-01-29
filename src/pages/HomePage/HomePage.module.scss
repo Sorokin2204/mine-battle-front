@@ -7,34 +7,38 @@
 }
 
 .banner {
+  height: 160px;
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: start;
   justify-content: space-between;
   padding: $spacing-2xl;
   border-radius: $radius-xl;
-  background: linear-gradient(135deg, #DC2626 0%, #EF4444 50%, #F87171 100%);
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
   color: $white;
   cursor: pointer;
   transition: all $transition-fast;
-  box-shadow: 0 8px 32px rgba(#DC2626, 0.4);
+  box-shadow: 0 8px 32px rgba(#dc2626, 0.4);
   overflow: hidden;
 
   &::before {
     content: '';
     position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 200px;
-    height: 200px;
-    background: rgba($white, 0.1);
+    width: 50%;
+    height: 363px;
+    right: -35%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #ff7c7c;
+    background-position: bottom right;
+    filter: blur(100px);
+    z-index: 1;
     border-radius: 50%;
-    pointer-events: none;
   }
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(#DC2626, 0.5);
+    box-shadow: 0 12px 40px rgba(#dc2626, 0.5);
   }
 
   &:active {
@@ -43,25 +47,49 @@
 }
 
 .bannerDefense {
-  background: linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%);
-  box-shadow: 0 8px 32px rgba(#2563EB, 0.4);
-
+  background: #3348c1;
+  // background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%);
+  // box-shadow: 0 8px 32px rgba(#2563eb, 0.4);
+  box-shadow: none;
   &:hover {
-    box-shadow: 0 12px 40px rgba(#2563EB, 0.5);
+    box-shadow: 0 12px 40px rgba(#2563eb, 0.5);
+  }
+  &:before {
+    background: #6693f4;
   }
 }
 
 // Attack section with split buttons
 .attackSection {
-  background: linear-gradient(135deg, #DC2626 0%, #EF4444 50%, #F87171 100%);
+  position: relative;
+  background: #c13335;
+
+  // background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
   border-radius: $radius-xl;
   padding: $spacing-md;
-  box-shadow: 0 8px 32px rgba(#DC2626, 0.4);
+  overflow: hidden;
+  &:after {
+    content: '';
+    position: absolute;
+    width: 50%;
+    height: 363px;
+    right: 0%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #ff7c7c;
+    background-position: bottom right;
+    filter: blur(100px);
+    z-index: 1;
+    border-radius: 50%;
+  }
+  // box-shadow: 0 8px 32px rgba(#dc2626, 0.4);
 }
 
 .attackButtons {
+  position: relative;
+  z-index: 2;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: $spacing-sm;
 }
 
@@ -132,12 +160,19 @@
 }
 
 .bannerTitle {
-  font-family: $font-family-heading;
-  font-size: $text-xl;
+  font-size: 32px;
+  text-transform: uppercase;
   font-weight: 700;
+  color: #fff;
+  // letter-spacing: 0.05em;
+  text-shadow: 0px 4px 0px rgba(0, 0, 0, 0.14);
+
+  // font-family: $font-family-heading;
+  font-size: $text-xl;
+  font-weight: 900;
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  // letter-spacing: 0.5px;
 }
 
 .bannerDesc {
@@ -170,9 +205,16 @@
 }
 
 .bannerArrow {
+  position: relative;
+  z-index: 3;
+  width: 140px;
+  height: 140px;
   font-size: $text-2xl;
   font-weight: 700;
   opacity: 0.8;
+  position: absolute;
+  bottom: 0;
+  right: 0;
 }
 
 .info {

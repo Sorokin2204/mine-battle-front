@@ -5,6 +5,7 @@ import Avatar from '@/components/common/Avatar';
 import DifficultyIndicator from '@/components/common/DifficultyIndicator';
 import { DefensePublic } from '@/types';
 import { formatRelativeTime } from '@/utils/formatTime';
+import { star } from '@/utils/icons';
 
 interface HistoryCardProps {
   defense: DefensePublic;
@@ -50,12 +51,17 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ defense, currentUserId, onCli
       <div className={styles.players}>
         <div className={styles.player}>
           <Avatar src={defense.creator.photoUrl} name={defense.creator.firstName || defense.creator.username} size="sm" />
-          <span className={styles.role}>&#128737;&#65039;</span>
+          <span className={styles.role}>
+            <img src="/shield_small.webp" width="16px" />
+          </span>
         </div>
-        <DifficultyIndicator difficulty={defense.difficulty} />
+        <div className={styles.vs}>VS</div>
+        {/* <DifficultyIndicator difficulty={defense.difficulty} /> */}
         <div className={styles.player}>
           <Avatar src={defense.attacker?.photoUrl} name={defense.attacker?.firstName || defense.attacker?.username} size="sm" />
-          <span className={styles.role}>&#9876;&#65039;</span>
+          <span className={styles.role}>
+            <img src="/two-swords.webp" width="16px" style={{ transform: 'rotate(180deg)' }} />
+          </span>
         </div>
       </div>
 
@@ -66,14 +72,28 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ defense, currentUserId, onCli
             {result.variant === 'win' && '+'}
             {result.variant === 'lose' && '-'}
             {result.variant === 'neutral' ? defense.bet : result.amount}
-            <span className={styles.star}>&#9733;</span>
+            <span className={styles.star}>{star(18)}</span>
           </span>
         </div>
-        {finishedTime && <span className={styles.finishedTime}>{finishedTime}</span>}
+        {/* {finishedTime && <span className={styles.finishedTime}>{finishedTime}</span>} */}
         <div className={styles.resultIcon}>
-          {result.variant === 'win' && <span className={styles.trophy}>&#127942;</span>}
-          {result.variant === 'lose' && <span className={styles.defeat}>&#128546;</span>}
-          {result.variant === 'neutral' && <span className={styles.check}>&#9989;</span>}
+          {result.variant === 'win' && (
+            <span className={styles.trophy}>
+              <img src="/win.png" width="24px" />
+              {/* <img src="/trophy.png" width="24px" /> */}
+            </span>
+          )}
+          {result.variant === 'lose' && (
+            <span className={styles.defeat}>
+              <img src="/down.png" width="24px" />
+            </span>
+          )}
+          {result.variant === 'neutral' && (
+            <span className={styles.check}>
+              {' '}
+              <img src="/check.png" width="40px" />
+            </span>
+          )}
         </div>
       </div>
     </div>

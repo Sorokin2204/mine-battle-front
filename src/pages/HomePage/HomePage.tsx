@@ -55,30 +55,17 @@ const HomePage: React.FC = () => {
   return (
     <div className={styles.page}>
       {/* Attack section - split into two buttons */}
-      <motion.div
-        className={styles.attackSection}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
+      {/* <motion.div className={styles.attackSection} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
         <div className={styles.attackButtons}>
-          <div
-            className={styles.attackBtn}
-            onClick={() => navigate('/games')}
-          >
+          <div className={styles.attackBtn} onClick={() => navigate('/games')}>
             <span className={styles.attackIcon}>&#9876;&#65039;</span>
             <div className={styles.attackText}>
               <span className={styles.attackTitle}>Список атак</span>
               <span className={styles.attackDesc}>Выбери цель</span>
             </div>
-            {waitingDefensesCount > 0 && (
-              <span className={styles.counter}>{waitingDefensesCount}</span>
-            )}
+            {waitingDefensesCount > 0 && <span className={styles.counter}>{waitingDefensesCount}</span>}
           </div>
-          <div
-            className={styles.attackBtn}
-            onClick={() => navigate('/search-attack')}
-          >
+          <div className={styles.attackBtn} onClick={() => navigate('/search-attack')}>
             <span className={styles.attackIcon}>&#128269;</span>
             <div className={styles.attackText}>
               <span className={styles.attackTitle}>Поиск атаки</span>
@@ -86,31 +73,35 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         </div>
+      </motion.div> */}
+
+      <motion.div className={`${styles.banner}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} onClick={() => navigate('/games')}>
+        <div className={styles.bannerContent}>
+          {/* <span className={styles.bannerIcon}>&#128737;&#65039;</span> */}
+          <div className={styles.bannerText}>
+            <h2 className={styles.bannerTitle}>Атаковать</h2>
+            <p className={styles.bannerDesc}>Спрячь бомбы и защити ставку</p>
+          </div>
+        </div>
+        <div className={styles.bannerArrow}>
+          <img src="/two-swords.webp" />
+        </div>
       </motion.div>
 
-      <motion.div
-        className={`${styles.banner} ${styles.bannerDefense}`}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        onClick={() => navigate('/create-defense')}
-      >
+      <motion.div className={`${styles.banner} ${styles.bannerDefense}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} onClick={() => navigate('/create-defense')}>
         <div className={styles.bannerContent}>
-          <span className={styles.bannerIcon}>&#128737;&#65039;</span>
+          {/* <span className={styles.bannerIcon}>&#128737;&#65039;</span> */}
           <div className={styles.bannerText}>
             <h2 className={styles.bannerTitle}>Создать защиту</h2>
             <p className={styles.bannerDesc}>Спрячь бомбы и защити ставку</p>
           </div>
         </div>
-        <div className={styles.bannerArrow}>&#8594;</div>
+        <div className={styles.bannerArrow}>
+          <img src="/shield.webp" />
+        </div>
       </motion.div>
 
-      <motion.div
-        className={styles.info}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-      >
+      <motion.div className={styles.info} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
         <h3 className={styles.infoTitle}>Как играть?</h3>
         <div className={styles.infoList}>
           <div className={styles.infoItem}>

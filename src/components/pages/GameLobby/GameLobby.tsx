@@ -16,6 +16,8 @@ import { socketService } from '@/services/socket';
 import { getConfigByDifficulty } from '@/config/game.config';
 import { DefensePublic, MoveResult } from '@/types';
 import { formatRelativeTime } from '@/utils/formatTime';
+import Waiting from '@/components/common/Waiting/Waiting';
+import { star } from '@/utils/icons';
 
 const GameLobby: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -251,7 +253,11 @@ const GameLobby: React.FC = () => {
       return <Badge variant="warning">Истекла ⏰</Badge>;
     }
     if (isWaiting) {
-      return <Badge variant="info">Ожидание атаки ⏳</Badge>;
+      return (
+        <Badge variant="info">
+          Ожидание атаки <Waiting />
+        </Badge>
+      );
     }
     if (isGameActive) {
       return <Badge variant="error">Идет атака ⚔️</Badge>;
@@ -303,22 +309,29 @@ const GameLobby: React.FC = () => {
   const finishedTime = isFinished ? formatRelativeTime(activeDefense.finishedAt) : isExpired ? formatRelativeTime(activeDefense.expiresAt) : null;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={`Битва #${activeDefense.id}`}>
+    <Modal isOpen={isOpen} onClose={handleClose}>
       <div className={styles.lobby}>
+        <div className={clsx(styles.header)}>
+          <div className={clsx(styles.title)}>{`Битва #${activeDefense.id}`}</div> {getStatusBadge()}
+        </div>
         {/* Status */}
         <div className={styles.statusSection}>
-          {getStatusBadge()}
-          <DifficultyIndicator difficulty={activeDefense.difficulty} showLabel />
-          {isGameActive && activeDefense.moveDeadline && <Timer endTime={new Date(activeDefense.moveDeadline).getTime()} type="badge" prefix="⏱️ " />}
+          {/* <DifficultyIndicator difficulty={activeDefense.difficulty} showLabel /> */}
+
           {(isFinished || isExpired) && finishedTime && <span className={styles.finishedTime}>{finishedTime}</span>}
         </div>
 
         {/* Players */}
         <div className={styles.players}>
           <div className={styles.player}>
-            <Avatar src={activeDefense.creator.photoUrl} name={activeDefense.creator.firstName} size="lg" />
+            <div className={styles.avatarWrap}>
+              <Avatar src={activeDefense.creator.photoUrl} name={activeDefense.creator.firstName} size="lg" />
+              <span className={styles.playerRole}>
+                <img src="/shield_small.webp" width="28px" />
+              </span>
+            </div>
+
             <span className={styles.playerName}>{activeDefense.creator.firstName || activeDefense.creator.username || 'Защитник'}</span>
-            <span className={styles.playerRole}>🛡️ Защитник</span>
           </div>
 
           <div className={styles.vs}>VS</div>
@@ -326,18 +339,33 @@ const GameLobby: React.FC = () => {
           <div className={styles.player}>
             {activeDefense.attacker ? (
               <>
-                <Avatar src={activeDefense.attacker.photoUrl} name={activeDefense.attacker.firstName} size="lg" />
+                <div className={styles.avatarWrap}>
+                  <Avatar src={activeDefense.attacker.photoUrl} name={activeDefense.attacker.firstName} size="lg" />
+                  <span className={styles.playerRole}>
+                    <img src="/two-swords.webp" width="28px" style={{ transform: 'rotate(180deg)' }} />
+                  </span>
+                </div>
                 <span className={styles.playerName}>{activeDefense.attacker.firstName || activeDefense.attacker.username || 'Атакующий'}</span>
               </>
             ) : (
               <>
-                <div className={styles.emptyAvatar}>?</div>
+                <div className={styles.avatarWrap}>
+                  <div className={styles.emptyAvatar}>?</div>{' '}
+                  <span className={styles.playerRole}>
+                    <img src="/two-swords.webp" width="28px" style={{ transform: 'rotate(180deg)' }} />
+                  </span>
+                </div>
+
                 <span className={styles.playerName}>Ожидание...</span>
               </>
             )}
-            <span className={styles.playerRole}>⚔️ Атакующий</span>
           </div>
         </div>
+        <div className={styles.infoItem}>
+          <span className={styles.infoIcon}></span>
+          <span>Найди {gameConfig.bombsCount} бомбы 💣</span>
+        </div>
+        {isGameActive && activeDefense.moveDeadline && <Timer endTime={new Date(activeDefense.moveDeadline).getTime()} type="countdown" />}
 
         {/* Game Board */}
         <div className={styles.boardSection}>
@@ -357,32 +385,59 @@ const GameLobby: React.FC = () => {
             fieldSize={gameConfig.fieldSize}
           />
         </div>
-
-        {/* Tool confirmation buttons */}
-        {(scannerPreview || radarPreview) && (
-          <div className={styles.toolConfirm}>
-            {radarPreview && (
-              <Button color="secondary" size="sm" onClick={toggleRadarType}>
-                {radarPreview.type === 'row' ? '↔ Строка' : '↕ Столбец'}
-              </Button>
-            )}
-            <Button color="primary" size="sm" onClick={scannerPreview ? confirmScanner : confirmRadar} loading={isProcessingMove}>
-              Подтвердить
-            </Button>
-            <Button color="secondary" size="sm" onClick={cancelTool}>
-              Отмена
-            </Button>
+        {isGameActive ? (
+          <div className={clsx(styles.attempts)}>
+            {' '}
+            Осталось попыток <span>{attemptsLeft}</span> <img src="/target.png" />
+          </div>
+        ) : (
+          <div className={styles.infoRow}>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Попытки</span>
+              <span className={styles.statValue}>
+                {attemptsLeft} из {gameConfig.attempts}
+              </span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Найдено</span>
+              <span className={styles.statValue}>
+                💣 {activeDefense.bombsFound}/{gameConfig.bombsCount}
+              </span>
+            </div>
           </div>
         )}
+
+        {/* Tool confirmation buttons */}
 
         {/* Pre-attack Game Info (for waiting games - both defender and attacker) */}
         {isWaiting && !isExpired && (
           <div className={styles.gameInfo}>
             <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>🎯</span>
-              <span>Найди {gameConfig.bombsCount} 💣 бомбы</span>
+              <span>Найди бомбы {gameConfig.bombsCount} 💣 </span>
             </div>
-            <div className={styles.infoRow}>
+
+            <div className={styles.summary}>
+              <div className={styles.summaryRow}>
+                <span>Попытки</span>
+                <span>
+                  <img src="/target.png" /> {gameConfig.attempts}
+                </span>
+              </div>
+              <div className={styles.summaryRow}>
+                <span> Радары</span>
+                <span>
+                  <img src="/radar3.png" /> {gameConfig.radars}
+                </span>
+              </div>
+              <div className={styles.summaryRow}>
+                <span>Сканеры</span>
+                <span>
+                  <img src="/scanner.png" /> {gameConfig.scanners}
+                </span>
+              </div>
+            </div>
+
+            {/* <div className={styles.infoRow}>
               <div className={styles.stat}>
                 <span className={styles.statLabel}>☝️ Попытки</span>
                 <span className={styles.statValue}>{gameConfig.attempts}</span>
@@ -395,7 +450,7 @@ const GameLobby: React.FC = () => {
                 <span className={styles.statLabel}>📶 Сканеры</span>
                 <span className={styles.statValue}>{gameConfig.scanners}</span>
               </div>
-            </div>
+            </div> */}
             {isDefender ? (
               <div className={styles.betInfo}>
                 <div className={styles.betLabel}>Ставка</div>
@@ -408,7 +463,7 @@ const GameLobby: React.FC = () => {
               <div className={styles.winInfo}>
                 <div className={styles.winLabel}>Выигрыш</div>
                 <div className={styles.winAmount}>
-                  <span className={styles.star}>⭐</span>
+                  <span className={styles.star}>{star()}</span>
                   {potentialWin}
                 </div>
               </div>
@@ -419,30 +474,11 @@ const GameLobby: React.FC = () => {
         {/* Active Game Info */}
         {isGameActive && (
           <div className={styles.gameInfo}>
-            <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>🎯</span>
-              <span>Найди {gameConfig.bombsCount} бомбы</span>
-            </div>
-            <div className={styles.infoRow}>
-              <div className={styles.stat}>
-                <span className={styles.statLabel}>Попытки</span>
-                <span className={styles.statValue}>
-                  {attemptsLeft}/{gameConfig.attempts}
-                </span>
-              </div>
-              <div className={styles.stat}>
-                <span className={styles.statLabel}>Найдено</span>
-                <span className={styles.statValue}>
-                  💣 {activeDefense.bombsFound}/{gameConfig.bombsCount}
-                </span>
-              </div>
-            </div>
-
             {/* Tools */}
             {isAttackerRole && (
               <div className={styles.tools}>
                 <button
-                  className={clsx(styles.tool, { [styles.active]: activeTool === 'scanner' })}
+                  className={clsx(styles.tool, styles.toolScanner, { [styles.active]: activeTool === 'scanner' })}
                   onClick={() => {
                     if (activeTool === 'scanner') {
                       cancelTool();
@@ -453,14 +489,15 @@ const GameLobby: React.FC = () => {
                       setScannerPreview(positions);
                     }
                   }}
-                  disabled={scannersLeft <= 0 || isProcessingMove}
-                >
-                  <span className={styles.toolIcon}>🔍</span>
-                  <span className={styles.toolName}>Сканер</span>
+                  disabled={scannersLeft <= 0 || isProcessingMove}>
+                  <span className={styles.toolIcon}>
+                    <img src="/radar3.png" />
+                  </span>
+                  <span className={styles.toolName}>Радар</span>
                   <span className={styles.toolCount}>{scannersLeft}</span>
                 </button>
                 <button
-                  className={clsx(styles.tool, { [styles.active]: activeTool === 'radar' })}
+                  className={clsx(styles.tool, styles.toolRadar, { [styles.active]: activeTool === 'radar' })}
                   onClick={() => {
                     if (activeTool === 'radar') {
                       cancelTool();
@@ -470,10 +507,12 @@ const GameLobby: React.FC = () => {
                       setRadarPreview({ type: 'row', index: 0, bombCount: -1 });
                     }
                   }}
-                  disabled={radarsLeft <= 0 || isProcessingMove}
-                >
-                  <span className={styles.toolIcon}>📡</span>
-                  <span className={styles.toolName}>Радар</span>
+                  disabled={radarsLeft <= 0 || isProcessingMove}>
+                  <span className={styles.toolIcon}>
+                    {' '}
+                    <img src="/scanner.png" />
+                  </span>
+                  <span className={styles.toolName}>Сканер</span>
                   <span className={styles.toolCount}>{radarsLeft}</span>
                 </button>
               </div>
@@ -506,11 +545,26 @@ const GameLobby: React.FC = () => {
               Забрать ⭐ {Math.floor(activeDefense.bet / 2)} (50%)
             </Button>
           )}
-
-          {(isFinished || isExpired) && (
+          {scannerPreview || radarPreview ? (
+            <div className={styles.toolConfirm}>
+              {radarPreview && (
+                <Button color="secondary" size="sm" onClick={toggleRadarType}>
+                  {radarPreview.type === 'row' ? '↔ Строка' : '↕ Столбец'}
+                </Button>
+              )}
+              <Button color="secondary" size="lg" onClick={cancelTool}>
+                Отмена
+              </Button>
+              <Button color="primary" size="lg" onClick={scannerPreview ? confirmScanner : confirmRadar} loading={isProcessingMove}>
+                Подтвердить
+              </Button>
+            </div>
+          ) : isFinished || isExpired || isGameActive ? (
             <Button color="secondary" size="lg" fullWidth onClick={handleClose}>
               Закрыть
             </Button>
+          ) : (
+            <></>
           )}
         </div>
       </div>

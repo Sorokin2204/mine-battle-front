@@ -44,8 +44,9 @@ const HistoryPage: React.FC = () => {
   return (
     <div className={styles.page}>
       <motion.div className={styles.header} initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className={styles.title}>История игр</h1>
-        <span className={styles.count}>{finishedGames.length}</span>
+        <h1 className={styles.title}>
+          История игр <span>{finishedGames.length}</span> <img src="/history3.png" />
+        </h1>
       </motion.div>
 
       <div className={styles.list}>
@@ -54,19 +55,8 @@ const HistoryPage: React.FC = () => {
             <div className={styles.loading}>Загрузка...</div>
           ) : finishedGames.length > 0 ? (
             finishedGames.map((defense, index) => (
-              <motion.div
-                key={defense.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ delay: index * 0.05 }}
-                layout
-              >
-                <HistoryCard
-                  defense={defense}
-                  currentUserId={user?.id}
-                  onClick={() => handleCardClick(defense.id)}
-                />
+              <motion.div key={defense.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ delay: index * 0.05 }} layout>
+                <HistoryCard defense={defense} currentUserId={user?.id} onClick={() => handleCardClick(defense.id)} />
               </motion.div>
             ))
           ) : (

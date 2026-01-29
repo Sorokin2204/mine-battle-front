@@ -1,11 +1,28 @@
 @import '@/styles/variables.scss';
 
+.timeBlock {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+.timeDivider {
+  color: rgb(72 87 128 / 50%);
+  font-size: $text-xl;
+}
 .timer {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
   &--countdown {
-    font-size: $text-lg;
+    font-size: $text-2xl;
   }
 
   &--badge {
@@ -47,7 +64,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

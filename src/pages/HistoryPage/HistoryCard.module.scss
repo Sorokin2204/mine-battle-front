@@ -1,29 +1,33 @@
 @import '@/styles/variables.scss';
 
 .card {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: $spacing-md $spacing-lg;
-  background: $bg-card;
+  // padding-bottom: $spacing-xl;
+  background: $bg-card-2;
   border-radius: $radius-lg;
   cursor: pointer;
   transition: all $transition-fast;
-  border: 1px solid $border-color;
+  // border: 1px solid $border-color;
 
-  &:hover {
-    border-color: $border-color-hover;
-    background: $bg-card-hover;
-  }
+  // &:hover {
+  //   border-color: $border-color-hover;
+  //   background: $bg-card-hover;
+  // }
 
   &--win {
     border-color: rgba($green-500, 0.3);
-    background: linear-gradient(135deg, $bg-card 0%, rgba($green-500, 0.1) 100%);
+    background: linear-gradient(135deg, $bg-card-2 0%, rgba($green-500, 0.1) 100%);
   }
 
   &--lose {
     border-color: rgba($red-500, 0.3);
-    background: linear-gradient(135deg, $bg-card 0%, rgba($red-500, 0.1) 100%);
+    // background: rgba($red-500, 0.07);
+
+    background: linear-gradient(135deg, $bg-card-2 0%, rgba($red-500, 0.1) 100%);
   }
 }
 
@@ -39,17 +43,32 @@
 
 .role {
   position: absolute;
-  bottom: -4px;
-  right: -4px;
+  bottom: -6px;
+  right: -6px;
   font-size: 12px;
 }
 
 .vs {
+  margin-left: 2px;
   font-size: $text-xs;
   font-weight: 600;
-  color: $text-muted;
-  margin: 0 $spacing-xs;
+  background: -webkit-linear-gradient(#eee, #333);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0.5;
+  // margin: 0 $spacing-xs;
 }
+
+// .vs {
+//   font-size: 32px;
+//   font-weight: 900;
+//   background: -webkit-linear-gradient(#eee, #333);
+//   -webkit-background-clip: text;
+//   -webkit-text-fill-color: transparent;
+//   color: $text-primary;
+//   opacity: 0.5;
+//   padding: 0 $spacing-md;
+// }
 
 .info {
   display: flex;
@@ -67,6 +86,7 @@
 .betLabel {
   font-size: $text-xs;
   color: $text-muted;
+  color: #7987ae;
 }
 
 .betAmount {
@@ -87,6 +107,9 @@
 }
 
 .star {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: $yellow-500;
   font-size: $text-md;
 }
@@ -111,9 +134,16 @@
 
 .check {
   display: flex;
+  border-radius: 9999px;
+  // padding: 8px;
+  // background: rgba($green-500, 0.2);
 }
 
 .finishedTime {
+  // display: none;
+  position: absolute;
+  bottom: 2px;
+  left: 16px;
   font-size: $text-xs;
   color: $text-muted;
 }

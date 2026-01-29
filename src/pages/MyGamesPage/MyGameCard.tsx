@@ -6,6 +6,7 @@ import Avatar from '@/components/common/Avatar';
 import DifficultyIndicator from '@/components/common/DifficultyIndicator';
 import { DefensePublic } from '@/types';
 import { formatRelativeTime } from '@/utils/formatTime';
+import { star } from '@/utils/icons';
 
 interface MyGameCardProps {
   defense: DefensePublic;
@@ -103,11 +104,7 @@ const MyGameCard: React.FC<MyGameCardProps> = ({ defense, currentUserId, onClick
   const result = getResultInfo();
   const status = getStatusInfo();
   // For expired defenses, use expiresAt since finishedAt is null
-  const finishedTime = isFinished
-    ? formatRelativeTime(defense.finishedAt)
-    : isExpired
-      ? formatRelativeTime(defense.expiresAt)
-      : null;
+  const finishedTime = isFinished ? formatRelativeTime(defense.finishedAt) : isExpired ? formatRelativeTime(defense.expiresAt) : null;
 
   const getOpponent = () => {
     if (isCreator && defense.attacker) {
@@ -135,42 +132,66 @@ const MyGameCard: React.FC<MyGameCardProps> = ({ defense, currentUserId, onClick
         {opponent ? <Avatar src={opponent.photoUrl} name={opponent.firstName || opponent.username} size="md" /> : <div className={styles.emptyAvatar}>?</div>}
         <div className={styles.roleInfo}>
           <div className={styles.roleIcon}>
-            {isCreator && <span>&#128737;&#65039;</span>}
-            {isAttacker && !isCreator && <span>&#9876;&#65039;</span>}
+            {isCreator && (
+              <span>
+                <img src="/two-swords.webp" width="24px" style={{ transform: 'rotate(180deg)' }} />
+              </span>
+            )}
+            {isAttacker && !isCreator && (
+              <span>
+                <img src="/shield_small.webp" width="24px" />
+              </span>
+            )}
           </div>
-          <DifficultyIndicator difficulty={defense.difficulty} />
         </div>
       </div>
 
-      <div className={styles.center}>
-        {result ? (
-          <div className={styles.resultRow}>
-            <span className={styles.resultLabel}>{result.label}</span>
-            <span className={clsx(styles.resultAmount, styles[`resultAmount--${result.variant}`])}>
-              {result.variant === 'win' ? '+' : result.variant === 'refund' ? '+' : '-'}
-              {result.amount}
-              <span className={styles.star}>&#9733;</span>
-            </span>
-          </div>
-        ) : (
-          <div className={styles.betRow}>
-            <span className={styles.betLabel}>Ставка</span>
-            <span className={styles.betAmount}>
-              <span className={styles.star}>&#9733;</span>
-              {defense.bet}
-            </span>
-            {defense.status === 'WAITING' && !isExpired && <span className={styles.multiplier}>x1.9</span>}
-          </div>
-        )}
-      </div>
-
+      {finishedTime && (
+        <span className={styles.finishedTime}>
+          {' '}
+          {/* <div className={clsx(styles.indicator)}>
+            <DifficultyIndicator difficulty={defense.difficulty} />
+          </div> */}
+          {finishedTime}
+        </span>
+      )}
       <div className={styles.right}>
         {result && (
           <>
-            {finishedTime && <span className={styles.finishedTime}>{finishedTime}</span>}
+            {' '}
+            <div className={styles.center}>
+              {result ? (
+                <div className={styles.resultRow}>
+                  <span className={styles.resultLabel}>{result.label}</span>
+                  <span className={clsx(styles.resultAmount, styles[`resultAmount--${result.variant}`])}>
+                    {result.variant === 'win' ? '+' : result.variant === 'refund' ? '+' : '-'}
+                    {result.amount}
+                    {star(18)}
+                  </span>
+                </div>
+              ) : (
+                <div className={styles.betRow}>
+                  <span className={styles.betLabel}>Ставка</span>
+                  <span className={styles.betAmount}>
+                    {star()}
+                    {defense.bet}
+                  </span>
+                  {defense.status === 'WAITING' && !isExpired && <span className={styles.multiplier}>x1.9</span>}
+                </div>
+              )}
+            </div>
             <div className={styles.resultIcon}>
-              {result.variant === 'win' && <span className={styles.trophy}>&#127942;</span>}
-              {result.variant === 'lose' && <span className={styles.defeat}>&#128546;</span>}
+              {result.variant === 'win' && (
+                <span className={styles.trophy}>
+                  <img src="/win.png" width="24px" />
+                </span>
+              )}
+              {result.variant === 'lose' && (
+                <span className={styles.defeat}>
+                  {' '}
+                  <img src="/down.png" width="24px" />
+                </span>
+              )}
               {result.variant === 'refund' && <span className={styles.refund}>&#8634;</span>}
             </div>
           </>

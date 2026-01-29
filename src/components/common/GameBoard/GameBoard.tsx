@@ -5,6 +5,7 @@ import { DndContext, useDraggable, DragEndEvent, DragMoveEvent } from '@dnd-kit/
 import { CSS } from '@dnd-kit/utilities';
 import styles from './GameBoard.module.scss';
 import { gameConfig as defaultGameConfig } from '@/config/game.config';
+import Icon from '../Icon/Icon';
 
 interface GameBoardProps {
   mode: 'setup' | 'play' | 'view';
@@ -33,14 +34,7 @@ interface DraggableScannerProps {
   gap: number;
 }
 
-const DraggableScanner: React.FC<DraggableScannerProps> = ({
-  fieldSize,
-  currentRow,
-  currentCol,
-  cellSize,
-  gridPadding,
-  gap
-}) => {
+const DraggableScanner: React.FC<DraggableScannerProps> = ({ fieldSize, currentRow, currentCol, cellSize, gridPadding, gap }) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: 'scanner-overlay',
   });
@@ -62,15 +56,9 @@ const DraggableScanner: React.FC<DraggableScannerProps> = ({
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={clsx(styles.draggableScanner, { [styles['draggableScanner--dragging']]: isDragging })}
-      {...listeners}
-      {...attributes}
-    >
-      <span className={styles.scannerDragIcon}>🔍</span>
-      <span className={styles.scannerDragText}>2×2</span>
+    <div ref={setNodeRef} style={style} className={clsx(styles.draggableScanner, { [styles['draggableScanner--dragging']]: isDragging })} {...listeners} {...attributes}>
+      <span className={styles.scannerDragIcon}> {/* <img src="/radar3.png" /> */}</span>
+      {/* <span className={styles.scannerDragText}>2×2</span> */}
     </div>
   );
 };
@@ -86,15 +74,7 @@ interface DraggableRadarProps {
   gridSize: number;
 }
 
-const DraggableRadar: React.FC<DraggableRadarProps> = ({
-  fieldSize,
-  type,
-  index,
-  cellSize,
-  gridPadding,
-  gap,
-  gridSize
-}) => {
+const DraggableRadar: React.FC<DraggableRadarProps> = ({ fieldSize, type, index, cellSize, gridPadding, gap, gridSize }) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: 'radar-overlay',
   });
@@ -129,13 +109,7 @@ const DraggableRadar: React.FC<DraggableRadarProps> = ({
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={clsx(styles.draggableRadar, styles[`draggableRadar--${type}`], { [styles['draggableRadar--dragging']]: isDragging })}
-      {...listeners}
-      {...attributes}
-    >
+    <div ref={setNodeRef} style={style} className={clsx(styles.draggableRadar, styles[`draggableRadar--${type}`], { [styles['draggableRadar--dragging']]: isDragging })} {...listeners} {...attributes}>
       <span className={styles.radarDragIcon}>📡</span>
       <span className={styles.radarDragText}>{isRow ? '→' : '↓'}</span>
     </div>
@@ -156,7 +130,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   activeTool = null,
   onScannerPlaced,
   onRadarPlaced,
-  fieldSize: fieldSizeProp
+  fieldSize: fieldSizeProp,
 }) => {
   const fieldSize = fieldSizeProp ?? defaultGameConfig.fieldSize;
   const cells = Array.from({ length: fieldSize * fieldSize }, (_, i) => i);
@@ -183,7 +157,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
           cellSize,
           gridPadding: padding,
           gap,
-          gridSize: rect.width
+          gridSize: rect.width,
         });
       }
     };
@@ -223,47 +197,45 @@ const GameBoard: React.FC<GameBoardProps> = ({
   };
 
   // Handle drag end for scanner
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { active, delta } = event;
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, delta } = event;
 
-    if (active.id === 'scanner-overlay') {
-      const { cellSize, gap } = gridDimensions;
-      const stepSize = cellSize + gap;
+      if (active.id === 'scanner-overlay') {
+        const { cellSize, gap } = gridDimensions;
+        const stepSize = cellSize + gap;
 
-      // Calculate how many cells to move
-      const colDelta = Math.round(delta.x / stepSize);
-      const rowDelta = Math.round(delta.y / stepSize);
+        // Calculate how many cells to move
+        const colDelta = Math.round(delta.x / stepSize);
+        const rowDelta = Math.round(delta.y / stepSize);
 
-      // Calculate new position with bounds
-      const newCol = Math.max(0, Math.min(fieldSize - 2, scannerDragPos.col + colDelta));
-      const newRow = Math.max(0, Math.min(fieldSize - 2, scannerDragPos.row + rowDelta));
+        // Calculate new position with bounds
+        const newCol = Math.max(0, Math.min(fieldSize - 2, scannerDragPos.col + colDelta));
+        const newRow = Math.max(0, Math.min(fieldSize - 2, scannerDragPos.row + rowDelta));
 
-      setScannerDragPos({ row: newRow, col: newCol });
+        setScannerDragPos({ row: newRow, col: newCol });
 
-      // Calculate cell positions for 2x2 area
-      const positions = [
-        newRow * fieldSize + newCol,
-        newRow * fieldSize + newCol + 1,
-        (newRow + 1) * fieldSize + newCol,
-        (newRow + 1) * fieldSize + newCol + 1
-      ];
+        // Calculate cell positions for 2x2 area
+        const positions = [newRow * fieldSize + newCol, newRow * fieldSize + newCol + 1, (newRow + 1) * fieldSize + newCol, (newRow + 1) * fieldSize + newCol + 1];
 
-      onScannerPlaced?.(positions);
-    } else if (active.id === 'radar-overlay') {
-      const { cellSize, gap } = gridDimensions;
-      const stepSize = cellSize + gap;
+        onScannerPlaced?.(positions);
+      } else if (active.id === 'radar-overlay') {
+        const { cellSize, gap } = gridDimensions;
+        const stepSize = cellSize + gap;
 
-      // Calculate movement based on radar type
-      const isRow = radarResult?.type === 'row';
-      const moveDelta = isRow ? delta.y : delta.x;
-      const indexDelta = Math.round(moveDelta / stepSize);
+        // Calculate movement based on radar type
+        const isRow = radarResult?.type === 'row';
+        const moveDelta = isRow ? delta.y : delta.x;
+        const indexDelta = Math.round(moveDelta / stepSize);
 
-      const newIndex = Math.max(0, Math.min(fieldSize - 1, radarDragIndex + indexDelta));
+        const newIndex = Math.max(0, Math.min(fieldSize - 1, radarDragIndex + indexDelta));
 
-      setRadarDragIndex(newIndex);
-      onRadarPlaced?.(newIndex);
-    }
-  }, [gridDimensions, fieldSize, scannerDragPos, radarDragIndex, radarResult, onScannerPlaced, onRadarPlaced]);
+        setRadarDragIndex(newIndex);
+        onRadarPlaced?.(newIndex);
+      }
+    },
+    [gridDimensions, fieldSize, scannerDragPos, radarDragIndex, radarResult, onScannerPlaced, onRadarPlaced],
+  );
 
   const getCellState = (position: number) => {
     const isSelected = selectedBombs.includes(position);
@@ -271,10 +243,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
     const isFoundBomb = foundBombPositions.includes(position);
     const isBomb = bombPositions.includes(position) || isFoundBomb;
     const isInScanner = scannerPositions.includes(position);
-    const isInRadar = radarResult && (
-      (radarResult.type === 'row' && Math.floor(position / fieldSize) === radarResult.index) ||
-      (radarResult.type === 'column' && position % fieldSize === radarResult.index)
-    );
+    const isInRadar = radarResult && ((radarResult.type === 'row' && Math.floor(position / fieldSize) === radarResult.index) || (radarResult.type === 'column' && position % fieldSize === radarResult.index));
 
     return { isSelected, isRevealed, isBomb, isFoundBomb, isInScanner, isInRadar };
   };
@@ -329,7 +298,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   )}
                   {isRevealed && !isFoundBomb && !isBomb && (
                     <motion.span className={styles.safeIcon} initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                      ✕
+                      <Icon icon="close" />
                     </motion.span>
                   )}
                   {mode === 'view' && !isRevealed && isBomb && (
@@ -343,28 +312,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
           </AnimatePresence>
 
           {/* Draggable Scanner */}
-          {showDraggableScanner && gridDimensions.cellSize > 0 && (
-            <DraggableScanner
-              fieldSize={fieldSize}
-              currentRow={scannerDragPos.row}
-              currentCol={scannerDragPos.col}
-              cellSize={gridDimensions.cellSize}
-              gridPadding={gridDimensions.gridPadding}
-              gap={gridDimensions.gap}
-            />
-          )}
+          {showDraggableScanner && gridDimensions.cellSize > 0 && <DraggableScanner fieldSize={fieldSize} currentRow={scannerDragPos.row} currentCol={scannerDragPos.col} cellSize={gridDimensions.cellSize} gridPadding={gridDimensions.gridPadding} gap={gridDimensions.gap} />}
 
           {/* Draggable Radar */}
           {showDraggableRadar && gridDimensions.cellSize > 0 && radarResult && (
-            <DraggableRadar
-              fieldSize={fieldSize}
-              type={radarResult.type}
-              index={radarDragIndex}
-              cellSize={gridDimensions.cellSize}
-              gridPadding={gridDimensions.gridPadding}
-              gap={gridDimensions.gap}
-              gridSize={gridDimensions.gridSize}
-            />
+            <DraggableRadar fieldSize={fieldSize} type={radarResult.type} index={radarDragIndex} cellSize={gridDimensions.cellSize} gridPadding={gridDimensions.gridPadding} gap={gridDimensions.gap} gridSize={gridDimensions.gridSize} />
           )}
         </div>
 
@@ -383,9 +335,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
               [styles['radarOverlay--column']]: radarResult.type === 'column',
             })}
             style={{
-              ...(radarResult.type === 'row'
-                ? { top: `${(radarResult.index + 0.5) * (100 / fieldSize)}%` }
-                : { left: `${(radarResult.index + 0.5) * (100 / fieldSize)}%` }),
+              ...(radarResult.type === 'row' ? { top: `${(radarResult.index + 0.5) * (100 / fieldSize)}%` } : { left: `${(radarResult.index + 0.5) * (100 / fieldSize)}%` }),
             }}>
             <span className={styles.radarCount}>{radarResult.bombCount}</span>
           </div>

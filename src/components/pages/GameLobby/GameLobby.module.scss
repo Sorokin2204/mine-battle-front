@@ -3,9 +3,19 @@
 .lobby {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xl;
+  gap: $spacing-sm;
 }
-
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #263041;
+  padding-bottom: $spacing-lg;
+}
+.title {
+  font-size: $text-xl;
+  font-weight: 700;
+}
 .statusSection {
   display: flex;
   align-items: center;
@@ -20,10 +30,11 @@
   padding: $spacing-lg;
   background: $bg-card;
   border-radius: $radius-lg;
-  border: 1px solid $border-color;
+  // border: 1px solid $border-color;
 }
 
 .player {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -32,17 +43,26 @@
 }
 
 .playerName {
-  font-size: $text-sm;
+  font-size: $text-xs;
   font-weight: 600;
   color: $text-primary;
   text-align: center;
 }
-
+.avatarWrap {
+  position: relative;
+}
 .playerRole {
+  bottom: -4px;
+  right: -8px;
+  position: absolute;
+
   font-size: $text-xs;
   color: $text-secondary;
   text-transform: uppercase;
   letter-spacing: 0.3px;
+  & img {
+    display: block;
+  }
 }
 
 .emptyAvatar {
@@ -59,9 +79,13 @@
 }
 
 .vs {
-  font-size: $text-lg;
-  font-weight: 700;
-  color: $text-muted;
+  font-size: 32px;
+  font-weight: 900;
+  background: -webkit-linear-gradient(#eee, #333);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: $text-primary;
+  opacity: 0.5;
   padding: 0 $spacing-md;
 }
 
@@ -74,10 +98,11 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
-  padding: $spacing-lg;
-  background: $bg-card;
-  border-radius: $radius-lg;
-  border: 1px solid $border-color;
+  // padding: $spacing-lg;
+  padding-top: 0;
+  // background: $bg-card;
+  // border-radius: $radius-lg;
+  // border: 1px solid $border-color;
 }
 
 .infoItem {
@@ -85,7 +110,7 @@
   align-items: center;
   justify-content: center;
   gap: $spacing-sm;
-  font-size: $text-md;
+  font-size: $text-xl;
   font-weight: 600;
   color: $text-primary;
 }
@@ -99,12 +124,38 @@
   align-items: center;
   justify-content: space-around;
 }
-
-.stat {
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-sm;
+}
+.summaryRow {
   display: flex;
+  align-items: start;
   flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  background: $bg-card-2;
+  padding: $spacing-mdd;
+  border-radius: $radius-lg;
+  gap: $spacing-sm;
+  font-size: $text-sm;
+  & img {
+    display: block;
+    width: 32px;
+    height: 32px;
+  }
+  span:first-child {
+    color: $text-secondary;
+    font-weight: 600;
+  }
+
+  span:last-child {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-weight: 800;
+    font-size: $text-lg;
+    color: $text-primary;
+  }
 }
 
 .statLabel {
@@ -124,22 +175,43 @@
   display: flex;
   gap: $spacing-md;
 }
-
+.attempts {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: $text-lg;
+  // gap: $spacing-xs;
+  text-align: center;
+  & span {
+    margin-left: $spacing-sm;
+    margin-right: $spacing-2xs;
+    font-size: $text-2xl;
+    display: block;
+    color: #f87171;
+  }
+  & img {
+    width: 32px;
+    height: 32px;
+  }
+}
 .tool {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: $spacing-xs;
-  padding: $spacing-md;
-  background: $bg-card;
+  gap: $spacing-sm;
+  padding: $spacing-lg $spacing-md;
+  position: relative;
   border-radius: $radius-lg;
-  border: 1px solid $border-color;
+  border: 1px solid none;
   transition: all $transition-fast;
-
-  &:hover:not(:disabled) {
-    border-color: $purple-400;
-    background: rgba($purple-500, 0.1);
+  &Scanner {
+    background: linear-gradient(153.73deg, rgba(69, 147, 33, 0.6) 10.8%, rgba(168, 224, 99, 0.5) 73.35%);
+    // box-shadow: 0 4px 10px rgba(69, 147, 33, 0.25), 0 12px 30px rgba(168, 224, 99, 0.2);
+  }
+  &Radar {
+    background: linear-gradient(154.82deg, #8b11dd 11.43%, #fd7cff 89.83%);
   }
 
   &:disabled {
@@ -148,17 +220,32 @@
   }
 
   &.active {
-    border-color: $purple-400;
-    background: rgba($purple-500, 0.15);
+    animation: scaleAnimation 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes scaleAnimation {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 
 .toolIcon {
-  font-size: $text-2xl;
+  display: block;
+  & img {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 .toolName {
-  font-size: $text-sm;
+  font-size: $text-md;
   font-weight: 600;
   color: $text-primary;
 }
@@ -167,31 +254,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: absolute;
+  top: 4px;
+  right: 6px;
   width: 24px;
   height: 24px;
-  background: $bg-secondary;
-  border: 1px solid $border-color;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid none;
   border-radius: $radius-full;
-  font-size: $text-xs;
+  font-size: $text-sm;
   font-weight: 700;
-  color: $text-secondary;
-
-  .active & {
-    background: $purple-500;
-    border-color: $purple-400;
-    color: $white;
-  }
+  color: $text-primary;
+  backdrop-filter: blur(20);
+  // .active & {
+  //   background: $purple-500;
+  //   border-color: $purple-400;
+  //   color: $white;
+  // }
 }
 
 .toolConfirm {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: $spacing-sm;
-  padding: $spacing-md;
-  background: rgba($purple-500, 0.1);
-  border-radius: $radius-lg;
-  border: 1px solid rgba($purple-400, 0.3);
 }
 
 .actions {
@@ -207,15 +292,15 @@
   align-items: center;
   gap: 2px;
   padding: $spacing-md;
-  background: rgba($green-500, 0.1);
+  background: rgba($yellow-400, 0.1);
   border-radius: $radius-lg;
-  border: 1px solid rgba($green-500, 0.2);
+  border: 1px solid rgba($yellow-400, 0.2);
 }
 
 .winLabel {
   font-size: $text-md;
   font-weight: 700;
-  color: $green-400;
+  color: $yellow-400;
 }
 
 .winSubtext {
@@ -226,15 +311,17 @@
 .winAmount {
   display: flex;
   align-items: center;
-  gap: $spacing-xs;
+  gap: $spacing-sm;
   font-size: $text-2xl;
   font-weight: 700;
-  color: $green-400;
+  color: $yellow-400;
 }
 
 .star {
-  font-size: $text-lg;
-  color: $yellow-500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -1px;
 }
 
 // Defender bet info section
@@ -246,7 +333,7 @@
   padding: $spacing-md;
   background: rgba($primary-500, 0.1);
   border-radius: $radius-lg;
-  border: 1px solid rgba($primary-500, 0.2);
+  // border: 1px solid rgba($primary-500, 0.2);
 }
 
 .betLabel {

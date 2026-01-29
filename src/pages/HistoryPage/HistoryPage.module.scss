@@ -13,10 +13,26 @@
 }
 
 .title {
-  font-size: $text-2xl;
-  font-weight: 700;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: $text-xl;
+  display: flex;
+  align-items: center;
   color: $text-primary;
-  margin: 0;
+  margin: 0 auto;
+  gap: 4px;
+  & span {
+    margin-left: 8px;
+    font-size: 24px;
+    background: -webkit-linear-gradient(#5a3114, #e1c69d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  & img {
+    display: block;
+    width: 32px;
+    height: 32px;
+  }
 }
 
 .count {

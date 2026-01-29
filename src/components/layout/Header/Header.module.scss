@@ -5,18 +5,32 @@
   top: 0;
   z-index: $z-header;
   background: $bg-secondary;
-  border-bottom: 1px solid $border-color;
+  // border-bottom: 1px solid $border-color;
 }
 
 .container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 428px;
+  // max-width: 428px;
   margin: 0 auto;
-  padding: $spacing-md $spacing-lg;
+  padding: $spacing-sm $spacing-lg;
 }
-
+.avatarWrap {
+  background: $bg-card;
+  padding: $spacing-md $spacing-mdd;
+  padding-right: $spacing-4xl;
+  border-radius: $radius-md;
+  position: relative;
+  &::after {
+    content: '';
+    border: 6px solid transparent;
+    border-top: 7px solid #7887ae;
+    position: absolute;
+    right: 15px;
+    top: 20px;
+  }
+}
 .logo {
   display: flex;
   align-items: center;
@@ -25,6 +39,13 @@
 }
 
 .logoIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  & svg {
+    width: 110px;
+    height: 24px;
+  }
   font-size: $text-2xl;
 }
 
@@ -47,26 +68,33 @@
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  padding: $spacing-sm $spacing-lg;
+
+  padding: $spacing-md $spacing-lg;
   background: $bg-card;
-  border: 1px solid $border-color;
-  border-radius: $radius-full;
+  // border: 1px solid $border-color;
+  border-radius: $radius-md;
 }
 
 .balanceIcon {
   width: 20px;
   height: 20px;
-  background: $gradient-primary;
-  border-radius: $radius-full;
+  // background: $gradient-primary;
+  // border-radius: $radius-full;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: $text-xs;
+  // font-size: $text-xs;
 }
-
+.plus {
+  padding-left: 9px;
+  border-left: 1px solid rgb(67 80 116 / 35%);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 16.7px;
+}
 .balanceAmount {
   font-size: $text-sm;
-  font-weight: 600;
+  font-weight: 700;
   color: $text-primary;
 }
 

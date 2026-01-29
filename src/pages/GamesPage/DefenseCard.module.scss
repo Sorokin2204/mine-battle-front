@@ -9,18 +9,18 @@
   border-radius: $radius-xl;
   cursor: pointer;
   transition: all $transition-fast;
-  border: 1px solid $border-color;
+  // border: 1px solid $border-color;
   min-width: 100px;
 
   &:hover {
-    transform: translateY(-2px);
-    border-color: $border-color-hover;
-    box-shadow: $shadow-md;
+    // transform: translateY(-2px);
+    // border-color: $border-color-hover;
+    // box-shadow: $shadow-md;
   }
 
   &--own {
     border-color: rgba($primary-400, 0.3);
-    background: linear-gradient(180deg, rgba($primary-500, 0.1) 0%, $bg-card 100%);
+    background: #20273a;
   }
 
   &--active {
@@ -30,10 +30,15 @@
 }
 
 .header {
+  width: 100%;
   position: relative;
   margin-bottom: $spacing-sm;
 }
-
+.difficultyLevel {
+  top: 0;
+  right: 0;
+  position: absolute;
+}
 .roleIcon {
   position: absolute;
   bottom: -4px;
@@ -48,17 +53,16 @@
 
 .body {
   display: flex;
-  flex-direction: column;
+
   align-items: center;
-  gap: 2px;
-  margin-bottom: $spacing-sm;
+  gap: $spacing-lg;
 }
 
 .betLabel {
   font-size: $text-xs;
   color: $text-muted;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
+  // text-transform: uppercase;
+  font-weight: 400;
 }
 
 .betRow {

@@ -9,6 +9,7 @@ import { setDefenses, addDefense, updateDefense, removeDefense } from '@/redux/s
 import { openGameLobby } from '@/redux/slices/ui.slice';
 import { socketService } from '@/services/socket';
 import { DefensePublic } from '@/types';
+import Icon from '@/components/common/Icon/Icon';
 
 type TabType = 'all' | 'waiting' | 'attacking';
 type SortOrder = 'asc' | 'desc';
@@ -117,26 +118,24 @@ const GamesPage: React.FC = () => {
   return (
     <div className={styles.page}>
       <motion.div className={styles.header} initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className={styles.title}>Защиты ({filteredDefenses.length})</h1>
+        {' '}
+        <button className={clsx(styles.filterBtn, { [styles['filterBtn--active']]: hasActiveFilter || showFilter })} onClick={() => setShowFilter(!showFilter)}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <path fill="#7486b7" d="M5.05 3C3.291 3 2.352 5.024 3.51 6.317l5.422 6.059v4.874c0 .472.227.917.613 1.2l3.069 2.25c1.01.742 2.454.036 2.454-1.2v-7.124l5.422-6.059C21.647 5.024 20.708 3 18.95 3z" />
+          </svg>
+          {hasActiveFilter && <span className={styles.filterDot} />}
+        </button>
+        <h1 className={styles.title}>
+          Защиты <span>{filteredDefenses.length}</span> <img src="/shield_small.webp" width="32px" />
+        </h1>
+        <button className={styles.filterBtn} onClick={() => navigate('/history')}>
+          <Icon icon="timer" size={18} />
+        </button>
       </motion.div>
 
       {/* Filter bar */}
       <div className={styles.filterBar}>
-        <button className={clsx(styles.filterBtn, { [styles['filterBtn--active']]: hasActiveFilter || showFilter })} onClick={() => setShowFilter(!showFilter)}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46" />
-          </svg>
-          {hasActiveFilter && <span className={styles.filterDot} />}
-        </button>
-
-        <div className={styles.headerRight}>
-          <button className={styles.historyBtn} onClick={() => navigate('/history')}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12,6 12,12 16,14" />
-            </svg>
-          </button>
-        </div>
+        <div className={styles.headerRight}></div>
       </div>
 
       {/* Filter popup */}

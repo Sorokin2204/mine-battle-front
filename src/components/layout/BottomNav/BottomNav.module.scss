@@ -1,17 +1,29 @@
 @import '@/styles/variables.scss';
 
 .nav {
+  height: 48px;
+  max-width: 428px;
+  width: calc(100% - 38px);
   position: fixed;
-  bottom: 0;
-  left: 0;
+  bottom: $spacing-xl;
+  left: 50%;
   right: 0;
+  transform: translateX(-50%);
+
   z-index: $z-header;
-  background: $bg-secondary;
-  border-top: 1px solid $border-color;
+  background: rgba(23, 27, 40, 0.35);
+  backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-radius: 18px;
   padding-bottom: env(safe-area-inset-bottom);
 }
-
+.myGamesBtn {
+  & svg path {
+    stroke: #7486b7;
+  }
+}
 .container {
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -50,10 +62,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: $radius-lg;
-  font-size: $text-xl;
+  width: 22px;
+  height: 22px;
+  color: #7486b7;
   transition: all $transition-fast;
 }
 

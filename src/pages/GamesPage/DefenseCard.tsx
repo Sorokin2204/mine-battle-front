@@ -5,6 +5,7 @@ import styles from './DefenseCard.module.scss';
 import Avatar from '@/components/common/Avatar';
 import DifficultyIndicator from '@/components/common/DifficultyIndicator';
 import { DefensePublic } from '@/types';
+import { star } from '@/utils/icons';
 
 interface DefenseCardProps {
   defense: DefensePublic;
@@ -22,46 +23,41 @@ const DefenseCard: React.FC<DefenseCardProps> = ({ defense, isOwn, onClick }) =>
         [styles['card--own']]: isOwn,
         [styles['card--active']]: isActive,
       })}
-      onClick={onClick}
-    >
+      onClick={onClick}>
       <div className={styles.header}>
-        <Avatar
-          src={defense.creator.photoUrl}
-          name={defense.creator.firstName || defense.creator.username}
-          size="sm"
-        />
-        <DifficultyIndicator difficulty={defense.difficulty} />
+        <Avatar src={defense.creator.photoUrl} name={defense.creator.firstName || defense.creator.username} size="sm" />
+        <div className={styles.difficultyLevel}>
+          {' '}
+          <DifficultyIndicator difficulty={defense.difficulty} />
+        </div>
       </div>
 
       <div className={styles.body}>
-        <span className={styles.betLabel}>Ставка</span>
-        <div className={styles.betRow}>
-          <span className={styles.star}>&#9733;</span>
-          <span className={styles.betAmount}>{defense.bet}</span>
+        <div className={clsx(styles.bodyLeft)}>
+          <span className={styles.betLabel}>Ставка</span>
+          <div className={styles.betRow}>
+            {star(16)}
+            <span className={styles.betAmount}>{defense.bet}</span>
+          </div>
         </div>
-        {isWaiting && <span className={styles.multiplier}>x1.9</span>}
+        <div className={clsx(styles.bodyRight)}>
+          {' '}
+          {isWaiting && !isActive && (
+            <motion.div className={styles.actionIcon} animate={{ rotate: [0, 15, -15, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
+              <div className={styles.swordCircle}>&#9876;&#65039;</div>
+            </motion.div>
+          )}
+          {isActive && (
+            <motion.div className={styles.checkCircle} animate={{ scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 1 }}>
+              &#10004;
+            </motion.div>
+          )}
+        </div>
+
+        {/* {isWaiting && <span className={styles.multiplier}>x1.9</span>} */}
       </div>
 
-      <div className={styles.footer}>
-        {isWaiting && !isActive && (
-          <motion.div
-            className={styles.actionIcon}
-            animate={{ rotate: [0, 15, -15, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-          >
-            <div className={styles.swordCircle}>&#9876;&#65039;</div>
-          </motion.div>
-        )}
-        {isActive && (
-          <motion.div
-            className={styles.checkCircle}
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ repeat: Infinity, duration: 1 }}
-          >
-            &#10004;
-          </motion.div>
-        )}
-      </div>
+      <div className={styles.footer}></div>
     </div>
   );
 };

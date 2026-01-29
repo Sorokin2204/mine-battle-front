@@ -11,15 +11,29 @@
   align-items: center;
   justify-content: space-between;
 }
-
+.bodyLeft {
+  display: flex;
+  align-items: center;
+}
 .title {
-  font-family: $font-family-heading;
-  font-size: $text-2xl;
-  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-xl;
+  font-weight: 900;
   color: $text-primary;
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  & span {
+    margin-left: 8px;
+    font-size: $text-2xl;
+    background: -webkit-linear-gradient(#eee, #333);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  & img {
+    display: block;
+  }
 }
 
 .filterBar {
@@ -40,30 +54,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   background: $bg-card;
-  border: 1px solid $border-color;
-  border-radius: $radius-lg;
+  border: 1px solid transparent;
+  border-radius: $radius-md;
   color: $text-secondary;
   transition: all $transition-fast;
-
-  &:hover {
-    border-color: $border-color-hover;
-    color: $text-primary;
-  }
 
   &--active {
     border-color: $primary-500;
     color: $primary-400;
-    background: rgba($primary-500, 0.1);
+    background: #252d42;
   }
 }
 
 .filterDot {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 8px;
+  right: 8px;
   width: 8px;
   height: 8px;
   background: $red-500;
