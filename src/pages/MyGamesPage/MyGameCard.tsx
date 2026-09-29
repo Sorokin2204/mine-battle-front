@@ -3,7 +3,6 @@ import clsx from 'clsx';
 import { motion } from 'framer-motion';
 import styles from './MyGameCard.module.scss';
 import Avatar from '@/components/common/Avatar';
-import DifficultyIndicator from '@/components/common/DifficultyIndicator';
 import { DefensePublic } from '@/types';
 import { formatRelativeTime } from '@/utils/formatTime';
 import { star } from '@/utils/icons';

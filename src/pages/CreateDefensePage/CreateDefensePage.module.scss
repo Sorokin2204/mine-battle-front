@@ -28,43 +28,36 @@
 }
 
 .difficultySection {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  background: $bg-card-2;
-  padding: $spacing-xl;
-  border-radius: $radius-xl;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  // background: $bg-card-2;
+  // padding: $spacing-xl;
+  // border-radius: $radius-xl;
   // border: 1px solid $border-color;
 }
 
 .difficultyButtons {
   display: grid;
-  grid-template-columns: repeat(3, 40px);
-  gap: $spacing-mdd;
-  justify-content: center;
-  align-items: end;
-  margin-bottom: $spacing-md;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $spacing-sm;
 }
 
 .difficultyBtn {
   display: flex;
-  flex-direction: column;
-  height: 180px;
   align-items: center;
-  gap: $spacing-2xs;
-  padding: $spacing-md $spacing-sm;
-  background: $bg-secondary;
-  // border: 2px solid $border-color;
+  justify-content: center;
+  min-width: 0;
+  height: 48px;
+  padding: $spacing-sm;
+  background: $bg-card-2;
+  // border: 1px solid transparent;
   border-radius: $radius-md;
   transition: all $transition-fast;
-  &:nth-child(1) {
-    height: 60px;
-  }
-  &:nth-child(2) {
-    height: 120px;
-  }
-  &:hover {
-    border-color: $border-color-hover;
-  }
+
+  // &:hover {
+  //   border-color: $border-color-hover;
+  // }
 
   &.active {
     border-color: $primary-400;
@@ -77,7 +70,7 @@
       background: rgba($green-500, 1);
 
       .difficultyLabel {
-        color: $green-400;
+        // color: $green-400;
       }
     }
   }
@@ -88,7 +81,7 @@
       background: rgba($yellow-500, 1);
 
       .difficultyLabel {
-        color: $yellow-400;
+        // color: $yellow-400;
       }
     }
   }
@@ -99,7 +92,7 @@
       background: rgba($red-500, 1);
 
       .difficultyLabel {
-        color: $red-400;
+        // color: $red-400;
       }
     }
   }
@@ -134,46 +127,50 @@
 }
 
 .difficultyStats {
-  display: grid;
-  grid-template-columns: repeat(1, auto);
-  grid-template-rows: repeat(3, 1fr);
+  display: flex;
+  align-items: center;
   justify-content: center;
-  gap: $spacing-md;
-  padding-top: $spacing-sm;
+  gap: $spacing-sm;
+  // padding: $spacing-sm;
+  // padding-top: $spacing-lg;
+  // border-top: 1px solid $border-color;
+  // background: $bg-card-2;
+  // border-radius: $radius-md;
   // border-top: 1px solid $border-color;
 }
 
 .statItem {
   display: flex;
   align-items: center;
-  flex-direction: column;
-  gap: $spacing-xs;
-  // background: #20273a;
-  padding: $spacing-md;
+  flex-direction: row;
+  gap: $spacing-sm;
+  white-space: nowrap;
   position: relative;
-  // border-radius: $radius-md;
 }
 
 .statIcon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
 .statLabel {
-  font-weight: 800;
-  text-transform: uppercase;
+  font-weight: 600;
   font-size: 12px;
-  padding-bottom: $spacing-sm;
   color: #7987ae;
 }
 .statValue {
   display: flex;
-  gap: $spacing-sm;
-  font-size: $text-xl;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-sm;
   color: $text-primary;
   font-weight: 800;
 }
 
 .betSection {
-  background: $bg-card-2;
-  padding: $spacing-xl;
+  // background: $bg-card-2;
+  // padding: $spacing-xl;
   border-radius: $radius-xl;
   // border: 1px solid $border-color;
 }
@@ -191,7 +188,7 @@
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  background: #1b2030;
+  background: $bg-card-2;
   padding: $spacing-md $spacing-lg;
   border-radius: $radius-md;
   margin-bottom: $spacing-md;
@@ -246,12 +243,7 @@
   color: $text-secondary;
   transition: all $transition-fast;
 
-  // &:hover {
-  //   border-color: $border-color-hover;
-  //   color: $text-primary;
-  // }
-
-  &.active {
+  &:active {
     background: #252d42;
     border-color: $primary-500;
     color: $text-primary;
@@ -283,50 +275,8 @@
   color: $text-primary;
 }
 
-.clearBtn {
-  font-size: $text-sm;
-  color: $red-400;
-  font-weight: 500;
-
-  &:hover {
-    color: $red-300;
-  }
-}
-
 .footer {
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
-}
-
-.summary {
-  gap: $spacing-md;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  // border: 1px solid $border-color;
-}
-
-.summaryRow {
-  display: flex;
-  align-items: start;
-  flex-direction: column;
-  background: $bg-card-2;
-  padding: $spacing-lg;
-  border-radius: $radius-lg;
-  gap: $spacing-sm;
-  font-size: $text-sm;
-
-  span:first-child {
-    color: $text-secondary;
-    font-weight: 600;
-  }
-
-  span:last-child {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    font-weight: 800;
-    font-size: $text-lg;
-    color: $text-primary;
-  }
 }

@@ -2,9 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import styles from './HistoryCard.module.scss';
 import Avatar from '@/components/common/Avatar';
-import DifficultyIndicator from '@/components/common/DifficultyIndicator';
 import { DefensePublic } from '@/types';
-import { formatRelativeTime } from '@/utils/formatTime';
 import { star } from '@/utils/icons';
 
 interface HistoryCardProps {
@@ -44,8 +42,6 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ defense, currentUserId, onCli
   };
 
   const result = getResultInfo();
-  const finishedTime = formatRelativeTime(defense.finishedAt);
-
   return (
     <div className={clsx(styles.card, styles[`card--${result.variant}`])} onClick={onClick}>
       <div className={styles.players}>

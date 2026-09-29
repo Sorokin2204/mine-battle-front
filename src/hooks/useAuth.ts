@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from './useAppDispatch';
-import { setCredentials, setLoading, setError, logout } from '@/redux/slices/auth.slice';
+import { setCredentials, setLoading, setError, logout, updateBalance } from '@/redux/slices/auth.slice';
 import { authWithTelegram } from '@/services/auth';
 import { socketService } from '@/services/socket';
 
@@ -74,7 +74,7 @@ export const useAuth = () => {
 
     // Subscribe to balance updates
     const handleBalanceUpdated = (data: { balance: number }) => {
-      // This is handled in GameLobby component
+      dispatch(updateBalance(data.balance));
     };
 
     socketService.on('balanceUpdated', handleBalanceUpdated);

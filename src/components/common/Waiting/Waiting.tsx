@@ -1,6 +1,4 @@
-import React, { useEffect, useRef } from 'react';
-import styles from './Waiting.module.scss';
-import clsx from 'clsx';
+import { useEffect, useRef } from 'react';
 import Lottie from 'lottie-react';
 import hourglass from '../../../../public/hourglass.json';
 type Props = {};

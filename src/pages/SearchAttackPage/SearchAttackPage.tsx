@@ -9,6 +9,7 @@ import { openGameLobby, showToast } from '@/redux/slices/ui.slice';
 import { socketService } from '@/services/socket';
 import { gameConfig } from '@/config/game.config';
 import { DefensePublic } from '@/types';
+import { addDefense } from '@/redux/slices/game.slice';
 
 type SearchState = 'idle' | 'confirming' | 'searching' | 'found';
 
@@ -27,6 +28,7 @@ const SearchAttackPage: React.FC = () => {
     // Listen for match found event
     const handleMatchFound = (data: { defenseId: number; defense: DefensePublic }) => {
       console.log('Match found!', data);
+      dispatch(addDefense(data.defense));
       setMatchedDefense(data.defense);
       setSearchState('found');
 

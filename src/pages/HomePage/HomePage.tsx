@@ -41,16 +41,15 @@ const HomePage: React.FC = () => {
     socketService.on('defenseCreated', handleDefenseCreated);
     socketService.on('defenseUpdated', handleDefenseUpdated);
     socketService.on('defenseRemoved', handleDefenseRemoved);
+    socketService.on('reconnected', loadDefenses);
 
     return () => {
       socketService.off('defenseCreated', handleDefenseCreated);
       socketService.off('defenseUpdated', handleDefenseUpdated);
       socketService.off('defenseRemoved', handleDefenseRemoved);
+      socketService.off('reconnected', loadDefenses);
     };
   }, [dispatch, defenses.length]);
-
-  // Count waiting defenses
-  const waitingDefensesCount = defenses.filter((d) => d.status === 'WAITING').length;
 
   return (
     <div className={styles.page}>

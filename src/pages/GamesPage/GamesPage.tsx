@@ -57,11 +57,13 @@ const GamesPage: React.FC = () => {
     socketService.on('defenseCreated', handleDefenseCreated);
     socketService.on('defenseUpdated', handleDefenseUpdated);
     socketService.on('defenseRemoved', handleDefenseRemoved);
+    socketService.on('reconnected', loadDefenses);
 
     return () => {
       socketService.off('defenseCreated', handleDefenseCreated);
       socketService.off('defenseUpdated', handleDefenseUpdated);
       socketService.off('defenseRemoved', handleDefenseRemoved);
+      socketService.off('reconnected', loadDefenses);
     };
   }, [dispatch]);
 
@@ -210,6 +212,17 @@ const GamesPage: React.FC = () => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* <motion.button
+        type="button"
+        className={styles.createDefenseButton}
+        initial={{ opacity: 0, scale: 0.9, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        whileTap={{ scale: 0.96 }}
+        onClick={() => navigate('/create-defense')}>
+        <img src="/shield_small.webp" alt="" />
+        <span>Создать защиту</span>
+      </motion.button> */}
     </div>
   );
 };

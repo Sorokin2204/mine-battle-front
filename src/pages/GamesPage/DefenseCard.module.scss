@@ -1,126 +1,157 @@
 @import '@/styles/variables.scss';
 
 .card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: $spacing-md;
-  background: $bg-card;
-  border-radius: $radius-xl;
-  cursor: pointer;
-  transition: all $transition-fast;
-  // border: 1px solid $border-color;
-  min-width: 100px;
-
-  &:hover {
-    // transform: translateY(-2px);
-    // border-color: $border-color-hover;
-    // box-shadow: $shadow-md;
-  }
-
-  &--own {
-    border-color: rgba($primary-400, 0.3);
-    background: #20273a;
-  }
-
-  &--active {
-    border-color: rgba($red-400, 0.4);
-    background: linear-gradient(180deg, rgba($red-500, 0.1) 0%, $bg-card 100%);
-  }
-}
-
-.header {
-  width: 100%;
   position: relative;
-  margin-bottom: $spacing-sm;
-}
-.difficultyLevel {
-  top: 0;
-  right: 0;
-  position: absolute;
-}
-.roleIcon {
-  position: absolute;
-  bottom: -4px;
-  right: -4px;
-  font-size: 12px;
-  background: $bg-secondary;
-  border-radius: $radius-full;
-  padding: 2px;
-  line-height: 1;
-  border: 1px solid $border-color;
-}
-
-.body {
   display: flex;
-
   align-items: center;
-  gap: $spacing-lg;
+  gap: $spacing-md;
+  width: 100%;
+  padding: $spacing-md $spacing-lg;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: $bg-card-2;
+  cursor: pointer;
+  transition: transform $transition-fast;
+
+  &--easy {
+    --timer-color: rgba(16, 185, 129, 0.22);
+
+    .actionIcon {
+      color: $green-400;
+    }
+  }
+
+  &--medium {
+    --timer-color: rgba(245, 158, 11, 0.22);
+
+    .actionIcon {
+      color: $yellow-400;
+    }
+  }
+
+  &--hard {
+    --timer-color: rgba(239, 68, 68, 0.22);
+
+    .actionIcon {
+      color: $red-400;
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
-.betLabel {
-  font-size: $text-xs;
-  color: $text-muted;
-  // text-transform: uppercase;
-  font-weight: 400;
+.timerFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--timer-progress, 0%);
+  border-radius: inherit;
+  background: linear-gradient(135deg, #20273a 0%, var(--timer-color) 100%);
+  pointer-events: none;
+  animation: timerCountdown var(--timer-duration, 0ms) linear forwards;
 }
 
-.betRow {
+@keyframes timerCountdown {
+  from {
+    width: var(--timer-progress, 0%);
+  }
+
+  to {
+    width: 0%;
+  }
+}
+
+.left {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-width: 0;
+}
+
+.avatarWrap {
+  position: relative;
+  display: flex;
+  border-radius: $radius-full;
+  flex: 0 0 auto;
+
+  &--owner {
+    padding: 3px;
+    border: 2px solid transparent;
+    background:
+      linear-gradient($bg-card-2, $bg-card-2) padding-box,
+      linear-gradient(94.98deg, #4762f2 10.08%, #3dc5f0 94.83%) border-box;
+  }
+}
+
+.ownerIcon {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 12px;
+  margin-bottom: 3px;
+}
+
+.creator {
   display: flex;
   align-items: center;
   gap: $spacing-xs;
+  min-width: 0;
 }
 
-.star {
-  color: $yellow-400;
+.creatorName {
+  overflow: hidden;
+  color: $white;
   font-size: $text-sm;
-}
-
-.betAmount {
-  font-size: $text-lg;
-  font-weight: 700;
-  color: $text-primary;
-}
-
-.multiplier {
-  font-size: $text-xs;
-  color: $green-400;
   font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.footer {
+.right {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: $spacing-md;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.resultRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.resultLabel {
+  font-size: $text-xs;
+  color: rgba($white, 0.7);
+}
+
+.resultAmount {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  color: $white;
+  font-size: $text-lg;
+  font-weight: 700;
 }
 
 .actionIcon {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.swordCircle {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba($red-500, 0.15);
-  border: 1px solid rgba($red-400, 0.3);
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
   border-radius: $radius-full;
-  font-size: 16px;
-}
+  background: rgba($white, 0.14);
+  font-size: 24px;
 
-.checkCircle {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba($green-500, 0.15);
-  border: 1px solid rgba($green-400, 0.3);
-  border-radius: $radius-full;
-  font-size: 16px;
-  color: $green-400;
+  svg {
+    display: block;
+  }
 }

@@ -45,11 +45,13 @@ const MyGamesPage: React.FC = () => {
     socketService.on('defenseCreated', handleDefenseCreated);
     socketService.on('defenseUpdated', handleDefenseUpdated);
     socketService.on('defenseRemoved', handleDefenseRemoved);
+    socketService.on('reconnected', loadDefenses);
 
     return () => {
       socketService.off('defenseCreated', handleDefenseCreated);
       socketService.off('defenseUpdated', handleDefenseUpdated);
       socketService.off('defenseRemoved', handleDefenseRemoved);
+      socketService.off('reconnected', loadDefenses);
     };
   }, [dispatch]);
 

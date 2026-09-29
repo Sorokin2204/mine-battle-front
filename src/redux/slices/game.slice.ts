@@ -30,6 +30,16 @@ const gameSlice = createSlice({
     setDefenses: (state, action: PayloadAction<DefensePublic[]>) => {
       state.defenses = action.payload;
     },
+    syncActiveDefenses: (state, action: PayloadAction<DefensePublic[]>) => {
+      const activeIds = new Set(action.payload.map((defense) => defense.id));
+      const history = state.defenses.filter(
+        (defense) =>
+          defense.status !== 'WAITING' &&
+          defense.status !== 'IN_PROGRESS' &&
+          !activeIds.has(defense.id),
+      );
+      state.defenses = [...action.payload, ...history];
+    },
     addDefense: (state, action: PayloadAction<DefensePublic>) => {
       const exists = state.defenses.find((d) => d.id === action.payload.id);
       if (!exists) {
@@ -40,6 +50,10 @@ const gameSlice = createSlice({
       const index = state.defenses.findIndex((d) => d.id === action.payload.id);
       if (index !== -1) {
         state.defenses[index] = action.payload;
+      } else {
+        // Socket updates may be the first event seen after reconnecting or
+        // matchmaking. Upsert so the active-game badge cannot miss the match.
+        state.defenses.unshift(action.payload);
       }
       if (state.activeDefense?.id === action.payload.id) {
         state.activeDefense = action.payload;
@@ -98,6 +112,7 @@ const gameSlice = createSlice({
 
 export const {
   setDefenses,
+  syncActiveDefenses,
   addDefense,
   updateDefense,
   removeDefense,

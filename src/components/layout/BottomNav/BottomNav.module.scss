@@ -1,59 +1,51 @@
 @import '@/styles/variables.scss';
 
 .nav {
-  height: 48px;
-  max-width: 428px;
-  width: calc(100% - 38px);
   position: fixed;
+  z-index: $z-modal + 1;
   bottom: $spacing-xl;
   left: 50%;
-  right: 0;
+  width: calc(100% - 38px);
+  max-width: 428px;
+  height: 48px;
+  padding-bottom: env(safe-area-inset-bottom);
   transform: translateX(-50%);
-
-  z-index: $z-header;
+  border-radius: 18px;
   background: rgba(23, 27, 40, 0.35);
   backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-  border-radius: 18px;
-  padding-bottom: env(safe-area-inset-bottom);
 }
-.myGamesBtn {
-  & svg path {
-    stroke: #7486b7;
-  }
-}
+
 .container {
-  height: 100%;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-around;
+  width: 100%;
+  height: 100%;
   max-width: 428px;
   margin: 0 auto;
   padding: $spacing-sm $spacing-lg;
-  position: relative;
 }
 
-.item {
+.navItem,
+.myGamesBtn {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: $spacing-xs;
-  padding: $spacing-sm $spacing-md;
-  border-radius: $radius-lg;
-  color: $text-muted;
-  transition: all $transition-fast;
-  min-width: 60px;
-  position: relative;
+  justify-content: center;
+  flex: 1 1 0;
+  height: 44px;
+  color: #7486b7;
+  transition: color $transition-fast, transform $transition-fast;
 
-  &:hover {
-    color: $text-secondary;
+  &:active {
+    transform: scale(0.92);
   }
 
   &.active {
-    color: $primary-400;
+    color: $white;
 
     .icon {
-      background: rgba($primary-500, 0.15);
+      color: $white;
     }
   }
 }
@@ -65,60 +57,119 @@
   width: 22px;
   height: 22px;
   color: #7486b7;
-  transition: all $transition-fast;
+  transition: color $transition-fast;
 }
 
-.label {
-  font-size: $text-xs;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-// Central action button (create defense)
 .centerBtn {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 56px;
   width: 56px;
   height: 56px;
   margin-top: -$spacing-xl;
-  background: $gradient-primary;
+  border: 0;
   border-radius: $radius-lg;
-  color: $white;
-  font-size: $text-2xl;
+  background: $gradient-primary;
   box-shadow: $shadow-glow-blue;
-  transition: all $transition-fast;
+  color: $white;
+  transition: box-shadow $transition-fast, transform $transition-normal;
+
+  svg {
+    width: 22px;
+    height: 22px;
+    transition: transform $transition-normal;
+  }
 
   &:hover {
-    box-shadow: 0 6px 24px rgba($primary-500, 0.5);
-    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba($primary-500, 0.6);
   }
 
   &:active {
-    transform: translateY(0);
+    transform: scale(0.95);
   }
 
-  &.active {
-    background: $gradient-primary-hover;
+  &:focus-visible {
+    outline: 2px solid $white;
+    outline-offset: 2px;
+  }
+
+  &.menuOpen svg {
+    transform: rotate(45deg);
   }
 }
 
-// Badge for notifications
-.badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 $spacing-xs;
-  background: $red-500;
-  border-radius: $radius-full;
-  font-size: 10px;
-  font-weight: 700;
-  color: $white;
+.overlay {
+  position: fixed;
+  z-index: $z-overlay;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba($black, 0.68);
+  cursor: default;
+}
+
+.actionMenu {
+  position: fixed;
+  z-index: $z-modal + 2;
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: $spacing-sm;
+  width: max-content;
+  transform: translateX(-50%);
+}
+
+.actionButton {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: $spacing-sm;
+  width: 100%;
+  min-height: 52px;
+  padding: $spacing-sm $spacing-lg $spacing-sm $spacing-sm;
+  border: 0;
+  border-radius: $radius-full;
+  background: $gradient-primary;
+  box-shadow: 0 8px 28px rgba($primary-500, 0.45);
+  color: $white;
+  font-size: $text-sm;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: box-shadow $transition-fast, transform $transition-fast;
+
+  img {
+    display: block;
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+  }
+
+  &:hover {
+    box-shadow: 0 10px 32px rgba($primary-500, 0.6);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $white;
+    outline-offset: 2px;
+  }
+}
+
+.autoMatchButton {
+  background: linear-gradient(270deg, #ff8a00 0%, #ffb84d 100%);
+  box-shadow: 0 8px 28px rgba($yellow-500, 0.45);
+
+  &:hover {
+    box-shadow: 0 10px 32px rgba($yellow-500, 0.6);
+  }
+}
+
+.attackButton {
+  background: linear-gradient(270deg, #ff2d24 0%, #ff6868 100%);
+  box-shadow: 0 8px 28px rgba($red-500, 0.45);
+
+  &:hover {
+    box-shadow: 0 10px 32px rgba($red-500, 0.6);
+  }
 }

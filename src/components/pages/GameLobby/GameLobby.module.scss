@@ -219,20 +219,23 @@
     cursor: not-allowed;
   }
 
-  &.active {
-    animation: scaleAnimation 1.5s ease-in-out infinite;
+  &Place {
+    justify-content: center;
+    padding: $spacing-lg $spacing-md;
   }
 }
 
-@keyframes scaleAnimation {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(0.9);
-  }
-  100% {
-    transform: scale(1);
+.toolPlaceLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $text-md;
+  font-weight: 700;
+  color: $text-primary;
+
+  span {
+    font-size: $text-xl;
+    line-height: 1;
   }
 }
 
@@ -271,12 +274,6 @@
   //   border-color: $purple-400;
   //   color: $white;
   // }
-}
-
-.toolConfirm {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: $spacing-sm;
 }
 
 .actions {

@@ -7,9 +7,8 @@ import GameBoard from '@/components/common/GameBoard';
 import Avatar from '@/components/common/Avatar';
 import Badge from '@/components/common/Badge';
 import Timer from '@/components/common/Timer';
-import DifficultyIndicator from '@/components/common/DifficultyIndicator';
 import { useAppSelector, useAppDispatch } from '@/hooks/useAppDispatch';
-import { setActiveDefense, setLastMoveResult, setAttacking } from '@/redux/slices/game.slice';
+import { setActiveDefense, setLastMoveResult, setAttacking, updateDefense } from '@/redux/slices/game.slice';
 import { closeGameLobby, openResultModal, showToast } from '@/redux/slices/ui.slice';
 import { updateBalance } from '@/redux/slices/auth.slice';
 import { socketService } from '@/services/socket';
@@ -18,6 +17,7 @@ import { DefensePublic, MoveResult } from '@/types';
 import { formatRelativeTime } from '@/utils/formatTime';
 import Waiting from '@/components/common/Waiting/Waiting';
 import { star } from '@/utils/icons';
+import BombIcon from '@/components/common/BombIcon';
 
 const GameLobby: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -26,7 +26,6 @@ const GameLobby: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
 
   const [activeTool, setActiveTool] = useState<'click' | 'scanner' | 'radar' | null>(null);
-  const [scannerPositions, setScannerPositions] = useState<number[]>([]);
   const [isProcessingMove, setIsProcessingMove] = useState(false);
 
   // Preview states for scanner/radar placement
@@ -61,6 +60,7 @@ const GameLobby: React.FC = () => {
     try {
       const defense = await socketService.getDefense(defenseId);
       dispatch(setActiveDefense(defense));
+      dispatch(updateDefense(defense));
     } catch (error) {
       console.error('Failed to load defense:', error);
     }
@@ -68,6 +68,7 @@ const GameLobby: React.FC = () => {
 
   const handleGameStarted = (defense: DefensePublic) => {
     dispatch(setActiveDefense(defense));
+    dispatch(updateDefense(defense));
   };
 
   const handleMoveMade = (data: { defenseId: number; move: MoveResult }) => {
@@ -79,6 +80,7 @@ const GameLobby: React.FC = () => {
 
   const handleGameFinished = (defense: DefensePublic) => {
     dispatch(setActiveDefense(defense));
+    dispatch(updateDefense(defense));
 
     if (user) {
       const isWinner = defense.winnerId === user.id;
@@ -119,7 +121,6 @@ const GameLobby: React.FC = () => {
     dispatch(setActiveDefense(null));
     dispatch(setLastMoveResult(null));
     setActiveTool(null);
-    setScannerPositions([]);
     setScannerPreview(null);
     setRadarPreview(null);
   };
@@ -143,7 +144,21 @@ const GameLobby: React.FC = () => {
 
     try {
       setIsProcessingMove(true);
-      await socketService.makeMove(defenseId, 'CLICK', position);
+      const result = await socketService.makeMove(defenseId, 'CLICK', position);
+      dispatch(setLastMoveResult(result));
+      if (!result.gameFinished) {
+        dispatch(
+          setActiveDefense({
+            ...activeDefense,
+            revealedCells: result.revealedCells,
+            foundBombPositions: result.isBomb ? Array.from(new Set([...(activeDefense.foundBombPositions || []), position])) : activeDefense.foundBombPositions || [],
+            bombsFound: result.bombsFound,
+            attemptsUsed: result.attemptsUsed,
+            scannersUsed: result.scannersUsed,
+            radarsUsed: result.radarsUsed,
+          }),
+        );
+      }
     } catch (error: any) {
       dispatch(showToast({ message: error.message || 'Ошибка хода', type: 'error' }));
     } finally {
@@ -180,8 +195,9 @@ const GameLobby: React.FC = () => {
 
     try {
       setIsProcessingMove(true);
-      await socketService.makeMove(defenseId, 'SCANNER', undefined, scannerPreview);
-      setScannerPositions(scannerPreview);
+      const result = await socketService.makeMove(defenseId, 'SCANNER', undefined, scannerPreview);
+      dispatch(setLastMoveResult(result));
+      await loadDefense();
       setScannerPreview(null);
       setActiveTool(null);
     } catch (error: any) {
@@ -199,7 +215,9 @@ const GameLobby: React.FC = () => {
       setIsProcessingMove(true);
       // Pass radar type in positions array: [type (0=row, 1=column), index]
       const radarData = [radarPreview.type === 'row' ? 0 : 1, radarPreview.index];
-      await socketService.makeMove(defenseId, 'RADAR', radarPreview.index, radarData);
+      const result = await socketService.makeMove(defenseId, 'RADAR', radarPreview.index, radarData);
+      dispatch(setLastMoveResult(result));
+      await loadDefense();
       setRadarPreview(null);
       setActiveTool(null);
     } catch (error: any) {
@@ -216,6 +234,14 @@ const GameLobby: React.FC = () => {
     setRadarPreview(null);
   };
 
+  const placeTool = () => {
+    if (activeTool === 'scanner') {
+      void confirmScanner();
+    } else if (activeTool === 'radar') {
+      void confirmRadar();
+    }
+  };
+
   const handleTakeHalf = async () => {
     if (!defenseId) return;
     try {
@@ -229,7 +255,6 @@ const GameLobby: React.FC = () => {
 
   // Get config based on defense difficulty
   const gameConfig = getConfigByDifficulty(activeDefense.difficulty);
-
   const isDefender = activeDefense.creator.id === user?.id;
   const isAttackerRole = activeDefense.attacker?.id === user?.id;
   const isGameActive = activeDefense.status === 'IN_PROGRESS';
@@ -363,9 +388,15 @@ const GameLobby: React.FC = () => {
         </div>
         <div className={styles.infoItem}>
           <span className={styles.infoIcon}></span>
-          <span>Найди {gameConfig.bombsCount} бомбы 💣</span>
+          <span>Найди {gameConfig.bombsCount} бомбы <BombIcon /></span>
         </div>
-        {isGameActive && activeDefense.moveDeadline && <Timer endTime={new Date(activeDefense.moveDeadline).getTime()} type="countdown" />}
+        {isGameActive && activeDefense.moveDeadline && (
+          <Timer
+            endTime={new Date(activeDefense.moveDeadline).getTime()}
+            type="countdown"
+            onExpire={() => void loadDefense()}
+          />
+        )}
 
         {/* Game Board */}
         <div className={styles.boardSection}>
@@ -378,9 +409,11 @@ const GameLobby: React.FC = () => {
             activeTool={activeTool}
             onScannerPlaced={canMakeMove ? handleScannerPreview : undefined}
             onRadarPlaced={canMakeMove ? handleRadarPreview : undefined}
-            scannerPositions={scannerPreview || scannerPositions}
-            scannerResult={!scannerPreview && activeDefense.scannerResults?.length ? activeDefense.scannerResults[activeDefense.scannerResults.length - 1].bombCount : undefined}
-            radarResult={radarPreview || (activeDefense.radarResults?.length ? activeDefense.radarResults[activeDefense.radarResults.length - 1] : null)}
+            onRadarTypeToggle={canMakeMove ? toggleRadarType : undefined}
+            scannerPositions={scannerPreview || []}
+            scannerResults={activeDefense.scannerResults || []}
+            radarResult={radarPreview}
+            radarResults={activeDefense.radarResults || []}
             disabled={!canMakeMove}
             fieldSize={gameConfig.fieldSize}
           />
@@ -391,20 +424,21 @@ const GameLobby: React.FC = () => {
             Осталось попыток <span>{attemptsLeft}</span> <img src="/target.png" />
           </div>
         ) : (
-          <div className={styles.infoRow}>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>Попытки</span>
-              <span className={styles.statValue}>
-                {attemptsLeft} из {gameConfig.attempts}
-              </span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>Найдено</span>
-              <span className={styles.statValue}>
-                💣 {activeDefense.bombsFound}/{gameConfig.bombsCount}
-              </span>
-            </div>
-          </div>
+          <></>
+          // <div className={styles.infoRow}>
+          //   <div className={styles.stat}>
+          //     <span className={styles.statLabel}>Попытки</span>
+          //     <span className={styles.statValue}>
+          //       {attemptsLeft} из {gameConfig.attempts}
+          //     </span>
+          //   </div>
+          //   <div className={styles.stat}>
+          //     <span className={styles.statLabel}>Найдено</span>
+          //     <span className={styles.statValue}>
+          //       {activeDefense.bombsFound}/{gameConfig.bombsCount}
+          //     </span>
+          //   </div>
+          // </div>
         )}
 
         {/* Tool confirmation buttons */}
@@ -412,9 +446,9 @@ const GameLobby: React.FC = () => {
         {/* Pre-attack Game Info (for waiting games - both defender and attacker) */}
         {isWaiting && !isExpired && (
           <div className={styles.gameInfo}>
-            <div className={styles.infoItem}>
-              <span>Найди бомбы {gameConfig.bombsCount} 💣 </span>
-            </div>
+            {/* <div className={styles.infoItem}>
+              <span>Найди бомбы {gameConfig.bombsCount}</span>
+            </div> */}
 
             <div className={styles.summary}>
               <div className={styles.summaryRow}>
@@ -478,10 +512,10 @@ const GameLobby: React.FC = () => {
             {isAttackerRole && (
               <div className={styles.tools}>
                 <button
-                  className={clsx(styles.tool, styles.toolScanner, { [styles.active]: activeTool === 'scanner' })}
+                  className={clsx(styles.tool, styles.toolScanner, { [styles.toolPlace]: activeTool === 'scanner' })}
                   onClick={() => {
                     if (activeTool === 'scanner') {
-                      cancelTool();
+                      placeTool();
                     } else {
                       setActiveTool('scanner');
                       // Initialize scanner at position [0,0]
@@ -490,17 +524,25 @@ const GameLobby: React.FC = () => {
                     }
                   }}
                   disabled={scannersLeft <= 0 || isProcessingMove}>
-                  <span className={styles.toolIcon}>
-                    <img src="/radar3.png" />
-                  </span>
-                  <span className={styles.toolName}>Радар</span>
-                  <span className={styles.toolCount}>{scannersLeft}</span>
+                  {activeTool === 'scanner' ? (
+                    <span className={styles.toolPlaceLabel}>
+                      Разместить <span aria-hidden="true">→</span>
+                    </span>
+                  ) : (
+                    <>
+                      <span className={styles.toolIcon}>
+                        <img src="/radar3.png" />
+                      </span>
+                      <span className={styles.toolName}>Радар</span>
+                      <span className={styles.toolCount}>{scannersLeft}</span>
+                    </>
+                  )}
                 </button>
                 <button
-                  className={clsx(styles.tool, styles.toolRadar, { [styles.active]: activeTool === 'radar' })}
+                  className={clsx(styles.tool, styles.toolRadar, { [styles.toolPlace]: activeTool === 'radar' })}
                   onClick={() => {
                     if (activeTool === 'radar') {
-                      cancelTool();
+                      placeTool();
                     } else {
                       setActiveTool('radar');
                       // Initialize radar at row 0
@@ -508,12 +550,19 @@ const GameLobby: React.FC = () => {
                     }
                   }}
                   disabled={radarsLeft <= 0 || isProcessingMove}>
-                  <span className={styles.toolIcon}>
-                    {' '}
-                    <img src="/scanner.png" />
-                  </span>
-                  <span className={styles.toolName}>Сканер</span>
-                  <span className={styles.toolCount}>{radarsLeft}</span>
+                  {activeTool === 'radar' ? (
+                    <span className={styles.toolPlaceLabel}>
+                      Разместить <span aria-hidden="true">→</span>
+                    </span>
+                  ) : (
+                    <>
+                      <span className={styles.toolIcon}>
+                        <img src="/scanner.png" />
+                      </span>
+                      <span className={styles.toolName}>Сканер</span>
+                      <span className={styles.toolCount}>{radarsLeft}</span>
+                    </>
+                  )}
                 </button>
               </div>
             )}
@@ -536,7 +585,7 @@ const GameLobby: React.FC = () => {
         <div className={styles.actions}>
           {canAttack && (
             <Button color="error" size="lg" fullWidth loading={isAttacking} onClick={handleAttack}>
-              Атаковать за ⭐ {activeDefense.bet}
+              Атаковать ⭐ {activeDefense.bet}
             </Button>
           )}
 
@@ -546,19 +595,9 @@ const GameLobby: React.FC = () => {
             </Button>
           )}
           {scannerPreview || radarPreview ? (
-            <div className={styles.toolConfirm}>
-              {radarPreview && (
-                <Button color="secondary" size="sm" onClick={toggleRadarType}>
-                  {radarPreview.type === 'row' ? '↔ Строка' : '↕ Столбец'}
-                </Button>
-              )}
-              <Button color="secondary" size="lg" onClick={cancelTool}>
-                Отмена
-              </Button>
-              <Button color="primary" size="lg" onClick={scannerPreview ? confirmScanner : confirmRadar} loading={isProcessingMove}>
-                Подтвердить
-              </Button>
-            </div>
+            <Button color="secondary" size="lg" fullWidth onClick={cancelTool}>
+              Отмена
+            </Button>
           ) : isFinished || isExpired || isGameActive ? (
             <Button color="secondary" size="lg" fullWidth onClick={handleClose}>
               Закрыть

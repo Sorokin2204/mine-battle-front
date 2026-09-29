@@ -35,6 +35,9 @@ const HistoryPage: React.FC = () => {
     };
 
     loadHistory();
+
+    socketService.on('reconnected', loadHistory);
+    return () => socketService.off('reconnected', loadHistory);
   }, []);
 
   const handleCardClick = (defenseId: number) => {

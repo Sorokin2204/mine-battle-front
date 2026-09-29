@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: $z-modal;
+  z-index: $z-modal + 10;
   padding: $spacing-lg;
 }
 

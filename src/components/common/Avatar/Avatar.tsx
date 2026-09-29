@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import styles from './Avatar.module.scss';
 
@@ -10,23 +10,28 @@ interface AvatarProps {
 }
 
 const Avatar: React.FC<AvatarProps> = ({ src, name, size = 'md', className }) => {
-  const getInitials = () => {
-    if (!name) return '?';
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
+  const placeholderSrc = useMemo(() => {
+    const seed = name || 'Mine Battle player';
+    const avatarId = Array.from(seed).reduce((hash, char) => hash + char.charCodeAt(0), 0) % 70 + 1;
+
+    return `https://i.pravatar.cc/150?img=${avatarId}`;
+  }, [name]);
+  const [imageSrc, setImageSrc] = useState(src || placeholderSrc);
+
+  useEffect(() => {
+    setImageSrc(src || placeholderSrc);
+  }, [src, placeholderSrc]);
 
   return (
     <div className={clsx(styles.avatar, styles[`avatar--${size}`], className)}>
-      {src ? (
-        <img src={src} alt={name || 'Avatar'} className={styles.image} />
-      ) : (
-        <span className={styles.initials}>{getInitials()}</span>
-      )}
+      <img
+        src={imageSrc}
+        alt={name ? `Аватар ${name}` : 'Аватар игрока'}
+        className={styles.image}
+        onError={() => {
+          if (imageSrc !== placeholderSrc) setImageSrc(placeholderSrc);
+        }}
+      />
     </div>
   );
 };

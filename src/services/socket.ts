@@ -56,6 +56,7 @@ type GameSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 class SocketService {
   private socket: GameSocket | null = null;
   private listeners: Map<string, Set<Function>> = new Map();
+  private hasConnected = false;
 
   connect(token: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -68,12 +69,19 @@ class SocketService {
         auth: { token },
         transports: ['websocket', 'polling'],
         reconnection: true,
-        reconnectionAttempts: 5,
+        reconnectionAttempts: Infinity,
         reconnectionDelay: 1000,
+        reconnectionDelayMax: 10000,
       });
 
       this.socket.on('connect', () => {
         console.log('Socket connected');
+        const isReconnect = this.hasConnected;
+        this.hasConnected = true;
+        this.emit('connected', undefined);
+        if (isReconnect) {
+          this.emit('reconnected', undefined);
+        }
         resolve();
       });
 
@@ -95,6 +103,7 @@ class SocketService {
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
+      this.hasConnected = false;
     }
     this.listeners.clear();
   }
