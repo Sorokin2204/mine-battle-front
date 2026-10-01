@@ -17,14 +17,19 @@
   backdrop-filter: blur(8px);
 }
 
-.modal {
+.modalWrap {
   position: relative;
   width: 100%;
   max-width: 428px;
   max-height: calc(100vh - 32px);
+  z-index: 10;
+}
+
+.modal {
+  width: 100%;
+  max-height: calc(100vh - 32px);
   background: $bg-secondary;
   border-radius: $radius-xl;
-  z-index: 10;
   // border: 1px solid $border-color;
   border-bottom: none;
   overflow: hidden;
@@ -63,8 +68,8 @@
   z-index: 100;
   box-shadow: inset 0px 6px 0px #20273a;
   position: absolute;
-  right: 4px;
-  top: 4px;
+  right: -12px;
+  top: -12px;
   & svg {
     width: 12px;
     height: 12px;

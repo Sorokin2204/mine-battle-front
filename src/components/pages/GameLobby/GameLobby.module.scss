@@ -6,92 +6,273 @@
   gap: $spacing-sm;
 }
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #263041;
-  padding-bottom: $spacing-lg;
-}
-.title {
-  font-size: $text-xl;
-  font-weight: 700;
-}
-.statusSection {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-md;
-}
-
-.players {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: $spacing-lg;
-  background: $bg-card;
-  border-radius: $radius-lg;
-  // border: 1px solid $border-color;
-}
-
-.player {
-  position: relative;
+  margin: -$spacing-xl (-$spacing-xl) 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: $spacing-xs;
-  flex: 1;
-}
+  gap: $spacing-xl;
+  overflow: clip;
+  // border-bottom: 1px solid #263041;
+  padding-bottom: $spacing-lg;
 
-.playerName {
-  font-size: $text-xs;
-  font-weight: 600;
-  color: $text-primary;
-  text-align: center;
-}
-.avatarWrap {
-  position: relative;
-}
-.playerRole {
-  bottom: -4px;
-  right: -8px;
-  position: absolute;
+  &Waiting {
+    background: linear-gradient(180deg, rgba($blue-500, 0.22) 0%, rgba($blue-500, 0) 100%);
+  }
 
-  font-size: $text-xs;
-  color: $text-secondary;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  & img {
-    display: block;
+  &Active {
+    background: linear-gradient(180deg, rgba($red-500, 0.24) 0%, rgba($red-500, 0) 100%);
+  }
+
+  &Finished {
+    background: linear-gradient(180deg, rgba($green-500, 0.22) 0%, rgba($green-500, 0) 100%);
+  }
+
+  &Lost {
+    background: linear-gradient(180deg, rgba($red-500, 0.24) 0%, rgba($red-500, 0) 100%);
+  }
+
+  &Foreign {
+    background: linear-gradient(180deg, rgba($blue-500, 0.22) 0%, rgba($blue-500, 0) 100%);
+  }
+
+  &Expired {
+    background: linear-gradient(180deg, rgba($gray-500, 0.22) 0%, rgba($gray-500, 0) 100%);
   }
 }
 
+.playersRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 100px minmax(0, 1fr);
+  align-items: center;
+  gap: $spacing-sm;
+  width: 100%;
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-width: 0;
+  margin-top: 16px;
+  transition:
+    transform $transition-fast,
+    opacity $transition-fast;
+}
+
+.playerWinner {
+  transform: scale(1.2);
+}
+
+.playerLoser {
+  transform: scale(0.9);
+  opacity: 0.5;
+}
+
+.playerAttacker {
+  justify-content: end;
+  align-items: center;
+  flex-direction: column-reverse;
+  text-align: right;
+}
+
+.player .creatorAvatar,
+.player .attackerAvatar {
+  width: 48px;
+  height: 48px;
+}
+
+.avatarWrap {
+  position: relative;
+  display: flex;
+  border-radius: $radius-full;
+  flex: 0 0 auto;
+
+  &--owner {
+    padding: 3px;
+    border: 2px solid transparent;
+    background:
+      linear-gradient($bg-card-2, $bg-card-2) padding-box,
+      linear-gradient(94.98deg, #4762f2 10.08%, #3dc5f0 94.83%) border-box;
+  }
+
+  &--attacker-owner {
+    background:
+      linear-gradient($bg-card-2, $bg-card-2) padding-box,
+      linear-gradient(270deg, #ff2d24 0%, #ff6868 100%) border-box;
+  }
+}
+
+.roleIcon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  object-fit: contain;
+}
+
+.attackerRoleIcon {
+  transform: rotate(180deg) translateY(1px);
+}
+
+.playerInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2xs;
+  min-width: 0;
+}
+
+.playerName {
+  font-size: $text-sm;
+  font-weight: 700;
+  line-height: 1.25;
+  color: $text-primary;
+  overflow-wrap: anywhere;
+}
+
 .emptyAvatar {
-  width: 56px;
-  height: 56px;
+  flex: 0 0 48px;
+  width: 48px;
+  min-width: 48px;
+  max-width: 48px;
+  height: 48px;
+  min-height: 48px;
+  max-height: 48px;
+  aspect-ratio: 1;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
   background: $bg-secondary;
-  border: 2px dashed $border-color;
+  border: 2px solid $border-color;
   border-radius: $radius-full;
   font-size: $text-xl;
   color: $text-muted;
 }
 
-.vs {
-  font-size: 32px;
+.headerMeta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-lg;
+  padding: 0 $spacing-xl;
+  width: 100%;
+}
+
+.headerTimer {
+  flex: 0 0 auto;
+}
+
+.headerStatus {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.headerStatus {
+  align-items: flex-end;
+}
+
+.headerMetaLabel {
+  font-weight: 500;
+
+  font-size: $text-sm;
+  color: #fff;
+}
+
+.headerWin {
+  align-self: flex-start;
+  justify-self: start;
+  width: 100px;
+  height: 82px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+
+  border-radius: 0 0 20px 20px;
+  color: rgba(28, 23, 8, 0.72);
+
+  &--potential {
+    background: $gradient-gold;
+    box-shadow: 0 8px 24px rgba($yellow-500, 0.32);
+  }
+
+  &--refund {
+    background: linear-gradient(180deg, $gray-400 0%, $gray-300 100%);
+    box-shadow: 0 8px 24px rgba($gray-500, 0.2);
+  }
+
+  &--win {
+    background: linear-gradient(180deg, $green-400 0%, $green-600 100%);
+    box-shadow: 0 8px 24px rgba($green-500, 0.28);
+  }
+
+  &--lose {
+    background: linear-gradient(180deg, $red-400 0%, $red-600 100%);
+    box-shadow: 0 8px 24px rgba($red-500, 0.28);
+  }
+
+  &--neutral {
+    background: linear-gradient(180deg, #3dc5f0 0%, #4762f2 100%);
+    box-shadow: 0 8px 24px rgba(#4762f2, 0.42);
+  }
+}
+
+.headerWinAmount {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  gap: $spacing-xs;
+  font-size: $text-2xl;
+  font-weight: 800;
+  color: $white;
+}
+
+.statusValue {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $spacing-sm;
+}
+
+.statusValue .statusBadge {
+  justify-content: flex-start;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 34px;
   font-weight: 900;
-  background: -webkit-linear-gradient(#eee, #333);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: $text-primary;
+  line-height: 1;
+  text-align: center;
   opacity: 0.5;
-  padding: 0 $spacing-md;
+}
+
+.statusValue .statusRefund {
+  color: $gray-500;
 }
 
 .boardSection {
+  position: relative;
   display: flex;
   justify-content: center;
+}
+
+.attackOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 30;
+  width: min(240px, calc(100% - #{$spacing-2xl}));
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+
+  button {
+    pointer-events: auto;
+  }
 }
 
 .gameInfo {
@@ -206,11 +387,10 @@
   border-radius: $radius-lg;
   border: 1px solid none;
   transition: all $transition-fast;
-  &Scanner {
-    background: linear-gradient(153.73deg, rgba(69, 147, 33, 0.6) 10.8%, rgba(168, 224, 99, 0.5) 73.35%);
-    // box-shadow: 0 4px 10px rgba(69, 147, 33, 0.25), 0 12px 30px rgba(168, 224, 99, 0.2);
-  }
   &Radar {
+    background: linear-gradient(153.73deg, rgba($blue-700, 0.82) 10.8%, rgba($blue-400, 0.68) 73.35%);
+  }
+  &Scanner {
     background: linear-gradient(154.82deg, #8b11dd 11.43%, #fd7cff 89.83%);
   }
 
@@ -346,58 +526,6 @@
   font-size: $text-2xl;
   font-weight: 700;
   color: $text-primary;
-}
-
-// Finished game result card
-.resultCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $spacing-xs;
-  padding: $spacing-lg;
-  border-radius: $radius-lg;
-  border: 1px solid;
-
-  &--win {
-    background: rgba($green-500, 0.1);
-    border-color: rgba($green-500, 0.3);
-  }
-
-  &--lose {
-    background: rgba($red-500, 0.1);
-    border-color: rgba($red-500, 0.3);
-  }
-
-  &--refund {
-    background: rgba($gray-500, 0.1);
-    border-color: rgba($gray-500, 0.3);
-  }
-}
-
-.resultLabel {
-  font-size: $text-md;
-  font-weight: 600;
-  color: $text-primary;
-}
-
-.resultAmount {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-  font-size: $text-2xl;
-  font-weight: 700;
-
-  &--win {
-    color: $green-400;
-  }
-
-  &--lose {
-    color: $red-400;
-  }
-
-  &--refund {
-    color: $gray-400;
-  }
 }
 
 .finishedTime {

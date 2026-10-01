@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import styles from './GameLobby.module.scss';
 import Modal from '@/components/common/Modal';
@@ -13,9 +13,7 @@ import { closeGameLobby, openResultModal, showToast } from '@/redux/slices/ui.sl
 import { updateBalance } from '@/redux/slices/auth.slice';
 import { socketService } from '@/services/socket';
 import { getConfigByDifficulty } from '@/config/game.config';
-import { DefensePublic, MoveResult } from '@/types';
-import { formatRelativeTime } from '@/utils/formatTime';
-import Waiting from '@/components/common/Waiting/Waiting';
+import { DefensePublic, MoveResult, ToolPreview } from '@/types';
 import { star } from '@/utils/icons';
 import BombIcon from '@/components/common/BombIcon';
 
@@ -27,6 +25,20 @@ const GameLobby: React.FC = () => {
 
   const [activeTool, setActiveTool] = useState<'click' | 'scanner' | 'radar' | null>(null);
   const [isProcessingMove, setIsProcessingMove] = useState(false);
+  const [isFinishingSequence, setIsFinishingSequence] = useState(false);
+  const [revealFinishedBombs, setRevealFinishedBombs] = useState(true);
+  const pendingClickRef = useRef<{ position: number; startedAt: number } | null>(null);
+  const finishSequenceTimersRef = useRef<number[]>([]);
+
+  const clearFinishSequence = () => {
+    finishSequenceTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+    finishSequenceTimersRef.current = [];
+  };
+
+  const queueFinishStep = (callback: () => void, delay: number) => {
+    const timer = window.setTimeout(callback, delay);
+    finishSequenceTimersRef.current.push(timer);
+  };
 
   // Preview states for scanner/radar placement
   const [scannerPreview, setScannerPreview] = useState<number[] | null>(null);
@@ -40,16 +52,19 @@ const GameLobby: React.FC = () => {
       // Subscribe to game events
       socketService.on('gameStarted', handleGameStarted);
       socketService.on('moveMade', handleMoveMade);
+      socketService.on('toolPreviewUpdated', handleToolPreviewUpdated);
       socketService.on('gameFinished', handleGameFinished);
       socketService.on('balanceUpdated', handleBalanceUpdated);
     }
 
     return () => {
+      clearFinishSequence();
       if (defenseId) {
         socketService.leaveDefenseRoom(defenseId);
       }
       socketService.off('gameStarted', handleGameStarted);
       socketService.off('moveMade', handleMoveMade);
+      socketService.off('toolPreviewUpdated', handleToolPreviewUpdated);
       socketService.off('gameFinished', handleGameFinished);
       socketService.off('balanceUpdated', handleBalanceUpdated);
     };
@@ -67,6 +82,7 @@ const GameLobby: React.FC = () => {
   };
 
   const handleGameStarted = (defense: DefensePublic) => {
+    if (defense.id !== defenseId) return;
     dispatch(setActiveDefense(defense));
     dispatch(updateDefense(defense));
   };
@@ -74,15 +90,29 @@ const GameLobby: React.FC = () => {
   const handleMoveMade = (data: { defenseId: number; move: MoveResult }) => {
     if (data.defenseId === defenseId) {
       dispatch(setLastMoveResult(data.move));
-      loadDefense();
+      const isOwnPendingClick = data.move.moveType === 'CLICK' && pendingClickRef.current?.position === data.move.position;
+      if (!isOwnPendingClick) loadDefense();
+    }
+  };
+
+  const handleToolPreviewUpdated = (data: { defenseId: number; preview: ToolPreview }) => {
+    if (data.defenseId !== defenseId) return;
+
+    if (!data.preview) {
+      setScannerPreview(null);
+      setRadarPreview(null);
+    } else if (data.preview.moveType === 'SCANNER') {
+      setScannerPreview(data.preview.positions);
+      setRadarPreview(null);
+    } else {
+      setRadarPreview({ type: data.preview.radarType, index: data.preview.index, bombCount: -1 });
+      setScannerPreview(null);
     }
   };
 
   const handleGameFinished = (defense: DefensePublic) => {
-    dispatch(setActiveDefense(defense));
-    dispatch(updateDefense(defense));
-
-    if (user) {
+    const showResult = () => {
+      if (!user) return;
       const isWinner = defense.winnerId === user.id;
       const isAttacker = defense.attacker?.id === user.id;
 
@@ -109,7 +139,53 @@ const GameLobby: React.FC = () => {
           }),
         );
       }
+    };
+
+    const pendingClick = pendingClickRef.current;
+    const isFinalMiss =
+      defense.result === 'DEFENDER_WIN' &&
+      defense.attacker?.id === user?.id &&
+      pendingClick !== null &&
+      !defense.bombPositions?.includes(pendingClick.position);
+
+    clearFinishSequence();
+
+    if (!isFinalMiss) {
+      setIsFinishingSequence(false);
+      setRevealFinishedBombs(true);
+      dispatch(setActiveDefense(defense));
+      dispatch(updateDefense(defense));
+      showResult();
+      return;
     }
+
+    setIsFinishingSequence(true);
+    setRevealFinishedBombs(false);
+
+    // Keep the game visually active for the failed-cell reveal. Hidden bombs
+    // are introduced only after that animation has completed.
+    const clickReleaseDelay = Math.max(0, 180 - (performance.now() - pendingClick.startedAt));
+    queueFinishStep(() => {
+      dispatch(
+        setActiveDefense({
+          ...defense,
+          status: 'IN_PROGRESS',
+          result: null,
+          winnerId: null,
+          finishedAt: null,
+          bombPositions: undefined,
+        }),
+      );
+    }, clickReleaseDelay);
+
+    queueFinishStep(() => {
+      setIsFinishingSequence(false);
+      setRevealFinishedBombs(true);
+      dispatch(setActiveDefense(defense));
+      dispatch(updateDefense(defense));
+    }, clickReleaseDelay + 700);
+
+    queueFinishStep(showResult, clickReleaseDelay + 1450);
   };
 
   const handleBalanceUpdated = (data: { balance: number }) => {
@@ -117,12 +193,19 @@ const GameLobby: React.FC = () => {
   };
 
   const handleClose = () => {
+    clearFinishSequence();
+    pendingClickRef.current = null;
+    setIsFinishingSequence(false);
+    setRevealFinishedBombs(true);
     dispatch(closeGameLobby());
     dispatch(setActiveDefense(null));
     dispatch(setLastMoveResult(null));
     setActiveTool(null);
     setScannerPreview(null);
     setRadarPreview(null);
+    if (defenseId && activeDefense?.attacker?.id === user?.id) {
+      socketService.updateToolPreview(defenseId, null);
+    }
   };
 
   const handleAttack = async () => {
@@ -144,9 +227,16 @@ const GameLobby: React.FC = () => {
 
     try {
       setIsProcessingMove(true);
+      setIsFinishingSequence(true);
+      setRevealFinishedBombs(false);
+      pendingClickRef.current = { position, startedAt: performance.now() };
       const result = await socketService.makeMove(defenseId, 'CLICK', position);
       dispatch(setLastMoveResult(result));
       if (!result.gameFinished) {
+        const elapsed = performance.now() - pendingClickRef.current.startedAt;
+        if (elapsed < 180) {
+          await new Promise((resolve) => window.setTimeout(resolve, 180 - elapsed));
+        }
         dispatch(
           setActiveDefense({
             ...activeDefense,
@@ -158,10 +248,15 @@ const GameLobby: React.FC = () => {
             radarsUsed: result.radarsUsed,
           }),
         );
+        setIsFinishingSequence(false);
+        setRevealFinishedBombs(true);
       }
     } catch (error: any) {
+      setIsFinishingSequence(false);
+      setRevealFinishedBombs(true);
       dispatch(showToast({ message: error.message || 'Ошибка хода', type: 'error' }));
     } finally {
+      pendingClickRef.current = null;
       setIsProcessingMove(false);
     }
   };
@@ -169,6 +264,7 @@ const GameLobby: React.FC = () => {
   // Preview handlers - just set the preview, don't submit yet
   const handleScannerPreview = (positions: number[]) => {
     setScannerPreview(positions);
+    if (defenseId) socketService.updateToolPreview(defenseId, { moveType: 'SCANNER', positions });
   };
 
   const handleRadarPreview = (index: number) => {
@@ -176,16 +272,24 @@ const GameLobby: React.FC = () => {
     // bombCount -1 indicates preview mode
     const currentType = radarPreview?.type || 'row';
     setRadarPreview({ type: currentType, index, bombCount: -1 });
+    if (defenseId) socketService.updateToolPreview(defenseId, { moveType: 'RADAR', radarType: currentType, index });
   };
 
   // Toggle radar type (row/column)
-  const toggleRadarType = () => {
+  const toggleScannerType = () => {
     if (radarPreview) {
       setRadarPreview({
         type: radarPreview.type === 'row' ? 'column' : 'row',
         index: radarPreview.index,
         bombCount: -1,
       });
+      if (defenseId) {
+        socketService.updateToolPreview(defenseId, {
+          moveType: 'RADAR',
+          radarType: radarPreview.type === 'row' ? 'column' : 'row',
+          index: radarPreview.index,
+        });
+      }
     }
   };
 
@@ -232,12 +336,13 @@ const GameLobby: React.FC = () => {
     setActiveTool(null);
     setScannerPreview(null);
     setRadarPreview(null);
+    if (defenseId && isAttackerRole) socketService.updateToolPreview(defenseId, null);
   };
 
   const placeTool = () => {
-    if (activeTool === 'scanner') {
+    if (activeTool === 'radar') {
       void confirmScanner();
-    } else if (activeTool === 'radar') {
+    } else if (activeTool === 'scanner') {
       void confirmRadar();
     }
   };
@@ -259,14 +364,18 @@ const GameLobby: React.FC = () => {
   const isAttackerRole = activeDefense.attacker?.id === user?.id;
   const isGameActive = activeDefense.status === 'IN_PROGRESS';
   const isWaiting = activeDefense.status === 'WAITING';
-  const isFinished = activeDefense.status === 'FINISHED';
+  const isFinished = activeDefense.status === 'FINISHED' && !isFinishingSequence;
   const isExpired = activeDefense.status === 'EXPIRED' || (activeDefense.status === 'WAITING' && new Date(activeDefense.expiresAt).getTime() <= Date.now());
+  const isOwnMatch = isDefender || isAttackerRole;
+  const resolvedWinnerId = activeDefense.winnerId ?? (activeDefense.result === 'ATTACKER_TOOK_HALF' ? activeDefense.attacker?.id : null);
+  const currentUserWon = Boolean(isOwnMatch && user && resolvedWinnerId === user.id);
   const canAttack = isWaiting && !isDefender && user && !isExpired;
-  const canMakeMove = isGameActive && isAttackerRole && !isProcessingMove;
+  const canMakeMove = isGameActive && isAttackerRole && !isProcessingMove && !isFinishingSequence;
 
   const attemptsLeft = gameConfig.attempts - activeDefense.attemptsUsed;
-  const scannersLeft = gameConfig.scanners - activeDefense.scannersUsed;
-  const radarsLeft = gameConfig.radars - activeDefense.radarsUsed;
+  // The legacy API names these tool counters opposite to their UI names.
+  const radarUsesLeft = gameConfig.scanners - activeDefense.scannersUsed;
+  const scannerUsesLeft = gameConfig.radars - activeDefense.radarsUsed;
   const canTakeHalf = activeDefense.bombsFound >= 1 && isAttackerRole && isGameActive;
 
   // Calculate potential win - net profit is defender's bet (attacker gets their bet back + defender's bet)
@@ -275,129 +384,157 @@ const GameLobby: React.FC = () => {
 
   const getStatusBadge = () => {
     if (isExpired) {
-      return <Badge variant="warning">Истекла ⏰</Badge>;
+      return (
+        <Badge className={clsx(styles.statusBadge, { [styles.statusRefund]: isDefender })} variant={isDefender ? 'info' : 'warning'}>
+          {isDefender ? 'Возврат' : 'Истекла'}
+        </Badge>
+      );
     }
     if (isWaiting) {
       return (
-        <Badge variant="info">
-          Ожидание атаки <Waiting />
+        <Badge className={styles.statusBadge} variant="info">
+          Ожидание атаки
         </Badge>
       );
     }
     if (isGameActive) {
-      return <Badge variant="error">Идет атака ⚔️</Badge>;
+      return (
+        <Badge className={styles.statusBadge} variant="error">
+          Идет атака
+        </Badge>
+      );
     }
     if (isFinished) {
-      return <Badge variant="success">Завершена ✅</Badge>;
+      if (!isOwnMatch) {
+        return (
+          <Badge className={styles.statusBadge} variant="info">
+            Завершена
+          </Badge>
+        );
+      }
+
+      return (
+        <Badge className={styles.statusBadge} variant={currentUserWon ? 'success' : 'error'}>
+          {currentUserWon ? 'Победа' : 'Проигрыш'}
+        </Badge>
+      );
     }
     return null;
   };
 
-  // Get result info for finished or expired games
-  const getResultInfo = () => {
-    // Expired defense - show refund for defender
+  const getHeaderInfo = () => {
+    // A defense that expired before an attack refunds its creator's bet.
     if (isExpired && isDefender) {
-      return { label: 'Возврат', variant: 'refund' as const, amount: activeDefense.bet };
+      return { label: 'Возврат', variant: 'refund' as const, amount: activeDefense.bet, sign: '' };
     }
 
-    if (!isFinished || !user) return null;
-
-    const isWinner = activeDefense.winnerId === user.id;
-    const isAttacker = activeDefense.attacker?.id === user.id;
-    const isCreator = activeDefense.creator.id === user.id;
-
-    if (activeDefense.result === 'ATTACKER_TOOK_HALF') {
-      if (isAttacker) {
-        return { label: 'Вы забрали половину', variant: 'win' as const, amount: Math.floor(activeDefense.bet / 2) };
+    if (isFinished && user && (isDefender || isAttackerRole)) {
+      if (activeDefense.result === 'ATTACKER_TOOK_HALF') {
+        const won = isAttackerRole;
+        return {
+          label: won ? 'Победа' : 'Поражение',
+          variant: won ? ('win' as const) : ('lose' as const),
+          amount: Math.floor(activeDefense.bet / 2),
+          sign: won ? '+' : '-',
+        };
       }
-      if (isCreator) {
-        return { label: 'Противник забрал половину', variant: 'lose' as const, amount: Math.floor(activeDefense.bet / 2) };
-      }
+
+      const won = activeDefense.winnerId === user.id;
+      return {
+        label: won ? 'Победа' : 'Поражение',
+        variant: won ? ('win' as const) : ('lose' as const),
+        amount: activeDefense.bet,
+        sign: won ? '+' : '-',
+      };
     }
 
-    if (isWinner) {
-      // Winner gets: their bet back + opponent's bet = bet * 2 total
-      // But show net profit: just the opponent's bet (= activeDefense.bet)
-      return { label: 'Победа!', variant: 'win' as const, amount: activeDefense.bet };
+    // Only the player who can start an attack, or the current attacker,
+    // sees the potential winnings.
+    if (canAttack || (isGameActive && isAttackerRole)) {
+      return { label: 'Выигрыш', variant: 'potential' as const, amount: potentialWin, sign: '' };
     }
 
-    if (isAttacker || isCreator) {
-      // Loser loses their bet
-      return { label: 'Поражение', variant: 'lose' as const, amount: activeDefense.bet };
-    }
-
-    return null;
+    return { label: 'Ставка', variant: 'neutral' as const, amount: activeDefense.bet, sign: '' };
   };
 
-  const resultInfo = getResultInfo();
-  // For expired defenses, use expiresAt since finishedAt is null
-  const finishedTime = isFinished ? formatRelativeTime(activeDefense.finishedAt) : isExpired ? formatRelativeTime(activeDefense.expiresAt) : null;
+  const headerInfo = getHeaderInfo();
+  // const finishedTime = isFinished ? formatRelativeTime(activeDefense.finishedAt) : isExpired ? formatRelativeTime(activeDefense.expiresAt) : null;
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>
       <div className={styles.lobby}>
-        <div className={clsx(styles.header)}>
-          <div className={clsx(styles.title)}>{`Битва #${activeDefense.id}`}</div> {getStatusBadge()}
-        </div>
-        {/* Status */}
-        <div className={styles.statusSection}>
-          {/* <DifficultyIndicator difficulty={activeDefense.difficulty} showLabel /> */}
+        <header
+          className={clsx(styles.header, {
+            [styles.headerWaiting]: isWaiting && !isExpired,
+            [styles.headerActive]: isGameActive,
+            [styles.headerFinished]: isFinished && isOwnMatch && currentUserWon,
+            [styles.headerLost]: isFinished && isOwnMatch && !currentUserWon,
+            [styles.headerForeign]: isFinished && !isOwnMatch,
+            [styles.headerExpired]: isExpired,
+          })}>
+          <div className={styles.playersRow}>
+            <div
+              className={clsx(styles.player, {
+                [styles.playerWinner]: isFinished && resolvedWinnerId === activeDefense.creator.id,
+                [styles.playerLoser]: isFinished && Boolean(resolvedWinnerId) && resolvedWinnerId !== activeDefense.creator.id,
+              })}>
+              <div className={clsx(styles.avatarWrap, { [styles['avatarWrap--owner']]: isDefender })}>
+                <Avatar className={styles.creatorAvatar} src={activeDefense.creator.photoUrl} name={activeDefense.creator.firstName} size="lg" />
+              </div>
+              <div className={styles.playerInfo}>
+                <span className={styles.playerName}>{activeDefense.creator.firstName || activeDefense.creator.username || 'Защитник'}</span>
+                <img className={styles.roleIcon} src="/shield_small.webp" alt="" />
+              </div>
+            </div>
 
-          {(isFinished || isExpired) && finishedTime && <span className={styles.finishedTime}>{finishedTime}</span>}
-        </div>
-
-        {/* Players */}
-        <div className={styles.players}>
-          <div className={styles.player}>
-            <div className={styles.avatarWrap}>
-              <Avatar src={activeDefense.creator.photoUrl} name={activeDefense.creator.firstName} size="lg" />
-              <span className={styles.playerRole}>
-                <img src="/shield_small.webp" width="28px" />
+            <div className={clsx(styles.headerWin, styles[`headerWin--${headerInfo.variant}`])}>
+              {!['win', 'lose', 'refund'].includes(headerInfo.variant) && <span className={styles.headerMetaLabel}>{headerInfo.label}</span>}
+              <span className={styles.headerWinAmount}>
+                <span className={styles.star}>{star()}</span>
+                {headerInfo.sign}
+                {headerInfo.amount}
               </span>
             </div>
 
-            <span className={styles.playerName}>{activeDefense.creator.firstName || activeDefense.creator.username || 'Защитник'}</span>
+            <div
+              className={clsx(styles.player, styles.playerAttacker, {
+                [styles.playerWinner]: isFinished && Boolean(activeDefense.attacker) && resolvedWinnerId === activeDefense.attacker?.id,
+                [styles.playerLoser]: isFinished && Boolean(activeDefense.attacker) && Boolean(resolvedWinnerId) && resolvedWinnerId !== activeDefense.attacker?.id,
+              })}>
+              <div className={styles.playerInfo}>
+                <span className={styles.playerName}>{activeDefense.attacker ? activeDefense.attacker.firstName || activeDefense.attacker.username || 'Атакующий' : 'Ожидание'}</span>
+                <img className={clsx(styles.roleIcon, styles.attackerRoleIcon)} src="/two-swords.webp" alt="" />
+              </div>
+              <div
+                className={clsx(styles.avatarWrap, styles.attackerAvatarWrap, {
+                  [styles['avatarWrap--owner']]: isAttackerRole,
+                  [styles['avatarWrap--attacker-owner']]: isAttackerRole,
+                })}>
+                {activeDefense.attacker ? <Avatar src={activeDefense.attacker.photoUrl} name={activeDefense.attacker.firstName} size="lg" className={styles.attackerAvatar} /> : <div className={styles.emptyAvatar}>?</div>}
+              </div>
+            </div>
           </div>
 
-          <div className={styles.vs}>VS</div>
-
-          <div className={styles.player}>
-            {activeDefense.attacker ? (
-              <>
-                <div className={styles.avatarWrap}>
-                  <Avatar src={activeDefense.attacker.photoUrl} name={activeDefense.attacker.firstName} size="lg" />
-                  <span className={styles.playerRole}>
-                    <img src="/two-swords.webp" width="28px" style={{ transform: 'rotate(180deg)' }} />
-                  </span>
-                </div>
-                <span className={styles.playerName}>{activeDefense.attacker.firstName || activeDefense.attacker.username || 'Атакующий'}</span>
-              </>
-            ) : (
-              <>
-                <div className={styles.avatarWrap}>
-                  <div className={styles.emptyAvatar}>?</div>{' '}
-                  <span className={styles.playerRole}>
-                    <img src="/two-swords.webp" width="28px" style={{ transform: 'rotate(180deg)' }} />
-                  </span>
-                </div>
-
-                <span className={styles.playerName}>Ожидание...</span>
-              </>
+          <div className={styles.headerMeta}>
+            <div className={styles.headerStatus}>
+              <div className={styles.statusValue}>
+                {/* {(isFinished || isExpired) && finishedTime && <span className={styles.finishedTime}>{finishedTime}</span>} */}
+                {getStatusBadge()}
+              </div>
+            </div>
+            {isGameActive && activeDefense.moveDeadline && (
+              <div className={styles.headerTimer}>
+                <Timer endTime={new Date(activeDefense.moveDeadline).getTime()} type="countdown" onExpire={() => void loadDefense()} />
+              </div>
             )}
           </div>
-        </div>
+        </header>
         <div className={styles.infoItem}>
           <span className={styles.infoIcon}></span>
-          <span>Найди {gameConfig.bombsCount} бомбы <BombIcon /></span>
+          <span>
+            Найди {gameConfig.bombsCount} бомбы <BombIcon />
+          </span>
         </div>
-        {isGameActive && activeDefense.moveDeadline && (
-          <Timer
-            endTime={new Date(activeDefense.moveDeadline).getTime()}
-            type="countdown"
-            onExpire={() => void loadDefense()}
-          />
-        )}
-
         {/* Game Board */}
         <div className={styles.boardSection}>
           <GameBoard
@@ -406,17 +543,27 @@ const GameLobby: React.FC = () => {
             bombPositions={activeDefense.bombPositions || []}
             foundBombPositions={activeDefense.foundBombPositions || []}
             onCellClick={canMakeMove && !activeTool ? handleCellClick : undefined}
-            activeTool={activeTool}
+            // Translate UI tool names to the legacy socket protocol names.
+            activeTool={activeTool === 'radar' ? 'scanner' : activeTool === 'scanner' ? 'radar' : activeTool}
             onScannerPlaced={canMakeMove ? handleScannerPreview : undefined}
             onRadarPlaced={canMakeMove ? handleRadarPreview : undefined}
-            onRadarTypeToggle={canMakeMove ? toggleRadarType : undefined}
+            onRadarTypeToggle={canMakeMove ? toggleScannerType : undefined}
             scannerPositions={scannerPreview || []}
             scannerResults={activeDefense.scannerResults || []}
             radarResult={radarPreview}
             radarResults={activeDefense.radarResults || []}
             disabled={!canMakeMove}
+            completed={isFinished}
+            revealFinishedBombs={revealFinishedBombs}
             fieldSize={gameConfig.fieldSize}
           />
+          {canAttack && (
+            <div className={styles.attackOverlay}>
+              <Button color="error" size="lg" fullWidth loading={isAttacking} onClick={handleAttack}>
+                Атаковать ⭐ {activeDefense.bet}
+              </Button>
+            </div>
+          )}
         </div>
         {isGameActive ? (
           <div className={clsx(styles.attempts)}>
@@ -485,23 +632,6 @@ const GameLobby: React.FC = () => {
                 <span className={styles.statValue}>{gameConfig.scanners}</span>
               </div>
             </div> */}
-            {isDefender ? (
-              <div className={styles.betInfo}>
-                <div className={styles.betLabel}>Ставка</div>
-                <div className={styles.betAmount}>
-                  <span className={styles.star}>⭐</span>
-                  {activeDefense.bet}
-                </div>
-              </div>
-            ) : (
-              <div className={styles.winInfo}>
-                <div className={styles.winLabel}>Выигрыш</div>
-                <div className={styles.winAmount}>
-                  <span className={styles.star}>{star()}</span>
-                  {potentialWin}
-                </div>
-              </div>
-            )}
           </div>
         )}
 
@@ -512,19 +642,20 @@ const GameLobby: React.FC = () => {
             {isAttackerRole && (
               <div className={styles.tools}>
                 <button
-                  className={clsx(styles.tool, styles.toolScanner, { [styles.toolPlace]: activeTool === 'scanner' })}
+                  className={clsx(styles.tool, styles.toolRadar, { [styles.toolPlace]: activeTool === 'radar' })}
                   onClick={() => {
-                    if (activeTool === 'scanner') {
+                    if (activeTool === 'radar') {
                       placeTool();
                     } else {
-                      setActiveTool('scanner');
-                      // Initialize scanner at position [0,0]
+                      setActiveTool('radar');
+                      // The radar covers a movable 2x2 area.
                       const positions = [0, 1, gameConfig.fieldSize, gameConfig.fieldSize + 1];
                       setScannerPreview(positions);
+                      socketService.updateToolPreview(activeDefense.id, { moveType: 'SCANNER', positions });
                     }
                   }}
-                  disabled={scannersLeft <= 0 || isProcessingMove}>
-                  {activeTool === 'scanner' ? (
+                  disabled={radarUsesLeft <= 0 || isProcessingMove}>
+                  {activeTool === 'radar' ? (
                     <span className={styles.toolPlaceLabel}>
                       Разместить <span aria-hidden="true">→</span>
                     </span>
@@ -534,23 +665,24 @@ const GameLobby: React.FC = () => {
                         <img src="/radar3.png" />
                       </span>
                       <span className={styles.toolName}>Радар</span>
-                      <span className={styles.toolCount}>{scannersLeft}</span>
+                      <span className={styles.toolCount}>{radarUsesLeft}</span>
                     </>
                   )}
                 </button>
                 <button
-                  className={clsx(styles.tool, styles.toolRadar, { [styles.toolPlace]: activeTool === 'radar' })}
+                  className={clsx(styles.tool, styles.toolScanner, { [styles.toolPlace]: activeTool === 'scanner' })}
                   onClick={() => {
-                    if (activeTool === 'radar') {
+                    if (activeTool === 'scanner') {
                       placeTool();
                     } else {
-                      setActiveTool('radar');
-                      // Initialize radar at row 0
+                      setActiveTool('scanner');
+                      // The scanner starts on the first row.
                       setRadarPreview({ type: 'row', index: 0, bombCount: -1 });
+                      socketService.updateToolPreview(activeDefense.id, { moveType: 'RADAR', radarType: 'row', index: 0 });
                     }
                   }}
-                  disabled={radarsLeft <= 0 || isProcessingMove}>
-                  {activeTool === 'radar' ? (
+                  disabled={scannerUsesLeft <= 0 || isProcessingMove}>
+                  {activeTool === 'scanner' ? (
                     <span className={styles.toolPlaceLabel}>
                       Разместить <span aria-hidden="true">→</span>
                     </span>
@@ -560,7 +692,7 @@ const GameLobby: React.FC = () => {
                         <img src="/scanner.png" />
                       </span>
                       <span className={styles.toolName}>Сканер</span>
-                      <span className={styles.toolCount}>{radarsLeft}</span>
+                      <span className={styles.toolCount}>{scannerUsesLeft}</span>
                     </>
                   )}
                 </button>
@@ -569,26 +701,8 @@ const GameLobby: React.FC = () => {
           </div>
         )}
 
-        {/* Finished/Expired Game Result */}
-        {(isFinished || isExpired) && resultInfo && (
-          <div className={clsx(styles.resultCard, styles[`resultCard--${resultInfo.variant}`])}>
-            <div className={styles.resultLabel}>{resultInfo.label}</div>
-            <div className={clsx(styles.resultAmount, styles[`resultAmount--${resultInfo.variant}`])}>
-              {resultInfo.variant === 'win' || resultInfo.variant === 'refund' ? '+' : '-'}
-              {resultInfo.amount}
-              <span className={styles.star}>⭐</span>
-            </div>
-          </div>
-        )}
-
         {/* Actions */}
         <div className={styles.actions}>
-          {canAttack && (
-            <Button color="error" size="lg" fullWidth loading={isAttacking} onClick={handleAttack}>
-              Атаковать ⭐ {activeDefense.bet}
-            </Button>
-          )}
-
           {canTakeHalf && (
             <Button color="warning" size="lg" fullWidth onClick={handleTakeHalf}>
               Забрать ⭐ {Math.floor(activeDefense.bet / 2)} (50%)

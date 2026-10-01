@@ -25,6 +25,11 @@ export interface RadarResult {
   bombCount: number;
 }
 
+export type ToolPreview =
+  | { moveType: 'SCANNER'; positions: number[] }
+  | { moveType: 'RADAR'; radarType: 'row' | 'column'; index: number }
+  | null;
+
 export interface DefensePublic {
   id: number;
   creator: UserPublic;

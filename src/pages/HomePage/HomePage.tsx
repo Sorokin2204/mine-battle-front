@@ -74,7 +74,12 @@ const HomePage: React.FC = () => {
         </div>
       </motion.div> */}
 
-      <motion.div className={`${styles.banner}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} onClick={() => navigate('/games')}>
+      <motion.div
+        className={styles.banner}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+        onClick={() => navigate('/games')}>
         <div className={styles.bannerContent}>
           {/* <span className={styles.bannerIcon}>&#128737;&#65039;</span> */}
           <div className={styles.bannerText}>
@@ -87,7 +92,12 @@ const HomePage: React.FC = () => {
         </div>
       </motion.div>
 
-      <motion.div className={`${styles.banner} ${styles.bannerDefense}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} onClick={() => navigate('/create-defense')}>
+      <motion.div
+        className={`${styles.banner} ${styles.bannerDefense}`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+        onClick={() => navigate('/create-defense')}>
         <div className={styles.bannerContent}>
           {/* <span className={styles.bannerIcon}>&#128737;&#65039;</span> */}
           <div className={styles.bannerText}>
@@ -100,7 +110,11 @@ const HomePage: React.FC = () => {
         </div>
       </motion.div>
 
-      <motion.div className={styles.info} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
+      <motion.div
+        className={styles.info}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}>
         <h3 className={styles.infoTitle}>Как играть?</h3>
         <div className={styles.infoList}>
           <div className={styles.infoItem}>

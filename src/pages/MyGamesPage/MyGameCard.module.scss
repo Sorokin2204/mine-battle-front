@@ -22,13 +22,24 @@
     background: linear-gradient(135deg, $bg-card-2 0%, rgba($red-500, 0.1) 100%);
   }
 
-  &--waiting {
+  &--defense {
     border-color: rgba($primary-500, 0.3);
+    background: linear-gradient(135deg, $bg-card-2 0%, rgba($primary-500, 0.14) 100%);
+
+    .actionIcon {
+      color: $primary-400;
+      background: rgba($primary-500, 0.2);
+    }
   }
 
-  &--active {
+  &--attack {
     border-color: rgba($red-500, 0.3);
-    background: linear-gradient(135deg, $bg-card-2 0%, rgba($red-500, 0.1) 100%);
+    background: linear-gradient(135deg, $bg-card-2 0%, rgba($red-500, 0.14) 100%);
+
+    .actionIcon {
+      color: $red-400;
+      background: rgba($red-500, 0.2);
+    }
   }
 
   &--refund {
@@ -39,6 +50,21 @@
 
 .left {
   position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  min-width: 0;
+}
+
+.avatarColumn {
+  position: relative;
+  display: flex;
+  width: 40px;
+  flex: 0 0 40px;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-bottom: 16px;
 }
 
 .emptyAvatar {
@@ -48,30 +74,10 @@
   align-items: center;
   justify-content: center;
   background: $bg-secondary;
-  border: 2px dashed $border-color-hover;
+  border: 2px solid $border-color-hover;
   border-radius: $radius-full;
   font-size: $text-md;
   color: $text-muted;
-}
-
-.roleInfo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $spacing-xs;
-}
-.indicator {
-  top: 4px;
-  left: 4px;
-  position: absolute;
-}
-.roleIcon {
-  font-size: 14px;
-  & span {
-    bottom: -8px;
-    right: -8px;
-    position: absolute;
-  }
 }
 
 .center {
@@ -81,7 +87,6 @@
   gap: 2px;
 }
 
-.betRow,
 .resultRow {
   display: flex;
   align-items: end;
@@ -89,7 +94,6 @@
   gap: 2px;
 }
 
-.betLabel,
 .resultLabel {
   font-size: $text-xs;
   color: $text-muted;
@@ -122,16 +126,6 @@
   &--refund {
     color: $gray-400;
   }
-}
-
-.star {
-  color: $yellow-500;
-  font-size: $text-md;
-}
-
-.multiplier {
-  font-size: $text-xs;
-  color: $text-muted;
 }
 
 .right {
@@ -184,30 +178,47 @@
   color: $gray-400;
 }
 
-.statusInfo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.hourglassIcon {
-  font-size: 20px;
-}
-
-.swordIcon {
-  font-size: 20px;
-}
-
-.timeLeft {
-  font-size: $text-xs;
-  font-weight: 600;
-  color: $red-400;
+.timer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+  opacity: 0.2;
   font-variant-numeric: tabular-nums;
+
+  &--defense {
+    color: $primary-400;
+  }
+
+  &--attack {
+    color: $red-400;
+  }
+}
+
+.actionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border-radius: $radius-full;
+  font-size: 24px;
+
+  svg {
+    display: block;
+  }
 }
 
 .finishedTime {
-  margin-left: 2px;
+  position: absolute;
+  top: 44px;
+  left: 0;
+  text-align: left;
   font-size: $text-xs;
   color: $text-muted;
   white-space: nowrap;

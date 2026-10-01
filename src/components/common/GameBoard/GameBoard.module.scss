@@ -63,38 +63,47 @@
   }
 
   &--bomb {
-    background: rgba($red-500, 0.3);
-    border-color: $red-400;
-    box-shadow: 0 0 16px rgba($red-500, 0.35);
+    border-color: rgba(#000, 0.75);
+    box-shadow: none;
   }
 
   &--safe {
-    background: rgba($red-500, 0.2);
     border-color: $red-400;
+    box-shadow: none;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #20273a 0%, rgba(239, 68, 68, 0.5) 100%);
+      clip-path: circle(0% at 50% 50%);
+      animation: failedCellReveal 0.42s cubic-bezier(0.22, 0.8, 0.3, 1) forwards;
+      pointer-events: none;
+    }
   }
 
   &--scanner {
-    background: rgba($green-700, 0.75);
+    background: linear-gradient(135deg, #20273a 0%, rgba(139, 92, 246, 0.4) 100%);
     border-color: transparent;
     box-shadow: none;
   }
 
   &--radar {
-    background: rgba($purple-500, 0.5);
+    background: linear-gradient(135deg, #20273a 0%, rgba(59, 130, 246, 0.7) 100%);
     border-color: transparent;
     box-shadow: none;
   }
 
   &--scanner-active {
-    border-color: $green-400;
-    box-shadow: 0 0 15px rgba($green-600, 0.35);
+    border-color: $purple-400;
+    // box-shadow: 0 0 15px rgba($purple-500, 0.3);
     transform: scale(var(--active-cell-scale));
     will-change: transform;
   }
 
   &--radar-active {
-    border-color: $purple-400;
-    box-shadow: 0 0 15px rgba($purple-500, 0.3);
+    border-color: $blue-400;
+    // box-shadow: 0 0 15px rgba($blue-500, 0.38);
     transform: scale(var(--active-cell-scale));
     will-change: transform;
   }
@@ -102,8 +111,9 @@
   &--intersection {
     border-color: transparent;
     background:
-      linear-gradient(180deg, rgba($green-700, 0.75) 0%, rgba($green-700, 0.75) 50%, rgba($purple-500, 0.5) 50%, rgba($purple-500, 0.5) 100%) padding-box,
-      radial-gradient(63.64% 63.64% at 50% 88.64%, #24304a 34.37%, #293356 100%) padding-box;
+      linear-gradient(90deg, transparent 47.5%, rgba(32, 39, 58, 0.72) 50%, transparent 52.5%),
+      linear-gradient(135deg, #20273a 0%, rgba(139, 92, 246, 0.4) 100%) left / 50% 100% no-repeat,
+      linear-gradient(135deg, #20273a 0%, rgba(59, 130, 246, 0.7) 100%) right / 50% 100% no-repeat;
     box-shadow: none;
   }
 
@@ -114,13 +124,42 @@
 }
 
 .cell--intersection.cell--scanner-active {
-  border-color: $green-400;
-  box-shadow: 0 0 15px rgba($green-600, 0.35);
+  border-color: $purple-400;
+  box-shadow: 0 0 15px rgba($purple-500, 0.3);
 }
 
 .cell--intersection.cell--radar-active {
-  border-color: $purple-400;
-  box-shadow: 0 0 15px rgba($purple-500, 0.3);
+  border-color: $blue-400;
+  box-shadow: 0 0 15px rgba($blue-500, 0.38);
+}
+
+// A failed attempt fully replaces radar/scanner colors. The solid base keeps
+// the translucent red gradient from blending with tool-result backgrounds.
+.cell.cell--safe {
+  background: #20273a;
+  border-color: $red-400;
+  box-shadow: none;
+
+  &::after {
+    display: none;
+  }
+}
+
+// A revealed bomb stays black even if radar/scanner result layers intersect it.
+.cell.cell--bomb {
+  border-color: rgba(#000, 0.75);
+  box-shadow: none;
+}
+
+.cell.cell--found-bomb {
+  background: linear-gradient(135deg, #20273a 0%, rgba($green-500, 0.5) 100%);
+  border-color: $green-400;
+  box-shadow: none;
+
+  &::before,
+  &::after {
+    display: none;
+  }
 }
 
 @keyframes activeGridBreathing {
@@ -141,12 +180,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .safeIcon {
   color: $red-400;
   font-weight: bold;
   font-size: 20px;
+  position: relative;
+  z-index: 1;
+
+  svg {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
 }
 
 .foundBombIcon {
@@ -162,6 +210,12 @@
 
 .hiddenBomb {
   opacity: 0.3;
+}
+
+@keyframes failedCellReveal {
+  to {
+    clip-path: circle(72% at 50% 50%);
+  }
 }
 
 .scannerOverlay,
@@ -182,10 +236,21 @@
   z-index: 20;
 }
 
+.resultOverlay--medium {
+  width: 48px;
+  height: 48px;
+  font-size: $text-xl;
+}
+
+.resultOverlay--hard {
+  width: 40px;
+  height: 40px;
+  font-size: $text-lg;
+}
+
 .scannerOverlay {
-  background: rgba($green-700, 0.95);
-  // border: 2px solid $green-400;
-  // box-shadow: 0 4px 20px rgba($green-600, 0.5);
+  background: rgba($blue-700, 0.95);
+  // The API names this 2x2 radar result "scanner".
 }
 
 .scannerCount,
@@ -197,7 +262,7 @@
 }
 
 .scannerOverlay--preview {
-  background: rgba($green-600, 0.8);
+  background: rgba($blue-600, 0.82);
   border: 2px dashed $white;
   animation: pulse 1s ease-in-out infinite;
 }

@@ -4,7 +4,6 @@ import { motion, AnimatePresence, useAnimationControls } from 'framer-motion';
 import styles from './GameBoard.module.scss';
 import { gameConfig as defaultGameConfig } from '@/config/game.config';
 import type { RadarResult, ScannerResult } from '@/types';
-import Icon from '../Icon/Icon';
 import BombIcon from '../BombIcon';
 
 interface GameBoardProps {
@@ -20,6 +19,8 @@ interface GameBoardProps {
   radarResult?: { type: 'row' | 'column'; index: number; bombCount: number } | null;
   radarResults?: RadarResult[];
   disabled?: boolean;
+  completed?: boolean;
+  revealFinishedBombs?: boolean;
   activeTool?: 'click' | 'scanner' | 'radar' | null;
   onScannerPlaced?: (positions: number[]) => void;
   onRadarPlaced?: (position: number) => void;
@@ -111,17 +112,8 @@ const DraggableScanner: React.FC<DraggableScannerProps> = ({ currentRow, current
   };
 
   return (
-    <motion.div
-      style={style}
-      className={styles.dragSurface}
-      initial={false}
-      exit={{ opacity: 0, scale: 0 }}
-      transition={{ duration: 0.24, ease: 'easeInOut' }}
-      {...pointerHandlers}>
-      <motion.div
-        className={clsx(styles.draggableScanner, { [styles['draggableScanner--dragging']]: isDragging })}
-        initial={{ scale: 0 }}
-        animate={animationControls}>
+    <motion.div style={style} className={styles.dragSurface} initial={false} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 0.24, ease: 'easeInOut' }} {...pointerHandlers}>
+      <motion.div className={clsx(styles.draggableScanner, { [styles['draggableScanner--dragging']]: isDragging })} initial={{ scale: 0 }} animate={animationControls}>
         <span className={styles.scannerDragIcon}>
           <img src="/radar3.png" alt="" draggable={false} />
         </span>
@@ -193,17 +185,8 @@ const DraggableRadar: React.FC<DraggableRadarProps> = ({ fieldSize, type, index,
   };
 
   return (
-    <motion.div
-      style={style}
-      className={styles.dragSurface}
-      initial={false}
-      exit={{ opacity: 0, scale: 0 }}
-      transition={{ duration: 0.24, ease: 'easeInOut' }}
-      {...pointerHandlers}>
-      <motion.div
-        className={clsx(styles.draggableRadar, styles[`draggableRadar--${type}`], { [styles['draggableRadar--dragging']]: isDragging })}
-        initial={{ scale: 0 }}
-        animate={animationControls}>
+    <motion.div style={style} className={styles.dragSurface} initial={false} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 0.24, ease: 'easeInOut' }} {...pointerHandlers}>
+      <motion.div className={clsx(styles.draggableRadar, styles[`draggableRadar--${type}`], { [styles['draggableRadar--dragging']]: isDragging })} initial={{ scale: 0 }} animate={animationControls}>
         <button
           type="button"
           className={styles.radarSwitch}
@@ -236,6 +219,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
   radarResult,
   radarResults = [],
   disabled = false,
+  completed = false,
+  revealFinishedBombs = true,
   activeTool = null,
   onScannerPlaced,
   onRadarPlaced,
@@ -326,12 +311,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       };
       scannerDragPosRef.current = nextPosition;
       setScannerDragPos(nextPosition);
-      onScannerPlaced?.([
-        nextPosition.row * fieldSize + nextPosition.col,
-        nextPosition.row * fieldSize + nextPosition.col + 1,
-        (nextPosition.row + 1) * fieldSize + nextPosition.col,
-        (nextPosition.row + 1) * fieldSize + nextPosition.col + 1,
-      ]);
+      onScannerPlaced?.([nextPosition.row * fieldSize + nextPosition.col, nextPosition.row * fieldSize + nextPosition.col + 1, (nextPosition.row + 1) * fieldSize + nextPosition.col, (nextPosition.row + 1) * fieldSize + nextPosition.col + 1]);
       return;
     }
 
@@ -421,149 +401,156 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const getRadarResultPosition = (result: RadarResult) =>
     result.type === 'row'
       ? {
-          left: gridDimensions.gridPadding + (gridDimensions.cellSize * fieldSize + gridDimensions.gap * (fieldSize - 1)) / 2,
+          // Keep the result outside the grid: its center sits on the left
+          // edge of the first cell in the scanned row.
+          left: gridDimensions.gridPadding,
           top: gridDimensions.gridPadding + result.index * cellStep + gridDimensions.cellSize / 2,
         }
       : {
           left: gridDimensions.gridPadding + result.index * cellStep + gridDimensions.cellSize / 2,
-          top: gridDimensions.gridPadding + (gridDimensions.cellSize * fieldSize + gridDimensions.gap * (fieldSize - 1)) / 2,
+          // For a column, center the result on the top edge of its first cell.
+          top: gridDimensions.gridPadding,
         };
+  const resultOverlaySizeClass = fieldSize === 4 ? styles['resultOverlay--medium'] : fieldSize >= 5 ? styles['resultOverlay--hard'] : undefined;
 
   return (
-      <div className={styles.board}>
-        <div
-          ref={gridRef}
-          className={clsx(styles.grid, {
-            [styles['grid--scanner-active']]: showDraggableScanner,
-            [styles['grid--radar-active']]: showDraggableRadar,
+    <div className={styles.board}>
+      <div
+        ref={gridRef}
+        className={clsx(styles.grid, {
+          [styles['grid--scanner-active']]: showDraggableScanner,
+          [styles['grid--radar-active']]: showDraggableRadar,
+        })}
+        style={{
+          gridTemplateColumns: `repeat(${fieldSize}, 1fr)`,
+          gridTemplateRows: `repeat(${fieldSize}, 1fr)`,
+        }}>
+        <AnimatePresence>
+          {cells.map((position) => {
+            const { isSelected, isRevealed, isBomb, isFoundBomb, isInScannerPreview, isInScannerResult, isInRadarPreview, isInRadarResult } = getCellState(position);
+            const isInScannerArea = isInScannerResult || isInScannerPreview;
+            const isInRadarArea = Boolean(isInRadarResult || isInRadarPreview);
+            const isAreaIntersection = isInScannerArea && isInRadarArea;
+            const isActiveScannerCell = Boolean(showDraggableScanner && isInScannerPreview);
+            const isActiveRadarCell = Boolean(showDraggableRadar && isInRadarPreview);
+
+            return (
+              <motion.button
+                key={position}
+                className={clsx(styles.cell, {
+                  [styles['cell--selected']]: isSelected,
+                  [styles['cell--revealed']]: isRevealed,
+                  [styles['cell--bomb']]: (isRevealed && isFoundBomb) || (completed && revealFinishedBombs && isBomb),
+                  [styles['cell--found-bomb']]: isRevealed && isFoundBomb,
+                  [styles['cell--safe']]: isRevealed && !isFoundBomb && !isBomb,
+                  // The API calls the 2x2 radar action SCANNER and the line
+                  // scanner action RADAR. CSS names follow the UI terminology.
+                  [styles['cell--radar']]: isInScannerArea,
+                  [styles['cell--scanner']]: isInRadarArea,
+                  [styles['cell--radar-active']]: isActiveScannerCell,
+                  [styles['cell--scanner-active']]: isActiveRadarCell,
+                  [styles['cell--intersection']]: isAreaIntersection,
+                  [styles['cell--disabled']]: disabled && !completed,
+                  [styles['cell--clickable']]: !disabled && mode !== 'view' && activeTool !== 'scanner' && activeTool !== 'radar',
+                })}
+                whileTap={!disabled && mode !== 'view' && activeTool !== 'scanner' && activeTool !== 'radar' ? { scale: 0.9 } : undefined}
+                transition={{ type: 'spring', stiffness: 520, damping: 24, mass: 0.55 }}
+                onClick={() => handleCellClick(position)}
+                disabled={disabled || mode === 'view'}>
+                {mode === 'setup' && isSelected && (
+                  <motion.span className={styles.bombIcon} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
+                    <BombIcon size="75%" />
+                  </motion.span>
+                )}
+                {isRevealed && isFoundBomb && (
+                  <motion.span className={styles.foundBombIcon} initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }}>
+                    <BombIcon size="75%" />
+                  </motion.span>
+                )}
+                {isRevealed && !isFoundBomb && !isBomb && (
+                  <motion.span className={styles.safeIcon} initial={{ scale: 0, rotate: -20 }} animate={{ scale: 1, rotate: 0 }} transition={{ delay: 0.28, type: 'spring', stiffness: 520, damping: 22 }}>
+                    <svg aria-hidden="true" viewBox="0 0 1216 1312">
+                      <path
+                        fill="currentColor"
+                        d="M1202 1066q0 40-28 68l-136 136q-28 28-68 28t-68-28L608 976l-294 294q-28 28-68 28t-68-28L42 1134q-28-28-28-68t28-68l294-294L42 410q-28-28-28-68t28-68l136-136q28-28 68-28t68 28l294 294l294-294q28-28 68-28t68 28l136 136q28 28 28 68t-28 68L880 704l294 294q28 28 28 68"
+                      />
+                    </svg>
+                  </motion.span>
+                )}
+                {mode === 'view' && !isRevealed && isBomb && (!completed || revealFinishedBombs) && (
+                  <motion.span className={styles.hiddenBomb} initial={{ opacity: 0, scale: 0.25, rotate: -18 }} animate={{ opacity: completed ? 1 : 0.3, scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 360, damping: 17, mass: 0.75 }}>
+                    <BombIcon size="75%" />
+                  </motion.span>
+                )}
+              </motion.button>
+            );
           })}
-          style={{
-            gridTemplateColumns: `repeat(${fieldSize}, 1fr)`,
-            gridTemplateRows: `repeat(${fieldSize}, 1fr)`,
-          }}>
-          <AnimatePresence>
-            {cells.map((position) => {
-              const { isSelected, isRevealed, isBomb, isFoundBomb, isInScannerPreview, isInScannerResult, isInRadarPreview, isInRadarResult } = getCellState(position);
-              const isInScannerArea = isInScannerResult || isInScannerPreview;
-              const isInRadarArea = Boolean(isInRadarResult || isInRadarPreview);
-              const isAreaIntersection = isInScannerArea && isInRadarArea;
-              const isActiveScannerCell = Boolean(showDraggableScanner && isInScannerPreview);
-              const isActiveRadarCell = Boolean(showDraggableRadar && isInRadarPreview);
+        </AnimatePresence>
 
-              return (
-                <button
-                  key={position}
-                  className={clsx(styles.cell, {
-                    [styles['cell--selected']]: isSelected,
-                    [styles['cell--revealed']]: isRevealed,
-                    [styles['cell--bomb']]: isRevealed && isFoundBomb,
-                    [styles['cell--safe']]: isRevealed && !isFoundBomb && !isBomb,
-                    [styles['cell--scanner']]: isInScannerArea,
-                    [styles['cell--radar']]: isInRadarArea,
-                    [styles['cell--scanner-active']]: isActiveScannerCell,
-                    [styles['cell--radar-active']]: isActiveRadarCell,
-                    [styles['cell--intersection']]: isAreaIntersection,
-                    [styles['cell--disabled']]: disabled,
-                    [styles['cell--clickable']]: !disabled && mode !== 'view' && activeTool !== 'scanner' && activeTool !== 'radar',
-                  })}
-                  onClick={() => handleCellClick(position)}
-                  disabled={disabled || mode === 'view'}>
-                  {mode === 'setup' && isSelected && (
-                    <motion.span className={styles.bombIcon} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-                      <BombIcon size="75%" />
-                    </motion.span>
-                  )}
-                  {isRevealed && isFoundBomb && (
-                    <motion.span className={styles.foundBombIcon} initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }}>
-                      <BombIcon size="75%" />
-                    </motion.span>
-                  )}
-                  {isRevealed && !isFoundBomb && !isBomb && (
-                    <motion.span className={styles.safeIcon} initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                      <Icon icon="close" />
-                    </motion.span>
-                  )}
-                  {mode === 'view' && !isRevealed && isBomb && (
-                    <motion.span className={styles.hiddenBomb} initial={{ opacity: 0 }} animate={{ opacity: 0.3 }}>
-                      <BombIcon size="75%" />
-                    </motion.span>
-                  )}
-                </button>
-              );
-            })}
-          </AnimatePresence>
+        {/* Draggable Scanner */}
+        <AnimatePresence>
+          {showDraggableScanner && gridDimensions.cellSize > 0 && (
+            <DraggableScanner key="scanner-overlay" currentRow={scannerDragPos.row} currentCol={scannerDragPos.col} cellSize={gridDimensions.cellSize} gridPadding={gridDimensions.gridPadding} gap={gridDimensions.gap} onDragStart={handleScannerDragStart} onDragMove={handleScannerDragMove} />
+          )}
+        </AnimatePresence>
 
-          {/* Draggable Scanner */}
-          <AnimatePresence>
-            {showDraggableScanner && gridDimensions.cellSize > 0 && (
-              <DraggableScanner
-                key="scanner-overlay"
-                currentRow={scannerDragPos.row}
-                currentCol={scannerDragPos.col}
-                cellSize={gridDimensions.cellSize}
-                gridPadding={gridDimensions.gridPadding}
-                gap={gridDimensions.gap}
-                onDragStart={handleScannerDragStart}
-                onDragMove={handleScannerDragMove}
-              />
-            )}
-          </AnimatePresence>
-
-          {/* Draggable Radar */}
-          <AnimatePresence mode="wait">
-            {showDraggableRadar && gridDimensions.cellSize > 0 && radarResult && (
-              <DraggableRadar
-                key={`radar-overlay-${radarResult.type}`}
-                fieldSize={fieldSize}
-                type={radarResult.type}
-                index={radarDragIndex}
-                cellSize={gridDimensions.cellSize}
-                gridPadding={gridDimensions.gridPadding}
-                gap={gridDimensions.gap}
-                onTypeToggle={onRadarTypeToggle}
-                onDragStart={handleRadarDragStart}
-                onDragMove={handleRadarDragMove}
-              />
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Scanner overlay result - only show count if not in preview mode */}
-        {gridDimensions.cellSize > 0 && scannerResults.map((result, index) => (
-          <div key={`scanner-result-${index}`} className={styles.scannerOverlay} style={getScannerResultPosition(result.positions)}>
-            <span className={styles.scannerCount}>
-              <BombIcon size={20} />
-              {result.bombCount}
-            </span>
-          </div>
-        ))}
-        {gridDimensions.cellSize > 0 && scannerPositions.length > 0 && scannerResult !== undefined && scannerResult >= 0 && (
-          <div className={styles.scannerOverlay} style={getScannerResultPosition(scannerPositions)}>
-            <span className={styles.scannerCount}>
-              <BombIcon size={20} />
-              {scannerResult}
-            </span>
-          </div>
-        )}
-
-        {/* Radar result - only show count if bombCount >= 0 (not preview) */}
-        {gridDimensions.cellSize > 0 && radarResults.map((result, index) => (
-          <div key={`radar-result-${index}`} className={styles.radarOverlay} style={getRadarResultPosition(result)}>
-            <span className={styles.radarCount}>
-              <BombIcon size={20} />
-              {result.bombCount}
-            </span>
-          </div>
-        ))}
-        {gridDimensions.cellSize > 0 && radarResult && radarResult.bombCount >= 0 && (
-          <div className={styles.radarOverlay} style={getRadarResultPosition(radarResult)}>
-            <span className={styles.radarCount}>
-              <BombIcon size={20} />
-              {radarResult.bombCount}
-            </span>
-          </div>
-        )}
+        {/* Draggable Radar */}
+        <AnimatePresence mode="wait">
+          {showDraggableRadar && gridDimensions.cellSize > 0 && radarResult && (
+            <DraggableRadar
+              key={`radar-overlay-${radarResult.type}`}
+              fieldSize={fieldSize}
+              type={radarResult.type}
+              index={radarDragIndex}
+              cellSize={gridDimensions.cellSize}
+              gridPadding={gridDimensions.gridPadding}
+              gap={gridDimensions.gap}
+              onTypeToggle={onRadarTypeToggle}
+              onDragStart={handleRadarDragStart}
+              onDragMove={handleRadarDragMove}
+            />
+          )}
+        </AnimatePresence>
       </div>
+
+      {/* Scanner overlay result - only show count if not in preview mode */}
+      {gridDimensions.cellSize > 0 &&
+        scannerResults.map((result, index) => (
+          <div key={`scanner-result-${index}`} className={clsx(styles.scannerOverlay, resultOverlaySizeClass)} style={getScannerResultPosition(result.positions)}>
+            <span className={styles.scannerCount}>
+              {/* <BombIcon size={24} /> */}
+              {result.bombCount}
+            </span>
+          </div>
+        ))}
+      {gridDimensions.cellSize > 0 && scannerPositions.length > 0 && scannerResult !== undefined && scannerResult >= 0 && (
+        <div className={clsx(styles.scannerOverlay, resultOverlaySizeClass)} style={getScannerResultPosition(scannerPositions)}>
+          <span className={styles.scannerCount}>
+            {/* <BombIcon size={24} /> */}
+            {scannerResult}
+          </span>
+        </div>
+      )}
+
+      {/* Radar result - only show count if bombCount >= 0 (not preview) */}
+      {gridDimensions.cellSize > 0 &&
+        radarResults.map((result, index) => (
+          <div key={`radar-result-${index}`} className={clsx(styles.radarOverlay, resultOverlaySizeClass)} style={getRadarResultPosition(result)}>
+            <span className={styles.radarCount}>
+              {/* <BombIcon size={20} /> */}
+              {result.bombCount}
+            </span>
+          </div>
+        ))}
+      {gridDimensions.cellSize > 0 && radarResult && radarResult.bombCount >= 0 && (
+        <div className={clsx(styles.radarOverlay, resultOverlaySizeClass)} style={getRadarResultPosition(radarResult)}>
+          <span className={styles.radarCount}>
+            {/* <BombIcon size={20} /> */}
+            {radarResult.bombCount}
+          </span>
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -47,16 +47,20 @@ const gameSlice = createSlice({
       }
     },
     updateDefense: (state, action: PayloadAction<DefensePublic>) => {
+      const preservePrivateBombs = (current: DefensePublic | null | undefined) =>
+        current?.bombPositions && !action.payload.bombPositions
+          ? { ...action.payload, bombPositions: current.bombPositions }
+          : action.payload;
       const index = state.defenses.findIndex((d) => d.id === action.payload.id);
       if (index !== -1) {
-        state.defenses[index] = action.payload;
+        state.defenses[index] = preservePrivateBombs(state.defenses[index]);
       } else {
         // Socket updates may be the first event seen after reconnecting or
         // matchmaking. Upsert so the active-game badge cannot miss the match.
         state.defenses.unshift(action.payload);
       }
       if (state.activeDefense?.id === action.payload.id) {
-        state.activeDefense = action.payload;
+        state.activeDefense = preservePrivateBombs(state.activeDefense);
       }
     },
     removeDefense: (state, action: PayloadAction<number>) => {

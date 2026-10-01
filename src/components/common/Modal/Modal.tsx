@@ -20,17 +20,19 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, classNa
         <div className={styles.modalRoot}>
           {' '}
           <motion.div className={styles.overlay} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeOnOverlay ? onClose : undefined} />{' '}
-          <button className={styles.closeBtn} onClick={onClose}>
-            <Icon icon="close" />
-          </button>
-          <motion.div className={clsx(styles.modal, className)} initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} transition={{ type: 'spring', damping: 25, stiffness: 300 }}>
-            {' '}
-            {title && (
-              <div className={styles.header}>
-                <h2 className={styles.title}>{title}</h2>
-              </div>
-            )}
-            <div className={styles.content}>{children}</div>
+          <motion.div className={styles.modalWrap} initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} transition={{ type: 'spring', damping: 25, stiffness: 300 }}>
+            <button className={styles.closeBtn} onClick={onClose}>
+              <Icon icon="close" />
+            </button>
+            <div className={clsx(styles.modal, className)}>
+              {' '}
+              {title && (
+                <div className={styles.header}>
+                  <h2 className={styles.title}>{title}</h2>
+                </div>
+              )}
+              <div className={styles.content}>{children}</div>
+            </div>
           </motion.div>
         </div>
       )}

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
-import { motion } from 'framer-motion';
 import styles from './MyGameCard.module.scss';
 import Avatar from '@/components/common/Avatar';
 import { DefensePublic } from '@/types';
-import { formatRelativeTime } from '@/utils/formatTime';
+import { formatTime } from '@/utils/formatTime';
 import { star } from '@/utils/icons';
 
 interface MyGameCardProps {
@@ -21,9 +20,33 @@ const MyGameCard: React.FC<MyGameCardProps> = ({ defense, currentUserId, onClick
   const isExpired = defense.status === 'EXPIRED' || (defense.status === 'WAITING' && new Date(defense.expiresAt).getTime() <= Date.now());
 
   const [timeLeft, setTimeLeft] = useState('');
+  const [gameTime, setGameTime] = useState('');
+
+  const eventTime = isFinished && defense.finishedAt ? defense.finishedAt : isExpired ? defense.expiresAt : defense.createdAt;
 
   useEffect(() => {
-    const updateTime = () => {
+    const updateTimes = () => {
+      const now = new Date();
+      const eventDate = new Date(eventTime);
+      const isToday =
+        eventDate.getDate() === now.getDate() &&
+        eventDate.getMonth() === now.getMonth() &&
+        eventDate.getFullYear() === now.getFullYear();
+
+      if (isToday) {
+        const elapsedSeconds = Math.max(0, Math.floor((now.getTime() - eventDate.getTime()) / 1000));
+
+        if (elapsedSeconds < 60) {
+          setGameTime(`${elapsedSeconds}с назад`);
+        } else if (elapsedSeconds < 3600) {
+          setGameTime(`${Math.floor(elapsedSeconds / 60)}м назад`);
+        } else {
+          setGameTime(`${Math.floor(elapsedSeconds / 3600)}ч назад`);
+        }
+      } else {
+        setGameTime(formatTime(eventTime));
+      }
+
       let endTime: string | null = null;
 
       if (defense.status === 'WAITING' && !isExpired) {
@@ -52,10 +75,10 @@ const MyGameCard: React.FC<MyGameCardProps> = ({ defense, currentUserId, onClick
       }
     };
 
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
+    updateTimes();
+    const interval = setInterval(updateTimes, 1000);
     return () => clearInterval(interval);
-  }, [defense, isExpired]);
+  }, [defense.expiresAt, defense.moveDeadline, defense.status, eventTime, isExpired]);
 
   const getResultInfo = () => {
     // Expired defense - show refund
@@ -87,23 +110,9 @@ const MyGameCard: React.FC<MyGameCardProps> = ({ defense, currentUserId, onClick
     return null;
   };
 
-  const getStatusInfo = () => {
-    if (isExpired) {
-      return null; // Don't show status for expired
-    }
-    if (defense.status === 'WAITING') {
-      return { label: 'Ожидает', icon: '&#9203;', variant: 'waiting' as const };
-    }
-    if (defense.status === 'IN_PROGRESS') {
-      return { label: 'В бою', icon: '&#9876;&#65039;', variant: 'active' as const };
-    }
-    return null;
-  };
-
   const result = getResultInfo();
-  const status = getStatusInfo();
-  // For expired defenses, use expiresAt since finishedAt is null
-  const finishedTime = isFinished ? formatRelativeTime(defense.finishedAt) : isExpired ? formatRelativeTime(defense.expiresAt) : null;
+  const isActiveDefense = !result && isCreator;
+  const isActiveAttack = !result && isAttacker && !isCreator;
 
   const getOpponent = () => {
     if (isCreator && defense.attacker) {
@@ -123,61 +132,33 @@ const MyGameCard: React.FC<MyGameCardProps> = ({ defense, currentUserId, onClick
         [styles['card--win']]: result?.variant === 'win',
         [styles['card--lose']]: result?.variant === 'lose',
         [styles['card--refund']]: result?.variant === 'refund',
-        [styles['card--waiting']]: status?.variant === 'waiting',
-        [styles['card--active']]: status?.variant === 'active',
+        [styles['card--defense']]: isActiveDefense,
+        [styles['card--attack']]: isActiveAttack,
       })}
       onClick={onClick}>
       <div className={styles.left}>
-        {opponent ? <Avatar src={opponent.photoUrl} name={opponent.firstName || opponent.username} size="md" /> : <div className={styles.emptyAvatar}>?</div>}
-        <div className={styles.roleInfo}>
-          <div className={styles.roleIcon}>
-            {isCreator && (
-              <span>
-                <img src="/two-swords.webp" width="24px" style={{ transform: 'rotate(180deg)' }} />
-              </span>
-            )}
-            {isAttacker && !isCreator && (
-              <span>
-                <img src="/shield_small.webp" width="24px" />
-              </span>
-            )}
-          </div>
+        <div className={styles.avatarColumn}>
+          {opponent ? <Avatar src={opponent.photoUrl} name={opponent.firstName || opponent.username} size="md" /> : <div className={styles.emptyAvatar}>?</div>}
+          {gameTime && (
+            <time className={styles.finishedTime} dateTime={eventTime}>
+              {gameTime}
+            </time>
+          )}
         </div>
       </div>
 
-      {finishedTime && (
-        <span className={styles.finishedTime}>
-          {' '}
-          {/* <div className={clsx(styles.indicator)}>
-            <DifficultyIndicator difficulty={defense.difficulty} />
-          </div> */}
-          {finishedTime}
-        </span>
-      )}
       <div className={styles.right}>
         {result && (
           <>
-            {' '}
             <div className={styles.center}>
-              {result ? (
-                <div className={styles.resultRow}>
-                  <span className={styles.resultLabel}>{result.label}</span>
-                  <span className={clsx(styles.resultAmount, styles[`resultAmount--${result.variant}`])}>
-                    {result.variant === 'win' ? '+' : result.variant === 'refund' ? '+' : '-'}
-                    {result.amount}
-                    {star(18)}
-                  </span>
-                </div>
-              ) : (
-                <div className={styles.betRow}>
-                  <span className={styles.betLabel}>Ставка</span>
-                  <span className={styles.betAmount}>
-                    {star()}
-                    {defense.bet}
-                  </span>
-                  {defense.status === 'WAITING' && !isExpired && <span className={styles.multiplier}>x1.9</span>}
-                </div>
-              )}
+              <div className={styles.resultRow}>
+                <span className={styles.resultLabel}>{result.label}</span>
+                <span className={clsx(styles.resultAmount, styles[`resultAmount--${result.variant}`])}>
+                  {result.variant === 'win' ? '+' : result.variant === 'refund' ? '+' : '-'}
+                  {result.amount}
+                  {star(18)}
+                </span>
+              </div>
             </div>
             <div className={styles.resultIcon}>
               {result.variant === 'win' && (
@@ -196,12 +177,31 @@ const MyGameCard: React.FC<MyGameCardProps> = ({ defense, currentUserId, onClick
           </>
         )}
 
-        {status && (
-          <div className={styles.statusInfo}>
-            {defense.status === 'WAITING' && !defense.attacker && <motion.span className={styles.hourglassIcon} animate={{ rotateX: [0, 180, 360] }} transition={{ repeat: Infinity, duration: 2 }} dangerouslySetInnerHTML={{ __html: status.icon }} />}
-            {defense.status === 'IN_PROGRESS' && <motion.span className={styles.swordIcon} animate={{ x: [0, 3, -3, 0] }} transition={{ repeat: Infinity, duration: 0.5 }} dangerouslySetInnerHTML={{ __html: status.icon }} />}
-            {timeLeft && <span className={styles.timeLeft}>{timeLeft}</span>}
-          </div>
+        {!result && (
+          <>
+            <span className={clsx(styles.timer, isActiveAttack ? styles['timer--attack'] : styles['timer--defense'])}>
+              {timeLeft || '00:00'}
+            </span>
+            <div className={styles.center}>
+              <div className={styles.resultRow}>
+                <span className={styles.resultLabel}>
+                  {defense.status === 'IN_PROGRESS' ? 'Идет атака' : 'Ожидание атаки'}
+                </span>
+                <span className={styles.betAmount}>
+                  {defense.bet}
+                  {star(18)}
+                </span>
+              </div>
+            </div>
+            <div className={styles.resultIcon}>
+              <span className={styles.actionIcon} aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                  <path d="M0 0h24v24H0z" fill="none" />
+                  <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m9 6l6 6l-6 6" />
+                </svg>
+              </span>
+            </div>
+          </>
         )}
       </div>
     </div>

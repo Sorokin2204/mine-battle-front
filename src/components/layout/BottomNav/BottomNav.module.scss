@@ -35,7 +35,9 @@
   flex: 1 1 0;
   height: 44px;
   color: #7486b7;
-  transition: color $transition-fast, transform $transition-fast;
+  transition:
+    color $transition-fast,
+    transform $transition-fast;
 
   &:active {
     transform: scale(0.92);
@@ -60,6 +62,50 @@
   transition: color $transition-fast;
 }
 
+.myGamesIcon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.myGamesBadge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 5px;
+  // border: 2px solid #171b28;
+  border-radius: $radius-full;
+  background: $red-500;
+  box-shadow: 0 2px 8px rgba($red-500, 0.45);
+  color: $white;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.myGamesBadgeAttack {
+  background: $red-500;
+  box-shadow: 0 2px 8px rgba($red-500, 0.45);
+}
+
+.myGamesBadgeDefense {
+  background: $blue-500;
+  box-shadow: 0 2px 8px rgba($blue-500, 0.45);
+}
+
+.myGamesBadgeMixed {
+  background: linear-gradient(90deg, $red-500 0 50%, $blue-500 50% 100%);
+  box-shadow:
+    -2px 2px 8px rgba($red-500, 0.35),
+    2px 2px 8px rgba($blue-500, 0.35);
+}
+
 .centerBtn {
   display: flex;
   align-items: center;
@@ -73,7 +119,9 @@
   background: $gradient-primary;
   box-shadow: $shadow-glow-blue;
   color: $white;
-  transition: box-shadow $transition-fast, transform $transition-normal;
+  transition:
+    box-shadow $transition-fast,
+    transform $transition-normal;
 
   svg {
     width: 22px;
@@ -137,7 +185,9 @@
   font-size: $text-sm;
   font-weight: 700;
   white-space: nowrap;
-  transition: box-shadow $transition-fast, transform $transition-fast;
+  transition:
+    box-shadow $transition-fast,
+    transform $transition-fast;
 
   img {
     display: block;

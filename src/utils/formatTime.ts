@@ -41,3 +41,36 @@ export function formatRelativeTime(dateString: string | null): string {
 
   return `${dateStr} ${timeStr}`;
 }
+
+/** Format a date as time only, for cards grouped under a date heading. */
+export function formatTime(dateString: string | null): string {
+  if (!dateString) return '';
+
+  return new Date(dateString).toLocaleTimeString('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+/** Format a local calendar-day heading: "Сегодня", "Вчера" or "12 сентября". */
+export function formatDateGroup(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const dayDifference = Math.round((today.getTime() - target.getTime()) / 86400000);
+
+  if (dayDifference === 0) return 'Сегодня';
+  if (dayDifference === 1) return 'Вчера';
+
+  return date.toLocaleDateString('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+  });
+}
+
+/** Stable key for grouping dates by the user's local calendar day. */
+export function getLocalDateKey(dateString: string): string {
+  const date = new Date(dateString);
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+}

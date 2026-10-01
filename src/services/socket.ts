@@ -1,6 +1,15 @@
 import { io, Socket } from 'socket.io-client';
 import { SOCKET_URL } from '@/config/game.config';
-import { DefensePublic, MoveResult, SocketResponse, UserWithBalance, MoveType, DifficultyLevel } from '@/types';
+import { DefensePublic, MoveResult, SocketResponse, UserWithBalance, MoveType, DifficultyLevel, ToolPreview } from '@/types';
+
+export type MyGamesTab = 'all' | 'attacks' | 'defenses';
+
+export interface MyGamesPage {
+  items: DefensePublic[];
+  total: number;
+  hasMore: boolean;
+  activeCounts: Record<MyGamesTab, number>;
+}
 
 interface ServerToClientEvents {
   defenseCreated: (defense: DefensePublic) => void;
@@ -8,6 +17,7 @@ interface ServerToClientEvents {
   defenseRemoved: (defenseId: number) => void;
   gameStarted: (defense: DefensePublic) => void;
   moveMade: (data: { defenseId: number; move: MoveResult }) => void;
+  toolPreviewUpdated: (data: { defenseId: number; preview: ToolPreview }) => void;
   gameFinished: (defense: DefensePublic) => void;
   timerUpdate: (data: { defenseId: number; timeLeft: number; type: 'move' | 'defense' }) => void;
   balanceUpdated: (data: { balance: number }) => void;
@@ -37,12 +47,17 @@ interface ClientToServerEvents {
     dataOrCallback: { includeFinished?: boolean; includeExpired?: boolean } | ((response: SocketResponse<DefensePublic[]>) => void),
     callback?: (response: SocketResponse<DefensePublic[]>) => void
   ) => void;
+  getMyGames: (
+    data: { tab: MyGamesTab; offset: number; limit: number },
+    callback: (response: SocketResponse<MyGamesPage>) => void
+  ) => void;
   getDefense: (
     data: { defenseId: number },
     callback: (response: SocketResponse<DefensePublic>) => void
   ) => void;
   joinDefenseRoom: (data: { defenseId: number }) => void;
   leaveDefenseRoom: (data: { defenseId: number }) => void;
+  updateToolPreview: (data: { defenseId: number; preview: ToolPreview }) => void;
   getMe: (callback: (response: SocketResponse<UserWithBalance>) => void) => void;
   startMatchmaking: (
     data: { minBet: number; maxBet: number; difficulty?: DifficultyLevel },
@@ -117,6 +132,7 @@ class SocketService {
       'defenseRemoved',
       'gameStarted',
       'moveMade',
+      'toolPreviewUpdated',
       'gameFinished',
       'timerUpdate',
       'balanceUpdated',
@@ -247,6 +263,23 @@ class SocketService {
     });
   }
 
+  getMyGames(tab: MyGamesTab, offset: number, limit = 20): Promise<MyGamesPage> {
+    return new Promise((resolve, reject) => {
+      if (!this.socket) {
+        reject(new Error('Socket not connected'));
+        return;
+      }
+
+      this.socket.emit('getMyGames', { tab, offset, limit }, (response) => {
+        if (response.success && response.data) {
+          resolve(response.data);
+        } else {
+          reject(new Error(response.error || 'Failed to get user games'));
+        }
+      });
+    });
+  }
+
   getDefense(defenseId: number): Promise<DefensePublic> {
     return new Promise((resolve, reject) => {
       if (!this.socket) {
@@ -270,6 +303,10 @@ class SocketService {
 
   leaveDefenseRoom(defenseId: number) {
     this.socket?.emit('leaveDefenseRoom', { defenseId });
+  }
+
+  updateToolPreview(defenseId: number, preview: ToolPreview) {
+    this.socket?.emit('updateToolPreview', { defenseId, preview });
   }
 
   getMe(): Promise<UserWithBalance> {

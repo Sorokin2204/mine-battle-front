@@ -17,7 +17,7 @@
   background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
   color: $white;
   cursor: pointer;
-  transition: all $transition-fast;
+  transition: box-shadow $transition-fast;
   box-shadow: 0 8px 32px rgba(#dc2626, 0.4);
   overflow: hidden;
 
@@ -36,13 +36,10 @@
     border-radius: 50%;
   }
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(#dc2626, 0.5);
-  }
-
-  &:active {
-    transform: translateY(0);
+  @media (hover: hover) {
+    &:hover {
+      box-shadow: 0 12px 40px rgba(#dc2626, 0.5);
+    }
   }
 }
 
