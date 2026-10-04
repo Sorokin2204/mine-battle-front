@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import clsx from 'clsx';
 import styles from './MyGamesPage.module.scss';
 import MyGameCard from './MyGameCard';
+import { uiConfig } from '@/config/ui.config';
 import { useAppDispatch, useAppSelector } from '@/hooks/useAppDispatch';
 import { openGameLobby } from '@/redux/slices/ui.slice';
 import { MyGamesTab, socketService } from '@/services/socket';
@@ -59,7 +60,7 @@ const MyGamesPage: React.FC = () => {
     } catch (loadError) {
       if (requestId !== requestIdRef.current) return;
       console.error('Failed to load user games:', loadError);
-      setError('Не удалось загрузить игры');
+      setError(uiConfig.myGames.loadError);
     } finally {
       if (requestId === requestIdRef.current) setIsLoading(false);
     }
@@ -164,21 +165,22 @@ const MyGamesPage: React.FC = () => {
     setSearchParams(tab === 'all' ? {} : { tab });
   };
 
-  const pageSettings: Record<MyGamesTab, { title: string; icon: string }> = {
-    all: { title: 'Мои игры', icon: '/controller.png' },
-    attacks: { title: 'Мои атаки', icon: '/two-swords.webp' },
-    defenses: { title: 'Мои защиты', icon: '/shield_small.webp' },
-  };
+  const pageSettings: Record<MyGamesTab, { title: string; icon: string }> = uiConfig.myGames.pages;
   const page = pageSettings[activeTab];
 
   const tabs = [
-    { id: 'all' as const, label: 'Все' },
-    { id: 'attacks' as const, label: 'Мои атаки' },
-    { id: 'defenses' as const, label: 'Мои защиты' },
+    { id: 'all' as const, label: uiConfig.myGames.tabs.all },
+    { id: 'attacks' as const, label: uiConfig.myGames.tabs.attacks },
+    { id: 'defenses' as const, label: uiConfig.myGames.tabs.defenses },
   ];
 
   const groupedGames = useMemo(() => {
     const groups: Array<{ key: string; label: string; games: DefensePublic[] }> = [];
+
+    const isActiveGame = (game: DefensePublic) => {
+      if (game.status === 'IN_PROGRESS') return true;
+      return game.status === 'WAITING' && new Date(game.expiresAt).getTime() > Date.now();
+    };
 
     games.forEach((game) => {
       const key = getLocalDateKey(game.createdAt);
@@ -191,7 +193,13 @@ const MyGamesPage: React.FC = () => {
       }
     });
 
-    return groups;
+    return groups.map((group) => ({
+      ...group,
+      games: group.games
+        .map((game, index) => ({ game, index }))
+        .sort((a, b) => Number(isActiveGame(b.game)) - Number(isActiveGame(a.game)) || a.index - b.index)
+        .map(({ game }) => game),
+    }));
   }, [games]);
 
   return (
@@ -242,8 +250,8 @@ const MyGamesPage: React.FC = () => {
         {!isLoading && !error && games.length === 0 && (
           <div className={styles.empty}>
             <span className={styles.emptyIcon}>&#127918;</span>
-            <p className={styles.emptyText}>Нет игр</p>
-            <p className={styles.emptyHint}>Создайте защиту или атакуйте противника</p>
+            <p className={styles.emptyText}>{uiConfig.myGames.emptyTitle}</p>
+            <p className={styles.emptyHint}>{uiConfig.myGames.emptyHint}</p>
           </div>
         )}
 
@@ -251,12 +259,12 @@ const MyGamesPage: React.FC = () => {
           <div className={styles.loadState}>
             <span>{error}</span>
             <button type="button" onClick={() => loadGames(activeTab, games.length, games.length > 0)}>
-              Повторить
+              {uiConfig.myGames.retry}
             </button>
           </div>
         )}
 
-        {isLoading && <div className={styles.loader}>Загрузка…</div>}
+        {isLoading && <div className={styles.loader}>{uiConfig.common.loading}</div>}
         <div ref={loadMoreRef} className={styles.loadMoreTrigger} aria-hidden="true" />
       </motion.div>
     </div>

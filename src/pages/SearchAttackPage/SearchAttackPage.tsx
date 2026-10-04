@@ -10,6 +10,7 @@ import { socketService } from '@/services/socket';
 import { gameConfig } from '@/config/game.config';
 import { DefensePublic } from '@/types';
 import { addDefense } from '@/redux/slices/game.slice';
+import { uiConfig } from '@/config/ui.config';
 
 type SearchState = 'idle' | 'confirming' | 'searching' | 'found';
 
@@ -85,7 +86,7 @@ const SearchAttackPage: React.FC = () => {
 
   const handleSearchClick = () => {
     if (!user) {
-      dispatch(showToast({ message: 'Необходимо авторизоваться', type: 'error' }));
+      dispatch(showToast({ message: uiConfig.searchAttack.authRequired, type: 'error' }));
       return;
     }
     setSearchState('confirming');
@@ -95,9 +96,9 @@ const SearchAttackPage: React.FC = () => {
     try {
       setSearchState('searching');
       await socketService.startMatchmaking(minBet, maxBet);
-      dispatch(showToast({ message: 'Поиск начат', type: 'info' }));
+      dispatch(showToast({ message: uiConfig.searchAttack.started, type: 'info' }));
     } catch (error: any) {
-      dispatch(showToast({ message: error.message || 'Ошибка поиска', type: 'error' }));
+      dispatch(showToast({ message: error.message || uiConfig.searchAttack.error, type: 'error' }));
       setSearchState('idle');
     }
   };
@@ -106,7 +107,7 @@ const SearchAttackPage: React.FC = () => {
     try {
       await socketService.stopMatchmaking();
       setSearchState('idle');
-      dispatch(showToast({ message: 'Поиск отменен', type: 'info' }));
+      dispatch(showToast({ message: uiConfig.searchAttack.cancelled, type: 'info' }));
     } catch (error: any) {
       console.error('Failed to stop matchmaking:', error);
     }
@@ -123,8 +124,8 @@ const SearchAttackPage: React.FC = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className={styles.title}>Поиск атаки</h1>
-        <p className={styles.subtitle}>Автоматический подбор противника</p>
+        <h1 className={styles.title}>{uiConfig.searchAttack.title}</h1>
+        <p className={styles.subtitle}>{uiConfig.searchAttack.subtitle}</p>
       </motion.div>
 
       <motion.div
@@ -133,11 +134,11 @@ const SearchAttackPage: React.FC = () => {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.1 }}
       >
-        <label className={styles.label}>Диапазон ставки</label>
+        <label className={styles.label}>{uiConfig.searchAttack.betRange}</label>
         <div className={styles.betRange}>
           <div className={styles.betInput}>
-            <span className={styles.betIcon}>⭐</span>
-            <span className={styles.betLabel}>От</span>
+            <span className={styles.betIcon}>{uiConfig.common.currency}</span>
+            <span className={styles.betLabel}>{uiConfig.searchAttack.from}</span>
             <input
               type="text"
               value={minBetInput}
@@ -149,8 +150,8 @@ const SearchAttackPage: React.FC = () => {
             />
           </div>
           <div className={styles.betInput}>
-            <span className={styles.betIcon}>⭐</span>
-            <span className={styles.betLabel}>До</span>
+            <span className={styles.betIcon}>{uiConfig.common.currency}</span>
+            <span className={styles.betLabel}>{uiConfig.searchAttack.to}</span>
             <input
               type="text"
               value={maxBetInput}
@@ -183,7 +184,7 @@ const SearchAttackPage: React.FC = () => {
               whileTap={{ scale: 0.95 }}
             >
               <span className={styles.searchIcon}>&#128269;</span>
-              <span className={styles.searchText}>Поиск</span>
+              <span className={styles.searchText}>{uiConfig.searchAttack.search}</span>
             </motion.button>
           )}
 
@@ -203,8 +204,8 @@ const SearchAttackPage: React.FC = () => {
               >
                 &#128269;
               </motion.span>
-              <span className={styles.searchText}>Поиск...</span>
-              <span className={styles.cancelHint}>Нажмите для отмены</span>
+              <span className={styles.searchText}>{uiConfig.searchAttack.searching}</span>
+              <span className={styles.cancelHint}>{uiConfig.searchAttack.cancelHint}</span>
             </motion.button>
           )}
 
@@ -217,9 +218,9 @@ const SearchAttackPage: React.FC = () => {
               exit={{ scale: 0.9 }}
             >
               <span className={styles.searchIcon}>&#9989;</span>
-              <span className={styles.searchText}>Найдено!</span>
+              <span className={styles.searchText}>{uiConfig.searchAttack.found}</span>
               <span className={styles.matchInfo}>
-                ⭐ {matchedDefense.bet}
+                {uiConfig.common.currency} {matchedDefense.bet}
               </span>
             </motion.div>
           )}
@@ -234,11 +235,11 @@ const SearchAttackPage: React.FC = () => {
       >
         <div className={styles.infoItem}>
           <span className={styles.infoIcon}>&#128161;</span>
-          <p>Когда найдется подходящая защита, вы автоматически начнете атаку</p>
+          <p>{uiConfig.searchAttack.infoMatch}</p>
         </div>
         <div className={styles.infoItem}>
           <span className={styles.infoIcon}>&#9888;&#65039;</span>
-          <p>Звезды спишутся автоматически при нахождении атаки</p>
+          <p>{uiConfig.searchAttack.infoCharge}</p>
         </div>
       </motion.div>
 
@@ -246,21 +247,21 @@ const SearchAttackPage: React.FC = () => {
       <Modal
         isOpen={searchState === 'confirming'}
         onClose={handleCloseConfirm}
-        title="Подтверждение поиска"
+        title={uiConfig.searchAttack.confirmTitle}
       >
         <div className={styles.confirmModal}>
           <p className={styles.confirmText}>
-            Когда найдется атака, звезды спишутся автоматически.
+            {uiConfig.searchAttack.confirmText}
           </p>
           <p className={styles.confirmRange}>
-            Диапазон ставки: <strong>⭐ {minBet} - {maxBet}</strong>
+            {uiConfig.searchAttack.confirmRange} <strong>{uiConfig.common.currency} {minBet} - {maxBet}</strong>
           </p>
           <div className={styles.confirmButtons}>
             <Button color="primary" size="lg" fullWidth onClick={handleConfirmSearch}>
-              Да, начать поиск
+              {uiConfig.searchAttack.confirm}
             </Button>
             <Button color="secondary" size="lg" fullWidth onClick={handleCloseConfirm}>
-              Отмена
+              {uiConfig.searchAttack.cancel}
             </Button>
           </div>
         </div>

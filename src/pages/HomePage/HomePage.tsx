@@ -6,6 +6,7 @@ import { useAppSelector, useAppDispatch } from '@/hooks/useAppDispatch';
 import { setDefenses, addDefense, updateDefense, removeDefense } from '@/redux/slices/game.slice';
 import { socketService } from '@/services/socket';
 import { DefensePublic } from '@/types';
+import { uiConfig } from '@/config/ui.config';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -74,65 +75,41 @@ const HomePage: React.FC = () => {
         </div>
       </motion.div> */}
 
-      <motion.div
-        className={styles.banner}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.18, ease: 'easeOut' }}
-        onClick={() => navigate('/games')}>
+      <motion.div className={styles.banner} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.18, ease: 'easeOut' }} onClick={() => navigate('/games')}>
         <div className={styles.bannerContent}>
           {/* <span className={styles.bannerIcon}>&#128737;&#65039;</span> */}
           <div className={styles.bannerText}>
-            <h2 className={styles.bannerTitle}>Атаковать</h2>
-            <p className={styles.bannerDesc}>Спрячь бомбы и защити ставку</p>
+            <h2 className={styles.bannerTitle}>{uiConfig.home.attackTitle}</h2>
+            <p className={styles.bannerDesc}>{uiConfig.home.attackDescription}</p>
           </div>
         </div>
         <div className={styles.bannerArrow}>
-          <img src="/two-swords.webp" />
+          <img src={uiConfig.icons.attack} alt="" />
         </div>
       </motion.div>
 
-      <motion.div
-        className={`${styles.banner} ${styles.bannerDefense}`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.18, ease: 'easeOut' }}
-        onClick={() => navigate('/create-defense')}>
+      <motion.div className={`${styles.banner} ${styles.bannerDefense}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.18, ease: 'easeOut' }} onClick={() => navigate('/create-defense')}>
         <div className={styles.bannerContent}>
           {/* <span className={styles.bannerIcon}>&#128737;&#65039;</span> */}
           <div className={styles.bannerText}>
-            <h2 className={styles.bannerTitle}>Создать защиту</h2>
-            <p className={styles.bannerDesc}>Спрячь бомбы и защити ставку</p>
+            <h2 className={styles.bannerTitle}>{uiConfig.home.defenseTitle}</h2>
+            <p className={styles.bannerDesc}>{uiConfig.home.defenseDescription}</p>
           </div>
         </div>
         <div className={styles.bannerArrow}>
-          <img src="/shield.webp" />
+          <img src={uiConfig.icons.money} alt="" />
         </div>
       </motion.div>
 
-      <motion.div
-        className={styles.info}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.18, ease: 'easeOut' }}>
-        <h3 className={styles.infoTitle}>Как играть?</h3>
+      <motion.div className={styles.info} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.18, ease: 'easeOut' }}>
+        <h3 className={styles.infoTitle}>{uiConfig.home.howToPlay}</h3>
         <div className={styles.infoList}>
-          <div className={styles.infoItem}>
-            <span className={styles.infoNumber}>1</span>
-            <p>Создай защиту: поставь ставку и спрячь бомбы на поле</p>
-          </div>
-          <div className={styles.infoItem}>
-            <span className={styles.infoNumber}>2</span>
-            <p>Или атакуй чужую защиту: найди все бомбы</p>
-          </div>
-          <div className={styles.infoItem}>
-            <span className={styles.infoNumber}>3</span>
-            <p>Используй сканер и радар для поиска бомб</p>
-          </div>
-          <div className={styles.infoItem}>
-            <span className={styles.infoNumber}>4</span>
-            <p>Найди все бомбы - выиграй ставку!</p>
-          </div>
+          {uiConfig.home.steps.map((step, index) => (
+            <div className={styles.infoItem} key={step}>
+              <span className={styles.infoNumber}>{index + 1}</span>
+              <p>{step}</p>
+            </div>
+          ))}
         </div>
       </motion.div>
     </div>

@@ -10,6 +10,7 @@ import { openGameLobby } from '@/redux/slices/ui.slice';
 import { socketService } from '@/services/socket';
 import { DefensePublic } from '@/types';
 import Icon from '@/components/common/Icon/Icon';
+import { uiConfig } from '@/config/ui.config';
 
 type TabType = 'all' | 'waiting' | 'attacking';
 type SortOrder = 'asc' | 'desc';
@@ -112,9 +113,9 @@ const GamesPage: React.FC = () => {
   });
 
   const tabs = [
-    { id: 'all' as TabType, label: 'Все' },
-    { id: 'waiting' as TabType, label: 'Ждут атаки' },
-    { id: 'attacking' as TabType, label: 'Атакуют' },
+    { id: 'all' as TabType, label: uiConfig.games.tabs.all },
+    { id: 'waiting' as TabType, label: uiConfig.games.tabs.waiting },
+    { id: 'attacking' as TabType, label: uiConfig.games.tabs.attacking },
   ];
 
   return (
@@ -128,7 +129,7 @@ const GamesPage: React.FC = () => {
           {hasActiveFilter && <span className={styles.filterDot} />}
         </button>
         <h1 className={styles.title}>
-          Защиты <span>{filteredDefenses.length}</span> <img src="/shield_small.webp" width="32px" />
+          {uiConfig.games.title} <span>{filteredDefenses.length}</span> <img src={uiConfig.icons.defense} width="32px" alt="" />
         </h1>
         <button className={styles.filterBtn} onClick={() => navigate('/history')}>
           <Icon icon="timer" size={18} />
@@ -146,7 +147,7 @@ const GamesPage: React.FC = () => {
           <motion.div className={styles.filterPopup} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
             {/* Tabs inside popup */}
             <div className={styles.filterSection}>
-              <label className={styles.filterSectionLabel}>Статус</label>
+              <label className={styles.filterSectionLabel}>{uiConfig.games.status}</label>
               <div className={styles.tabs}>
                 {tabs.map((tab) => (
                   <button key={tab.id} className={clsx(styles.tab, { [styles['tab--active']]: activeTab === tab.id })} onClick={() => setActiveTab(tab.id)}>
@@ -158,29 +159,29 @@ const GamesPage: React.FC = () => {
 
             {/* Sort inside popup */}
             <div className={styles.filterSection}>
-              <label className={styles.filterSectionLabel}>Сортировка</label>
+              <label className={styles.filterSectionLabel}>{uiConfig.games.sorting}</label>
               <div className={styles.sortOptions}>
                 <button className={clsx(styles.sortOption, { [styles['sortOption--active']]: sortOrder === 'desc' })} onClick={() => setSortOrder('desc')}>
-                  <span className={styles.sortIcon}>⭐</span>
-                  По убыванию
+                  <span className={styles.sortIcon}>{uiConfig.common.currency}</span>
+                  {uiConfig.games.descending}
                 </button>
                 <button className={clsx(styles.sortOption, { [styles['sortOption--active']]: sortOrder === 'asc' })} onClick={() => setSortOrder('asc')}>
-                  <span className={styles.sortIcon}>⭐</span>
-                  По возрастанию
+                  <span className={styles.sortIcon}>{uiConfig.common.currency}</span>
+                  {uiConfig.games.ascending}
                 </button>
               </div>
             </div>
 
             {/* Bet filter */}
             <div className={styles.filterSection}>
-              <label className={styles.filterSectionLabel}>Ставка</label>
+              <label className={styles.filterSectionLabel}>{uiConfig.games.bet}</label>
               <div className={styles.filterInputs}>
                 <div className={styles.filterField}>
-                  <input type="number" value={filterMin} onChange={(e) => setFilterMin(e.target.value)} onBlur={handleFilterBlur} placeholder="От" />
+                  <input type="number" value={filterMin} onChange={(e) => setFilterMin(e.target.value)} onBlur={handleFilterBlur} placeholder={uiConfig.games.from} />
                 </div>
                 <span className={styles.filterDash}>—</span>
                 <div className={styles.filterField}>
-                  <input type="number" value={filterMax} onChange={(e) => setFilterMax(e.target.value)} onBlur={handleFilterBlur} placeholder="До" />
+                  <input type="number" value={filterMax} onChange={(e) => setFilterMax(e.target.value)} onBlur={handleFilterBlur} placeholder={uiConfig.games.to} />
                 </div>
               </div>
             </div>
@@ -188,7 +189,7 @@ const GamesPage: React.FC = () => {
             {/* Reset button */}
             <div className={styles.filterActions}>
               <button className={styles.filterReset} onClick={handleResetFilter}>
-                Сбросить фильтры
+                {uiConfig.games.resetFilters}
               </button>
             </div>
           </motion.div>
@@ -206,8 +207,8 @@ const GamesPage: React.FC = () => {
           ) : (
             <motion.div className={styles.empty} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <span className={styles.emptyIcon}>&#127919;</span>
-              <p className={styles.emptyText}>Нет активных защит</p>
-              <p className={styles.emptyHint}>Создайте первую защиту!</p>
+              <p className={styles.emptyText}>{uiConfig.games.emptyTitle}</p>
+              <p className={styles.emptyHint}>{uiConfig.games.emptyHint}</p>
             </motion.div>
           )}
         </AnimatePresence>

@@ -1,4 +1,8 @@
 .icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  flex: 0 0 auto;
   stroke-width: 0;
   stroke: currentColor !important;
   fill: currentColor !important;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BOMB_IMAGE_SRC } from '@/config/assets.config';
+import { uiConfig } from '@/config/ui.config';
 
 interface BombIconProps {
   className?: string;
@@ -9,8 +9,8 @@ interface BombIconProps {
 const BombIcon: React.FC<BombIconProps> = ({ className, size = '1.2em' }) => (
   <img
     className={className}
-    src={BOMB_IMAGE_SRC}
-    alt="Бомба"
+    src={uiConfig.icons.bomb}
+    alt={uiConfig.accessibility.bomb}
     draggable={false}
     style={{ width: size, height: size, objectFit: 'contain', verticalAlign: 'middle' }}
   />

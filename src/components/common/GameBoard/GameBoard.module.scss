@@ -24,7 +24,8 @@
   // border: 1px solid $border-color;
 
   &--scanner-active,
-  &--radar-active {
+  &--radar-active,
+  &--attempt-active {
     animation: activeGridBreathing 1.2s ease-in-out infinite;
   }
 }
@@ -46,7 +47,7 @@
   &--clickable {
     cursor: pointer;
 
-    &:hover:not(.cell--disabled) {
+    &:hover {
       // background: $bg-card-hover;
       // border-color: $primary-400;
     }
@@ -108,6 +109,18 @@
     will-change: transform;
   }
 
+  &--attempt-preview {
+    background: linear-gradient(135deg, #20273a 0%, rgba($green-500, 0.58) 100%);
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  &--attempt-active {
+    border-color: $green-400;
+    transform: scale(var(--active-cell-scale));
+    will-change: transform;
+  }
+
   &--intersection {
     border-color: transparent;
     background:
@@ -117,10 +130,6 @@
     box-shadow: none;
   }
 
-  &--disabled {
-    opacity: 0.5;
-    pointer-events: none;
-  }
 }
 
 .cell--intersection.cell--scanner-active {
@@ -131,6 +140,15 @@
 .cell--intersection.cell--radar-active {
   border-color: $blue-400;
   box-shadow: 0 0 15px rgba($blue-500, 0.38);
+}
+
+.cell.cell--attempt-preview {
+  background: linear-gradient(135deg, #20273a 0%, rgba($green-500, 0.58) 100%);
+  box-shadow: none;
+}
+
+.cell.cell--attempt-active {
+  border-color: $green-400;
 }
 
 // A failed attempt fully replaces radar/scanner colors. The solid base keeps
@@ -355,6 +373,26 @@
   border-radius: $radius-sm;
 }
 
+.draggableAttempt {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+
+  img {
+    width: 48%;
+    height: 48%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  &--dragging img {
+    transform: scale(0.92);
+  }
+}
+
 // Draggable Radar
 .draggableRadar {
   width: 100%;
@@ -398,31 +436,9 @@
   font-weight: bold;
   line-height: 1;
   cursor: pointer;
-  transform: rotate(0deg);
-  transition:
-    transform $transition-fast,
-    background $transition-fast,
-    box-shadow $transition-fast;
-
-  &:hover {
-    background: rgba($purple-500, 0.95);
-    box-shadow: 0 5px 22px rgba($purple-500, 0.5);
-  }
-
-  &:active {
-    transform: rotate(90deg) scale(0.94);
-  }
 
   &:focus-visible {
     outline: 2px solid $white;
     outline-offset: 2px;
-  }
-
-  .draggableRadar--column & {
-    transform: rotate(90deg);
-
-    &:active {
-      transform: rotate(180deg) scale(0.94);
-    }
   }
 }

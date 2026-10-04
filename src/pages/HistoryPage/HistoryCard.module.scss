@@ -41,11 +41,27 @@
   position: relative;
 }
 
-.role {
-  position: absolute;
-  bottom: -6px;
-  right: -6px;
-  font-size: 12px;
+.avatarWrap {
+  display: flex;
+  border-radius: $radius-full;
+
+  &--defender,
+  &--attacker {
+    padding: 2px;
+    border: 2px solid transparent;
+  }
+
+  &--defender {
+    background:
+      linear-gradient($bg-card-2, $bg-card-2) padding-box,
+      linear-gradient(94.98deg, #4762f2 10.08%, #3dc5f0 94.83%) border-box;
+  }
+
+  &--attacker {
+    background:
+      linear-gradient($bg-card-2, $bg-card-2) padding-box,
+      linear-gradient(270deg, #ff2d24 0%, #ff6868 100%) border-box;
+  }
 }
 
 .vs {
@@ -134,9 +150,13 @@
 
 .check {
   display: flex;
-  border-radius: 9999px;
-  // padding: 8px;
-  // background: rgba($green-500, 0.2);
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: $gray-400;
+  background: rgba($gray-500, 0.2);
+  border-radius: $radius-full;
 }
 
 .finishedTime {

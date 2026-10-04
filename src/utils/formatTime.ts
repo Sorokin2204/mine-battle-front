@@ -26,11 +26,11 @@ export function formatRelativeTime(dateString: string | null): string {
   });
 
   if (isToday) {
-    return `Сегодня ${timeStr}`;
+    return `${uiConfig.time.today} ${timeStr}`;
   }
 
   if (isYesterday) {
-    return `Вчера ${timeStr}`;
+    return `${uiConfig.time.yesterday} ${timeStr}`;
   }
 
   // For older dates, show full date
@@ -60,8 +60,8 @@ export function formatDateGroup(dateString: string): string {
   const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   const dayDifference = Math.round((today.getTime() - target.getTime()) / 86400000);
 
-  if (dayDifference === 0) return 'Сегодня';
-  if (dayDifference === 1) return 'Вчера';
+  if (dayDifference === 0) return uiConfig.time.today;
+  if (dayDifference === 1) return uiConfig.time.yesterday;
 
   return date.toLocaleDateString('ru-RU', {
     day: 'numeric',
@@ -74,3 +74,4 @@ export function getLocalDateKey(dateString: string): string {
   const date = new Date(dateString);
   return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 }
+import { uiConfig } from '@/config/ui.config';

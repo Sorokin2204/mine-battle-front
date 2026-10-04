@@ -5,6 +5,7 @@ import styles from './GameBoard.module.scss';
 import { gameConfig as defaultGameConfig } from '@/config/game.config';
 import type { RadarResult, ScannerResult } from '@/types';
 import BombIcon from '../BombIcon';
+import { uiConfig } from '@/config/ui.config';
 
 interface GameBoardProps {
   mode: 'setup' | 'play' | 'view';
@@ -13,6 +14,7 @@ interface GameBoardProps {
   bombPositions?: number[];
   foundBombPositions?: number[];
   onCellClick?: (position: number) => void;
+  attemptPosition?: number | null;
   scannerPositions?: number[];
   scannerResult?: number;
   scannerResults?: ScannerResult[];
@@ -24,6 +26,10 @@ interface GameBoardProps {
   activeTool?: 'click' | 'scanner' | 'radar' | null;
   onScannerPlaced?: (positions: number[]) => void;
   onRadarPlaced?: (position: number) => void;
+  onAttemptPlaced?: (position: number) => void;
+  onScannerConfirmed?: () => void;
+  onRadarConfirmed?: () => void;
+  onAttemptConfirmed?: () => void;
   onRadarTypeToggle?: () => void;
   fieldSize?: number;
 }
@@ -37,11 +43,14 @@ interface DraggableScannerProps {
   gap: number;
   onDragStart: (clientX: number, clientY: number) => void;
   onDragMove: (clientX: number, clientY: number) => void;
+  onActivate?: () => void;
 }
 
-const usePointerDrag = (onDragStart: (clientX: number, clientY: number) => void, onDragMove: (clientX: number, clientY: number) => void) => {
+const usePointerDrag = (onDragStart: (clientX: number, clientY: number) => void, onDragMove: (clientX: number, clientY: number) => void, onActivate?: () => void) => {
   const [isDragging, setIsDragging] = useState(false);
   const isDraggingRef = useRef(false);
+  const pointerStartRef = useRef({ clientX: 0, clientY: 0 });
+  const wasDraggedRef = useRef(false);
 
   const finishDrag = useCallback(() => {
     isDraggingRef.current = false;
@@ -56,27 +65,39 @@ const usePointerDrag = (onDragStart: (clientX: number, clientY: number) => void,
         event.preventDefault();
         event.currentTarget.setPointerCapture(event.pointerId);
         isDraggingRef.current = true;
+        wasDraggedRef.current = false;
+        pointerStartRef.current = { clientX: event.clientX, clientY: event.clientY };
         setIsDragging(true);
         onDragStart(event.clientX, event.clientY);
       },
       onPointerMove: (event: React.PointerEvent<HTMLDivElement>) => {
         if (!isDraggingRef.current) return;
+        if (Math.hypot(event.clientX - pointerStartRef.current.clientX, event.clientY - pointerStartRef.current.clientY) >= 5) {
+          wasDraggedRef.current = true;
+        }
         onDragMove(event.clientX, event.clientY);
       },
       onPointerUp: (event: React.PointerEvent<HTMLDivElement>) => {
         if (!isDraggingRef.current) return;
+        if (Math.hypot(event.clientX - pointerStartRef.current.clientX, event.clientY - pointerStartRef.current.clientY) >= 5) {
+          wasDraggedRef.current = true;
+        }
         onDragMove(event.clientX, event.clientY);
         event.currentTarget.releasePointerCapture(event.pointerId);
         finishDrag();
       },
       onPointerCancel: finishDrag,
       onLostPointerCapture: finishDrag,
+      onClick: () => {
+        if (!wasDraggedRef.current) onActivate?.();
+      },
     },
+    wasDraggedRef,
   };
 };
 
-const DraggableScanner: React.FC<DraggableScannerProps> = ({ currentRow, currentCol, cellSize, gridPadding, gap, onDragStart, onDragMove }) => {
-  const { isDragging, pointerHandlers } = usePointerDrag(onDragStart, onDragMove);
+const DraggableScanner: React.FC<DraggableScannerProps> = ({ currentRow, currentCol, cellSize, gridPadding, gap, onDragStart, onDragMove, onActivate }) => {
+  const { isDragging, pointerHandlers } = usePointerDrag(onDragStart, onDragMove, onActivate);
   const animationControls = useAnimationControls();
   const hasAppeared = useRef(false);
 
@@ -115,7 +136,7 @@ const DraggableScanner: React.FC<DraggableScannerProps> = ({ currentRow, current
     <motion.div style={style} className={styles.dragSurface} initial={false} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 0.24, ease: 'easeInOut' }} {...pointerHandlers}>
       <motion.div className={clsx(styles.draggableScanner, { [styles['draggableScanner--dragging']]: isDragging })} initial={{ scale: 0 }} animate={animationControls}>
         <span className={styles.scannerDragIcon}>
-          <img src="/radar3.png" alt="" draggable={false} />
+          <img src={uiConfig.icons.radar} alt="" draggable={false} />
         </span>
       </motion.div>
     </motion.div>
@@ -133,10 +154,11 @@ interface DraggableRadarProps {
   onTypeToggle?: () => void;
   onDragStart: (clientX: number, clientY: number) => void;
   onDragMove: (clientX: number, clientY: number) => void;
+  onActivate?: () => void;
 }
 
-const DraggableRadar: React.FC<DraggableRadarProps> = ({ fieldSize, type, index, cellSize, gridPadding, gap, onTypeToggle, onDragStart, onDragMove }) => {
-  const { isDragging, pointerHandlers } = usePointerDrag(onDragStart, onDragMove);
+const DraggableRadar: React.FC<DraggableRadarProps> = ({ fieldSize, type, index, cellSize, gridPadding, gap, onTypeToggle, onDragStart, onDragMove, onActivate }) => {
+  const { isDragging, pointerHandlers } = usePointerDrag(onDragStart, onDragMove, onActivate);
   const animationControls = useAnimationControls();
   const hasAppeared = useRef(false);
 
@@ -190,7 +212,7 @@ const DraggableRadar: React.FC<DraggableRadarProps> = ({ fieldSize, type, index,
         <button
           type="button"
           className={styles.radarSwitch}
-          aria-label={isRow ? 'Переключить радар на столбец' : 'Переключить радар на строку'}
+          aria-label={isRow ? uiConfig.board.radarToColumn : uiConfig.board.radarToRow}
           onPointerDown={(event) => event.stopPropagation()}
           onClick={(event) => {
             event.stopPropagation();
@@ -206,6 +228,41 @@ const DraggableRadar: React.FC<DraggableRadarProps> = ({ fieldSize, type, index,
   );
 };
 
+interface DraggableAttemptProps {
+  position: number;
+  fieldSize: number;
+  cellSize: number;
+  gridPadding: number;
+  gap: number;
+  onDragStart: (clientX: number, clientY: number) => void;
+  onDragMove: (clientX: number, clientY: number) => void;
+  onActivate?: () => void;
+}
+
+const DraggableAttempt: React.FC<DraggableAttemptProps> = ({ position, fieldSize, cellSize, gridPadding, gap, onDragStart, onDragMove, onActivate }) => {
+  const { isDragging, pointerHandlers } = usePointerDrag(onDragStart, onDragMove, onActivate);
+  const row = Math.floor(position / fieldSize);
+  const col = position % fieldSize;
+  const style: React.CSSProperties = {
+    position: 'absolute',
+    width: cellSize,
+    height: cellSize,
+    left: gridPadding + col * (cellSize + gap),
+    top: gridPadding + row * (cellSize + gap),
+    zIndex: isDragging ? 100 : 10,
+    cursor: isDragging ? 'grabbing' : 'grab',
+    touchAction: 'none',
+  };
+
+  return (
+    <motion.div style={style} className={styles.dragSurface} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 0.24, ease: 'easeInOut' }} {...pointerHandlers}>
+      <div className={clsx(styles.draggableAttempt, { [styles['draggableAttempt--dragging']]: isDragging })}>
+        <img src={uiConfig.icons.attempt} alt="" draggable={false} />
+      </div>
+    </motion.div>
+  );
+};
+
 const GameBoard: React.FC<GameBoardProps> = ({
   mode,
   selectedBombs = [],
@@ -213,6 +270,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   bombPositions = [],
   foundBombPositions = [],
   onCellClick,
+  attemptPosition = null,
   scannerPositions = [],
   scannerResult,
   scannerResults = [],
@@ -224,6 +282,10 @@ const GameBoard: React.FC<GameBoardProps> = ({
   activeTool = null,
   onScannerPlaced,
   onRadarPlaced,
+  onAttemptPlaced,
+  onScannerConfirmed,
+  onRadarConfirmed,
+  onAttemptConfirmed,
   onRadarTypeToggle,
   fieldSize: fieldSizeProp,
 }) => {
@@ -238,9 +300,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   // Radar drag state
   const [radarDragIndex, setRadarDragIndex] = useState(0);
+  const [attemptDragPosition, setAttemptDragPosition] = useState(0);
   const scannerDragPosRef = useRef(scannerDragPos);
   const radarDragIndexRef = useRef(radarDragIndex);
-  const dragOriginRef = useRef({ clientX: 0, clientY: 0, scanner: scannerDragPos, radar: radarDragIndex });
+  const attemptDragPositionRef = useRef(attemptDragPosition);
+  const dragOriginRef = useRef({ clientX: 0, clientY: 0, scanner: scannerDragPos, radar: radarDragIndex, attempt: attemptDragPosition });
 
   // Measure the layout box rather than getBoundingClientRect. The latter is
   // affected by parent scale animations and produced a too-small overlay on
@@ -298,11 +362,25 @@ const GameBoard: React.FC<GameBoardProps> = ({
     }
   }, [activeTool, fieldSize, radarResult?.bombCount, radarResult?.index, radarResult?.type]);
 
+  useEffect(() => {
+    if (activeTool !== 'click' || attemptPosition === null) return;
+    const nextPosition = Math.max(0, Math.min(fieldSize ** 2 - 1, attemptPosition));
+    attemptDragPositionRef.current = nextPosition;
+    setAttemptDragPosition(nextPosition);
+  }, [activeTool, attemptPosition, fieldSize]);
+
   const handleCellClick = (position: number) => {
     if (disabled) return;
 
     const row = Math.floor(position / fieldSize);
     const col = position % fieldSize;
+
+    if (activeTool === 'click') {
+      attemptDragPositionRef.current = position;
+      setAttemptDragPosition(position);
+      onAttemptPlaced?.(position);
+      return;
+    }
 
     if (activeTool === 'scanner') {
       const nextPosition = {
@@ -327,13 +405,23 @@ const GameBoard: React.FC<GameBoardProps> = ({
   };
 
   const moveActiveArea = useCallback(
-    (tool: 'scanner' | 'radar', clientX: number, clientY: number) => {
+    (tool: 'scanner' | 'radar' | 'click', clientX: number, clientY: number) => {
       const stepSize = gridDimensions.cellSize + gridDimensions.gap;
       if (stepSize <= 0) return;
       const deltaX = clientX - dragOriginRef.current.clientX;
       const deltaY = clientY - dragOriginRef.current.clientY;
 
-      if (tool === 'scanner') {
+      if (tool === 'click') {
+        const originRow = Math.floor(dragOriginRef.current.attempt / fieldSize);
+        const originCol = dragOriginRef.current.attempt % fieldSize;
+        const newCol = Math.max(0, Math.min(fieldSize - 1, originCol + Math.round(deltaX / stepSize)));
+        const newRow = Math.max(0, Math.min(fieldSize - 1, originRow + Math.round(deltaY / stepSize)));
+        const nextPosition = newRow * fieldSize + newCol;
+        if (attemptDragPositionRef.current === nextPosition) return;
+        attemptDragPositionRef.current = nextPosition;
+        setAttemptDragPosition(nextPosition);
+        onAttemptPlaced?.(nextPosition);
+      } else if (tool === 'scanner') {
         const colDelta = Math.round(deltaX / stepSize);
         const rowDelta = Math.round(deltaY / stepSize);
         const newCol = Math.max(0, Math.min(fieldSize - 2, dragOriginRef.current.scanner.col + colDelta));
@@ -359,19 +447,24 @@ const GameBoard: React.FC<GameBoardProps> = ({
         onRadarPlaced?.(newIndex);
       }
     },
-    [fieldSize, gridDimensions.cellSize, gridDimensions.gap, onRadarPlaced, onScannerPlaced, radarResult?.type],
+    [fieldSize, gridDimensions.cellSize, gridDimensions.gap, onAttemptPlaced, onRadarPlaced, onScannerPlaced, radarResult?.type],
   );
 
   const handleScannerDragStart = useCallback((clientX: number, clientY: number) => {
-    dragOriginRef.current = { clientX, clientY, scanner: scannerDragPosRef.current, radar: radarDragIndexRef.current };
+    dragOriginRef.current = { clientX, clientY, scanner: scannerDragPosRef.current, radar: radarDragIndexRef.current, attempt: attemptDragPositionRef.current };
   }, []);
 
   const handleRadarDragStart = useCallback((clientX: number, clientY: number) => {
-    dragOriginRef.current = { clientX, clientY, scanner: scannerDragPosRef.current, radar: radarDragIndexRef.current };
+    dragOriginRef.current = { clientX, clientY, scanner: scannerDragPosRef.current, radar: radarDragIndexRef.current, attempt: attemptDragPositionRef.current };
+  }, []);
+
+  const handleAttemptDragStart = useCallback((clientX: number, clientY: number) => {
+    dragOriginRef.current = { clientX, clientY, scanner: scannerDragPosRef.current, radar: radarDragIndexRef.current, attempt: attemptDragPositionRef.current };
   }, []);
 
   const handleScannerDragMove = useCallback((clientX: number, clientY: number) => moveActiveArea('scanner', clientX, clientY), [moveActiveArea]);
   const handleRadarDragMove = useCallback((clientX: number, clientY: number) => moveActiveArea('radar', clientX, clientY), [moveActiveArea]);
+  const handleAttemptDragMove = useCallback((clientX: number, clientY: number) => moveActiveArea('click', clientX, clientY), [moveActiveArea]);
 
   const getCellState = (position: number) => {
     const isSelected = selectedBombs.includes(position);
@@ -389,6 +482,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   // Check if we're in drag mode for scanner/radar
   const showDraggableScanner = activeTool === 'scanner' && scannerPositions.length > 0 && (scannerResult === undefined || scannerResult < 0);
   const showDraggableRadar = activeTool === 'radar' && radarResult && radarResult.bombCount < 0;
+  const showDraggableAttempt = activeTool === 'click' && attemptPosition !== null;
 
   const cellStep = gridDimensions.cellSize + gridDimensions.gap;
   const getScannerResultPosition = (positions: number[]) => {
@@ -420,6 +514,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         className={clsx(styles.grid, {
           [styles['grid--scanner-active']]: showDraggableScanner,
           [styles['grid--radar-active']]: showDraggableRadar,
+          [styles['grid--attempt-active']]: showDraggableAttempt,
         })}
         style={{
           gridTemplateColumns: `repeat(${fieldSize}, 1fr)`,
@@ -433,6 +528,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
             const isAreaIntersection = isInScannerArea && isInRadarArea;
             const isActiveScannerCell = Boolean(showDraggableScanner && isInScannerPreview);
             const isActiveRadarCell = Boolean(showDraggableRadar && isInRadarPreview);
+            const isAttemptPreview = attemptPosition === position;
 
             return (
               <motion.button
@@ -449,11 +545,12 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   [styles['cell--scanner']]: isInRadarArea,
                   [styles['cell--radar-active']]: isActiveScannerCell,
                   [styles['cell--scanner-active']]: isActiveRadarCell,
+                  [styles['cell--attempt-preview']]: isAttemptPreview,
+                  [styles['cell--attempt-active']]: showDraggableAttempt && isAttemptPreview,
                   [styles['cell--intersection']]: isAreaIntersection,
-                  [styles['cell--disabled']]: disabled && !completed,
-                  [styles['cell--clickable']]: !disabled && mode !== 'view' && activeTool !== 'scanner' && activeTool !== 'radar',
+                  [styles['cell--clickable']]: !disabled && mode !== 'view' && Boolean(onCellClick || activeTool),
                 })}
-                whileTap={!disabled && mode !== 'view' && activeTool !== 'scanner' && activeTool !== 'radar' ? { scale: 0.9 } : undefined}
+                whileTap={!disabled && mode !== 'view' && Boolean(onCellClick) && activeTool === null ? { scale: 0.9 } : undefined}
                 transition={{ type: 'spring', stiffness: 520, damping: 24, mass: 0.55 }}
                 onClick={() => handleCellClick(position)}
                 disabled={disabled || mode === 'view'}>
@@ -487,10 +584,26 @@ const GameBoard: React.FC<GameBoardProps> = ({
           })}
         </AnimatePresence>
 
+        <AnimatePresence>
+          {showDraggableAttempt && gridDimensions.cellSize > 0 && (
+            <DraggableAttempt
+              key="attempt-overlay"
+              position={attemptDragPosition}
+              fieldSize={fieldSize}
+              cellSize={gridDimensions.cellSize}
+              gridPadding={gridDimensions.gridPadding}
+              gap={gridDimensions.gap}
+              onDragStart={handleAttemptDragStart}
+              onDragMove={handleAttemptDragMove}
+              onActivate={onAttemptConfirmed}
+            />
+          )}
+        </AnimatePresence>
+
         {/* Draggable Scanner */}
         <AnimatePresence>
           {showDraggableScanner && gridDimensions.cellSize > 0 && (
-            <DraggableScanner key="scanner-overlay" currentRow={scannerDragPos.row} currentCol={scannerDragPos.col} cellSize={gridDimensions.cellSize} gridPadding={gridDimensions.gridPadding} gap={gridDimensions.gap} onDragStart={handleScannerDragStart} onDragMove={handleScannerDragMove} />
+            <DraggableScanner key="scanner-overlay" currentRow={scannerDragPos.row} currentCol={scannerDragPos.col} cellSize={gridDimensions.cellSize} gridPadding={gridDimensions.gridPadding} gap={gridDimensions.gap} onDragStart={handleScannerDragStart} onDragMove={handleScannerDragMove} onActivate={onScannerConfirmed} />
           )}
         </AnimatePresence>
 
@@ -508,6 +621,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
               onTypeToggle={onRadarTypeToggle}
               onDragStart={handleRadarDragStart}
               onDragMove={handleRadarDragMove}
+              onActivate={onRadarConfirmed}
             />
           )}
         </AnimatePresence>

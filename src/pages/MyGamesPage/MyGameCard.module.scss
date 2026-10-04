@@ -23,6 +23,7 @@
   }
 
   &--defense {
+    --timer-fill-color: rgba(59, 130, 246, 0.18);
     border-color: rgba($primary-500, 0.3);
     background: linear-gradient(135deg, $bg-card-2 0%, rgba($primary-500, 0.14) 100%);
 
@@ -33,6 +34,7 @@
   }
 
   &--attack {
+    --timer-fill-color: rgba(239, 68, 68, 0.18);
     border-color: rgba($red-500, 0.3);
     background: linear-gradient(135deg, $bg-card-2 0%, rgba($red-500, 0.14) 100%);
 
@@ -45,6 +47,26 @@
   &--refund {
     border-color: rgba($gray-500, 0.3);
     background: linear-gradient(135deg, $bg-card-2 0%, rgba($gray-500, 0.1) 100%);
+  }
+}
+
+.timerFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--timer-progress, 0%);
+  border-radius: inherit;
+  background: var(--timer-fill-color, rgba(59, 130, 246, 0.18));
+  pointer-events: none;
+  animation: timerCountdown var(--timer-duration, 0ms) linear forwards;
+}
+
+@keyframes timerCountdown {
+  from {
+    width: var(--timer-progress, 0%);
+  }
+
+  to {
+    width: 0%;
   }
 }
 
@@ -133,6 +155,7 @@
   align-items: center;
   gap: $spacing-sm;
   margin-left: auto;
+  z-index: 1;
 }
 
 .resultIcon {
@@ -180,10 +203,13 @@
 
 .timer {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 34px;
+  top: 7px;
+  left: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // transform: translate(-50%, -50%);
+  font-size: 36px;
   font-weight: 900;
   line-height: 1;
   text-align: center;
@@ -199,6 +225,11 @@
   }
 }
 
+.timerDivider {
+  display: inline-block;
+  margin: 0 2px;
+}
+
 .actionIcon {
   display: flex;
   align-items: center;
@@ -211,6 +242,53 @@
 
   svg {
     display: block;
+  }
+}
+
+.hourglass {
+  color: currentColor;
+  transform-origin: center;
+  animation: hourglassTurn 2s ease-in-out infinite;
+}
+
+.hourglassTop {
+  animation: hourglassTopSand 2s linear infinite;
+}
+
+.hourglassBottom {
+  animation: hourglassBottomSand 2s linear infinite;
+}
+
+@keyframes hourglassTurn {
+  0%,
+  75% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(180deg);
+  }
+}
+
+@keyframes hourglassTopSand {
+  0% {
+    opacity: 1;
+  }
+
+  75%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes hourglassBottomSand {
+  0% {
+    opacity: 0;
+  }
+
+  75%,
+  100% {
+    opacity: 1;
   }
 }
 

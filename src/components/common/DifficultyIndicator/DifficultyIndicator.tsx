@@ -2,18 +2,13 @@ import React from 'react';
 import clsx from 'clsx';
 import styles from './DifficultyIndicator.module.scss';
 import { DifficultyLevel } from '@/types';
+import { uiConfig } from '@/config/ui.config';
 
 interface DifficultyIndicatorProps {
   difficulty: DifficultyLevel;
   showLabel?: boolean;
   size?: 'sm' | 'md';
 }
-
-const difficultyLabels: Record<DifficultyLevel, string> = {
-  EASY: 'Легкий',
-  MEDIUM: 'Средний',
-  HARD: 'Сложный',
-};
 
 const DifficultyIndicator: React.FC<DifficultyIndicatorProps> = ({
   difficulty,
@@ -38,7 +33,7 @@ const DifficultyIndicator: React.FC<DifficultyIndicatorProps> = ({
       </div>
       {showLabel && (
         <span className={clsx(styles.label, styles[`label--${difficulty.toLowerCase()}`])}>
-          {difficultyLabels[difficulty]}
+          {uiConfig.difficulty[difficulty].label}
         </span>
       )}
     </div>

@@ -11,6 +11,12 @@ export interface MyGamesPage {
   activeCounts: Record<MyGamesTab, number>;
 }
 
+export interface HistoryPage {
+  items: DefensePublic[];
+  total: number;
+  hasMore: boolean;
+}
+
 interface ServerToClientEvents {
   defenseCreated: (defense: DefensePublic) => void;
   defenseUpdated: (defense: DefensePublic) => void;
@@ -50,6 +56,10 @@ interface ClientToServerEvents {
   getMyGames: (
     data: { tab: MyGamesTab; offset: number; limit: number },
     callback: (response: SocketResponse<MyGamesPage>) => void
+  ) => void;
+  getHistory: (
+    data: { offset: number; limit: number },
+    callback: (response: SocketResponse<HistoryPage>) => void
   ) => void;
   getDefense: (
     data: { defenseId: number },
@@ -275,6 +285,23 @@ class SocketService {
           resolve(response.data);
         } else {
           reject(new Error(response.error || 'Failed to get user games'));
+        }
+      });
+    });
+  }
+
+  getHistory(offset: number, limit = 20): Promise<HistoryPage> {
+    return new Promise((resolve, reject) => {
+      if (!this.socket) {
+        reject(new Error('Socket not connected'));
+        return;
+      }
+
+      this.socket.emit('getHistory', { offset, limit }, (response) => {
+        if (response.success && response.data) {
+          resolve(response.data);
+        } else {
+          reject(new Error(response.error || 'Failed to get history'));
         }
       });
     });

@@ -4,6 +4,7 @@ import styles from './ResultModal.module.scss';
 import Button from '@/components/common/Button';
 import { useAppSelector, useAppDispatch } from '@/hooks/useAppDispatch';
 import { closeResultModal } from '@/redux/slices/ui.slice';
+import { uiConfig } from '@/config/ui.config';
 
 const ResultModal: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -17,23 +18,17 @@ const ResultModal: React.FC = () => {
     switch (type) {
       case 'win':
         return {
-          emoji: '🤑',
-          title: 'Вы победили',
-          subtitle: 'Поздравляем!',
+          ...uiConfig.result.win,
           color: 'success' as const,
         };
       case 'lose':
         return {
-          emoji: '😔',
-          title: 'В этот раз не повезло',
-          subtitle: 'Попробуйте еще раз',
+          ...uiConfig.result.lose,
           color: 'error' as const,
         };
       case 'half':
         return {
-          emoji: '🙂',
-          title: 'Вы обезвредили 1 бомбу',
-          subtitle: 'И забрали половину ставки',
+          ...uiConfig.result.half,
           color: 'warning' as const,
         };
       default:
@@ -82,9 +77,9 @@ const ResultModal: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <span className={styles.rewardLabel}>Выигрыш</span>
+                <span className={styles.rewardLabel}>{uiConfig.common.winnings}</span>
                 <span className={styles.rewardAmount}>
-                  +{amount} <span className={styles.star}>⭐</span>
+                  +{amount} <span className={styles.star}>{uiConfig.common.currency}</span>
                 </span>
               </motion.div>
             )}
@@ -101,7 +96,7 @@ const ResultModal: React.FC = () => {
                 fullWidth
                 onClick={handleClose}
               >
-                {type === 'lose' ? 'Закрыть' : 'Забрать'}
+                {type === 'lose' ? uiConfig.common.close : uiConfig.result.collect}
               </Button>
             </motion.div>
           </motion.div>

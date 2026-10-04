@@ -14,7 +14,7 @@
   transition: transform $transition-fast;
 
   &--easy {
-    --timer-color: rgba(16, 185, 129, 0.22);
+    background: linear-gradient(135deg, #20273a 0%, rgba(16, 185, 129, 0.22) 100%);
 
     .actionIcon {
       color: $green-400;
@@ -22,7 +22,7 @@
   }
 
   &--medium {
-    --timer-color: rgba(245, 158, 11, 0.22);
+    background: linear-gradient(135deg, #20273a 0%, rgba(245, 158, 11, 0.22) 100%);
 
     .actionIcon {
       color: $yellow-400;
@@ -30,7 +30,7 @@
   }
 
   &--hard {
-    --timer-color: rgba(239, 68, 68, 0.22);
+    background: linear-gradient(135deg, #20273a 0%, rgba(239, 68, 68, 0.22) 100%);
 
     .actionIcon {
       color: $red-400;
@@ -39,26 +39,6 @@
 
   &:active {
     transform: scale(0.98);
-  }
-}
-
-.timerFill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: var(--timer-progress, 0%);
-  border-radius: inherit;
-  background: linear-gradient(135deg, #20273a 0%, var(--timer-color) 100%);
-  pointer-events: none;
-  animation: timerCountdown var(--timer-duration, 0ms) linear forwards;
-}
-
-@keyframes timerCountdown {
-  from {
-    width: var(--timer-progress, 0%);
-  }
-
-  to {
-    width: 0%;
   }
 }
 

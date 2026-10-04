@@ -7,6 +7,7 @@ import { closeDevLogin, showToast } from '@/redux/slices/ui.slice';
 import { setCredentials, setLoading } from '@/redux/slices/auth.slice';
 import { authWithDevCode } from '@/services/auth';
 import { socketService } from '@/services/socket';
+import { uiConfig } from '@/config/ui.config';
 
 const DevLoginModal: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -21,7 +22,7 @@ const DevLoginModal: React.FC = () => {
 
   const handleLogin = async () => {
     if (code.length !== 4) {
-      dispatch(showToast({ message: 'Введите 4-значный код', type: 'error' }));
+      dispatch(showToast({ message: uiConfig.devLogin.invalidCode, type: 'error' }));
       return;
     }
 
@@ -46,10 +47,10 @@ const DevLoginModal: React.FC = () => {
 
       await socketService.connect(token);
 
-      dispatch(showToast({ message: 'Успешный вход!', type: 'success' }));
+      dispatch(showToast({ message: uiConfig.devLogin.success, type: 'success' }));
       handleClose();
     } catch (error: any) {
-      dispatch(showToast({ message: error.message || 'Ошибка входа', type: 'error' }));
+      dispatch(showToast({ message: error.message || uiConfig.devLogin.error, type: 'error' }));
     } finally {
       setIsLoading(false);
       dispatch(setLoading(false));
@@ -62,10 +63,10 @@ const DevLoginModal: React.FC = () => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Dev Login">
+    <Modal isOpen={isOpen} onClose={handleClose} title={uiConfig.header.devLogin}>
       <div className={styles.content}>
-        <p className={styles.hint}>Введите код для входа в тестовый аккаунт</p>
-        <p className={styles.codes}>Доступные коды: 1001, 1002, 1003, 1004</p>
+        <p className={styles.hint}>{uiConfig.devLogin.titleHint}</p>
+        <p className={styles.codes}>{uiConfig.devLogin.availableCodes}</p>
 
         <input
           type="text"
@@ -85,7 +86,7 @@ const DevLoginModal: React.FC = () => {
           disabled={code.length !== 4}
           onClick={handleLogin}
         >
-          Войти
+          {uiConfig.devLogin.submit}
         </Button>
       </div>
     </Modal>

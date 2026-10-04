@@ -111,7 +111,7 @@
 }
 
 .attackerRoleIcon {
-  transform: rotate(180deg) translateY(1px);
+  transform: translateY(1px);
 }
 
 .playerInfo {
@@ -306,6 +306,7 @@
   justify-content: space-around;
 }
 .summary {
+  height: 88px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: $spacing-sm;
@@ -353,36 +354,18 @@
 }
 
 .tools {
+  height: 88px;
   display: flex;
-  gap: $spacing-md;
-}
-.attempts {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: $text-lg;
-  // gap: $spacing-xs;
-  text-align: center;
-  & span {
-    margin-left: $spacing-sm;
-    margin-right: $spacing-2xs;
-    font-size: $text-2xl;
-    display: block;
-    color: #f87171;
-  }
-  & img {
-    width: 32px;
-    height: 32px;
-  }
+  gap: $spacing-sm;
 }
 .tool {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: $spacing-sm;
-  padding: $spacing-lg $spacing-md;
+  padding: $spacing-sm $spacing-md;
   position: relative;
   border-radius: $radius-lg;
   border: 1px solid none;
@@ -393,6 +376,9 @@
   &Scanner {
     background: linear-gradient(154.82deg, #8b11dd 11.43%, #fd7cff 89.83%);
   }
+  &Attempt {
+    background: linear-gradient(154.82deg, rgba($green-700, 0.9) 11.43%, rgba($green-400, 0.82) 89.83%);
+  }
 
   &:disabled {
     opacity: 0.5;
@@ -402,20 +388,31 @@
   &Place {
     justify-content: center;
     padding: $spacing-lg $spacing-md;
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: calc(100% - 4px);
+      height: calc(100% - 4px);
+      top: 2px;
+      left: 2px;
+      border-radius: calc(#{$radius-lg} - 2px);
+      background: #1b2030;
+      pointer-events: none;
+    }
   }
 }
 
 .toolPlaceLabel {
   display: inline-flex;
   align-items: center;
-  gap: $spacing-sm;
-  font-size: $text-md;
-  font-weight: 700;
-  color: $text-primary;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
 
-  span {
-    font-size: $text-xl;
-    line-height: 1;
+  svg {
+    width: 1.25em;
+    height: 1em;
   }
 }
 

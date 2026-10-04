@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import styles from './Avatar.module.scss';
+import { uiConfig } from '@/config/ui.config';
 
 interface AvatarProps {
   src?: string | null;
@@ -26,7 +27,7 @@ const Avatar: React.FC<AvatarProps> = ({ src, name, size = 'md', className }) =>
     <div className={clsx(styles.avatar, styles[`avatar--${size}`], className)}>
       <img
         src={imageSrc}
-        alt={name ? `Аватар ${name}` : 'Аватар игрока'}
+        alt={uiConfig.accessibility.avatar(name)}
         className={styles.image}
         onError={() => {
           if (imageSrc !== placeholderSrc) setImageSrc(placeholderSrc);

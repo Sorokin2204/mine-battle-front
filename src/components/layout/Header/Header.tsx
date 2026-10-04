@@ -7,6 +7,7 @@ import { useAppSelector, useAppDispatch } from '@/hooks/useAppDispatch';
 import { openDevLogin } from '@/redux/slices/ui.slice';
 import { logout } from '@/redux/slices/auth.slice';
 import { star } from '@/utils/icons';
+import { uiConfig } from '@/config/ui.config';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ const Header: React.FC = () => {
               </div>
 
               {isDev && (
-                <button className={styles.logoutBtn} onClick={() => dispatch(logout())} title="Выйти">
+                <button className={styles.logoutBtn} onClick={() => dispatch(logout())} title={uiConfig.header.logout}>
                   ⬅
                 </button>
               )}
@@ -73,7 +74,7 @@ const Header: React.FC = () => {
           ) : (
             isDev && (
               <button className={styles.devLogin} onClick={() => dispatch(openDevLogin())}>
-                Dev Login
+                {uiConfig.header.devLogin}
               </button>
             )
           )}

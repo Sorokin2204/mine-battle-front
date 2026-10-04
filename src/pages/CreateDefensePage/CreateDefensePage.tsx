@@ -13,6 +13,7 @@ import { socketService } from '@/services/socket';
 import { DifficultyLevel } from '@/types';
 import { star } from '@/utils/icons';
 import BombIcon from '@/components/common/BombIcon';
+import { uiConfig } from '@/config/ui.config';
 
 interface DifficultyOption {
   level: DifficultyLevel;
@@ -21,9 +22,9 @@ interface DifficultyOption {
 }
 
 const difficultyOptions: DifficultyOption[] = [
-  { level: 'EASY', label: 'Легкий', description: '3×3, 2 бомбы' },
-  { level: 'MEDIUM', label: 'Средний', description: '4×4, 1 бомба' },
-  { level: 'HARD', label: 'Сложный', description: '5×5, 3 бомбы' },
+  { level: 'EASY', ...uiConfig.difficulty.EASY },
+  { level: 'MEDIUM', ...uiConfig.difficulty.MEDIUM },
+  { level: 'HARD', ...uiConfig.difficulty.HARD },
 ];
 
 const getRandomBombPositions = (fieldSize: number, bombsCount: number): number[] => {
@@ -108,19 +109,19 @@ const CreateDefensePage: React.FC = () => {
 
   const handleCreateDefense = async (bombPositions: number[]) => {
     if (bombPositions.length !== config.bombsCount) {
-      dispatch(showToast({ message: `Разместите ${config.bombsCount} ${config.bombsCount === 1 ? 'бомбу' : 'бомбы'}`, type: 'error' }));
+      dispatch(showToast({ message: uiConfig.createDefense.placeBombsError(config.bombsCount), type: 'error' }));
       return;
     }
 
     if (!user || user.balance < bet) {
-      dispatch(showToast({ message: 'Недостаточно средств', type: 'error' }));
+      dispatch(showToast({ message: uiConfig.createDefense.insufficientFunds, type: 'error' }));
       return;
     }
 
     if (bet < config.minBet || bet > config.maxBet) {
       dispatch(
         showToast({
-          message: `Ставка должна быть от ${config.minBet} до ${config.maxBet}`,
+          message: uiConfig.createDefense.betRangeError(config.minBet, config.maxBet),
           type: 'error',
         }),
       );
@@ -130,11 +131,11 @@ const CreateDefensePage: React.FC = () => {
     try {
       dispatch(setCreatingDefense(true));
       await socketService.createDefense(bet, bombPositions, difficulty);
-      dispatch(showToast({ message: 'Защита создана!', type: 'success' }));
+      dispatch(showToast({ message: uiConfig.createDefense.created, type: 'success' }));
       dispatch(clearSelectedBombs());
-      navigate('/games');
+      navigate('/my-games?tab=defenses');
     } catch (error: any) {
-      dispatch(showToast({ message: error.message || 'Ошибка создания защиты', type: 'error' }));
+      dispatch(showToast({ message: error.message || uiConfig.createDefense.createError, type: 'error' }));
     } finally {
       dispatch(setCreatingDefense(false));
     }
@@ -150,12 +151,12 @@ const CreateDefensePage: React.FC = () => {
   return (
     <div className={styles.page}>
       <motion.div className={styles.header} initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className={styles.title}>Создание защиты</h1>
+        <h1 className={styles.title}>{uiConfig.createDefense.title}</h1>
       </motion.div>
 
       <motion.div className={styles.difficultySection} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
         <div className={clsx(styles.difficultyContent)}>
-          <div className={styles.label}>Сложность</div>
+          <div className={styles.label}>{uiConfig.createDefense.difficulty}</div>
           <div className={styles.difficultyButtons}>
             {difficultyOptions.map((option) => (
               <button type="button" key={option.level} className={clsx(styles.difficultyBtn, styles[`difficultyBtn--${option.level.toLowerCase()}`], { [styles.active]: difficulty === option.level })} onClick={() => handleDifficultyChange(option.level)}>
@@ -166,22 +167,22 @@ const CreateDefensePage: React.FC = () => {
         </div>
 
         <div className={styles.difficultyStats}>
-          <div className={styles.statItem} aria-label={`Попытки: ${config.attempts}`} title="Попытки">
-            <span className={styles.statLabel}>Попытки</span>
+          <div className={styles.statItem} aria-label={`${uiConfig.createDefense.attempts}: ${config.attempts}`} title={uiConfig.createDefense.attempts}>
+            <span className={styles.statLabel}>{uiConfig.createDefense.attempts}</span>
             <span className={styles.statValue}>
-              {config.attempts} <img className={styles.statIcon} src="/target.png" alt="" />
+              {config.attempts} <img className={styles.statIcon} src={uiConfig.icons.attempt} alt="" />
             </span>
           </div>
-          <div className={styles.statItem} aria-label={`Радары: ${config.radars}`} title="Радары">
-            <span className={styles.statLabel}>Радары</span>
+          <div className={styles.statItem} aria-label={`${uiConfig.createDefense.radars}: ${config.radars}`} title={uiConfig.createDefense.radars}>
+            <span className={styles.statLabel}>{uiConfig.createDefense.radars}</span>
             <span className={styles.statValue}>
-              {config.radars} <img className={styles.statIcon} src="/radar3.png" alt="" />
+              {config.radars} <img className={styles.statIcon} src={uiConfig.icons.radar} alt="" />
             </span>
           </div>
-          <div className={styles.statItem} aria-label={`Сканеры: ${config.scanners}`} title="Сканеры">
-            <span className={styles.statLabel}>Сканеры</span>
+          <div className={styles.statItem} aria-label={`${uiConfig.createDefense.scanners}: ${config.scanners}`} title={uiConfig.createDefense.scanners}>
+            <span className={styles.statLabel}>{uiConfig.createDefense.scanners}</span>
             <span className={styles.statValue}>
-              {config.scanners} <img className={styles.statIcon} src="/scanner.png" alt="" />
+              {config.scanners} <img className={styles.statIcon} src={uiConfig.icons.scanner} alt="" />
             </span>
           </div>
         </div>
@@ -189,11 +190,11 @@ const CreateDefensePage: React.FC = () => {
 
       <motion.div className={styles.betSection} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
         <label className={styles.label} htmlFor="defense-bet">
-          Ставка
+          {uiConfig.createDefense.bet}
         </label>
         <div className={styles.betInput}>
           <span className={styles.betIcon}>{star()}</span>
-          <input id="defense-bet" type="text" inputMode="numeric" value={inputValue} onChange={handleInputChange} onBlur={handleInputBlur} placeholder="Введите ставку" className={styles.input} />
+          <input id="defense-bet" type="text" inputMode="numeric" value={inputValue} onChange={handleInputChange} onBlur={handleInputBlur} placeholder={uiConfig.createDefense.betPlaceholder} className={styles.input} />
         </div>
         <div className={styles.quickBets}>
           <button type="button" className={styles.quickBet} onClick={() => increaseBet(10)}>
@@ -213,7 +214,7 @@ const CreateDefensePage: React.FC = () => {
 
       <motion.div className={styles.boardSection} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.25 }}>
         <div className={styles.boardInfo}>
-          <div className={styles.bombLabel}>Разместите бомбы</div>
+          <div className={styles.bombLabel}>{uiConfig.createDefense.placeBombs}</div>
           <span className={styles.bombCount}>
             {config.bombsCount - selectedBombs.length}
             <BombIcon />
@@ -225,11 +226,11 @@ const CreateDefensePage: React.FC = () => {
       <motion.div className={styles.footer} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
         {import.meta.env.DEV && (
           <Button color="secondary" size="lg" fullWidth disabled={bet < config.minBet || bet > config.maxBet} loading={isCreatingDefense} onClick={handleCreateRandomDefense}>
-            Создать (рандом)
+            {uiConfig.createDefense.createRandom}
           </Button>
         )}
         <Button color="primary" size="lg" fullWidth disabled={!canCreate} loading={isCreatingDefense} onClick={() => void handleCreateDefense(selectedBombs)}>
-          Создать
+          {uiConfig.createDefense.create}
         </Button>
       </motion.div>
     </div>

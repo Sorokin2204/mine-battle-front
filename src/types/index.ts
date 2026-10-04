@@ -26,6 +26,7 @@ export interface RadarResult {
 }
 
 export type ToolPreview =
+  | { moveType: 'CLICK'; position: number }
   | { moveType: 'SCANNER'; positions: number[] }
   | { moveType: 'RADAR'; radarType: 'row' | 'column'; index: number }
   | null;

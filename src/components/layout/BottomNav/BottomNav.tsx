@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/useAppDispatch';
 import { addDefense, removeDefense, syncActiveDefenses, updateDefense } from '@/redux/slices/game.slice';
 import { socketService } from '@/services/socket';
 import { DefensePublic } from '@/types';
+import { uiConfig } from '@/config/ui.config';
 
 const BottomNav: React.FC = () => {
   const navigate = useNavigate();
@@ -18,11 +19,11 @@ const BottomNav: React.FC = () => {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
 
   const leftNavItems = [
-    { path: '/', icon: 'home', label: 'Главная' },
-    { path: '/games', icon: 'mines', label: 'Игры' },
+    { path: '/', icon: 'home', label: uiConfig.navigation.items.home },
+    { path: '/games', icon: 'mines', label: uiConfig.navigation.items.games },
   ];
 
-  const rightNavItem = { path: '/leaders', icon: 'users', label: 'Лидеры' };
+  const rightNavItem = { path: '/leaders', icon: 'users', label: uiConfig.navigation.items.leaders };
 
   useEffect(() => {
     setIsActionMenuOpen(false);
@@ -92,7 +93,7 @@ const BottomNav: React.FC = () => {
   const hasActiveDefenses = Boolean(user && activeMyGames.some((defense) => defense.creator.id === user.id));
   const myGamesPath = hasActiveDefenses && !hasActiveAttacks ? '/my-games?tab=defenses' : hasActiveAttacks && !hasActiveDefenses ? '/my-games?tab=attacks' : '/my-games';
 
-  const renderNavItem = (item: (typeof leftNavItems)[number]) => (
+  const renderNavItem = (item: { path: string; icon: string; label: string }) => (
     <button
       key={item.path}
       type="button"
@@ -115,7 +116,7 @@ const BottomNav: React.FC = () => {
             <motion.button
               type="button"
               className={styles.overlay}
-              aria-label="Закрыть меню действий"
+              aria-label={uiConfig.navigation.closeMenu}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -133,38 +134,38 @@ const BottomNav: React.FC = () => {
                 type="button"
                 className={clsx(styles.actionButton, styles.attackButton)}
                 onClick={() => goTo('/games')}>
-                <img src="/two-swords.webp" alt="" />
-                <span>Атаковать</span>
+                <img src={uiConfig.icons.attack} alt="" />
+                <span>{uiConfig.navigation.actions.attack}</span>
               </button>
 
               <button
                 type="button"
                 className={clsx(styles.actionButton, styles.autoMatchButton)}
                 onClick={() => goTo('/search-attack')}>
-                <img src="/search-1.png" alt="" />
-                <span>Автоподбор</span>
+                <img src={uiConfig.icons.autoMatch} alt="" />
+                <span>{uiConfig.navigation.actions.autoMatch}</span>
               </button>
 
               <button
                 type="button"
                 className={styles.actionButton}
                 onClick={() => goTo('/create-defense')}>
-                <img src="/shield_small.webp" alt="" />
-                <span>Создать защиту</span>
+                <img src={uiConfig.icons.defense} alt="" />
+                <span>{uiConfig.navigation.actions.createDefense}</span>
               </button>
             </motion.div>
           </>
         )}
       </AnimatePresence>
 
-      <nav className={styles.nav} aria-label="Основная навигация">
+      <nav className={styles.nav} aria-label={uiConfig.navigation.mainLabel}>
         <div className={styles.container}>
           {leftNavItems.map(renderNavItem)}
 
           <button
             type="button"
             className={clsx(styles.centerBtn, { [styles.menuOpen]: isActionMenuOpen })}
-            aria-label={isActionMenuOpen ? 'Закрыть меню действий' : 'Открыть меню действий'}
+            aria-label={isActionMenuOpen ? uiConfig.navigation.closeMenu : uiConfig.navigation.openMenu}
             aria-expanded={isActionMenuOpen}
             onClick={() => setIsActionMenuOpen((isOpen) => !isOpen)}>
             <Icon icon="plus" />
@@ -174,7 +175,7 @@ const BottomNav: React.FC = () => {
 
           <button
             type="button"
-            aria-label="Мои игры"
+            aria-label={uiConfig.navigation.myGames}
             className={clsx(styles.myGamesBtn, {
               [styles.active]: location.pathname === '/my-games',
             })}
@@ -197,7 +198,7 @@ const BottomNav: React.FC = () => {
                     [styles.myGamesBadgeDefense]: hasActiveDefenses && !hasActiveAttacks,
                     [styles.myGamesBadgeMixed]: hasActiveAttacks && hasActiveDefenses,
                   })}
-                  aria-label={`Активных игр: ${activeMyGamesCount}`}>
+                  aria-label={uiConfig.navigation.activeGames(activeMyGamesCount)}>
                   {activeMyGamesCount > 99 ? '99+' : activeMyGamesCount}
                 </span>
               )}
