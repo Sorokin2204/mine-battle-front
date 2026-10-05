@@ -1,15 +1,22 @@
-import { useEffect, useRef } from 'react';
-import Lottie from 'lottie-react';
+import { memo, useEffect, useMemo, useRef } from 'react';
+import Lottie, { type LottieRefCurrentProps } from 'lottie-react';
 import hourglass from '../../../../public/hourglass.json';
-type Props = {};
 
-export default function Waiting({}: Props) {
-  const lottieRef = useRef<any>();
+const animationStyle = { width: '20px', height: '20px' } as const;
+
+function Waiting() {
+  const lottieRef = useRef<LottieRefCurrentProps | null>(null);
+
+  // lottie-web mutates animation data while preparing it. Keep a separate,
+  // stable copy for every mounted hourglass so several badges cannot affect
+  // one another and a parent render cannot restart the animation.
+  const animationData = useMemo(() => structuredClone(hourglass), []);
+
   useEffect(() => {
-    console.log(lottieRef.current);
-    if (lottieRef.current) {
-      lottieRef.current.setSpeed(1.5);
-    }
-  }, [lottieRef]);
-  return <Lottie lottieRef={lottieRef} animationData={hourglass} loop={true} style={{ width: '20px', height: '20px' }} />;
+    lottieRef.current?.setSpeed(1.5);
+  }, []);
+
+  return <Lottie lottieRef={lottieRef} animationData={animationData} loop style={animationStyle} />;
 }
+
+export default memo(Waiting);

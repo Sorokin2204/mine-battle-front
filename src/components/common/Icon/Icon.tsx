@@ -50,7 +50,7 @@ export default function Icon({ icon, className, size, gradient }: Props) {
       className={clsx(className, styles.icon)}
       viewBox={definition?.viewBox ?? '0 0 24 24'}
       aria-hidden="true"
-      {...(size && { width: `${size}px`, height: `${size}px` })}>
+      style={size ? { width: size, height: size } : undefined}>
       {gradient && (
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0.5" x2="1" y2="0.5" gradientTransform={`rotate(${gradient.angle - 90} 0.5 0.5)`}>

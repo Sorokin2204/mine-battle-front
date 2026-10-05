@@ -499,6 +499,12 @@ const GameLobby: React.FC = () => {
   };
 
   const headerInfo = getHeaderInfo();
+  const bombsInfoText =
+    isGameActive || isFinished
+      ? uiConfig.gameLobby.foundBombs(activeDefense.bombsFound, gameConfig.bombsCount)
+      : canAttack
+        ? uiConfig.gameLobby.findBombsCallToAction(gameConfig.bombsCount)
+        : uiConfig.gameLobby.findBombs(gameConfig.bombsCount);
   // const finishedTime = isFinished ? formatRelativeTime(activeDefense.finishedAt) : isExpired ? formatRelativeTime(activeDefense.expiresAt) : null;
 
   return (
@@ -528,13 +534,19 @@ const GameLobby: React.FC = () => {
               </div>
             </div>
 
-            <div className={clsx(styles.headerWin, styles[`headerWin--${headerInfo.variant}`])}>
-              {!['win', 'lose', 'refund'].includes(headerInfo.variant) && <span className={styles.headerMetaLabel}>{headerInfo.label}</span>}
-              <span className={styles.headerWinAmount}>
-                <span className={styles.star}>{star()}</span>
-                {headerInfo.sign}
-                {headerInfo.amount}
-              </span>
+            <div className={styles.headerWinGroup}>
+              <div className={clsx(styles.headerWin, styles[`headerWin--${headerInfo.variant}`])}>
+                {!['win', 'lose', 'refund'].includes(headerInfo.variant) && <span className={styles.headerMetaLabel}>{headerInfo.label}</span>}
+                <span className={styles.headerWinAmount}>
+                  <span className={styles.star}>{star()}</span>
+                  {headerInfo.sign}
+                  {headerInfo.amount}
+                </span>
+              </div>
+              <div className={styles.infoItem}>
+                <span>{bombsInfoText}</span>
+                <BombIcon className={styles.infoBombIcon} />
+              </div>
             </div>
 
             <div
@@ -570,12 +582,6 @@ const GameLobby: React.FC = () => {
             )}
           </div>
         </header>
-        <div className={styles.infoItem}>
-          <span className={styles.infoIcon}></span>
-          <span>
-            {uiConfig.gameLobby.findBombs(gameConfig.bombsCount)} <BombIcon />
-          </span>
-        </div>
         {/* Game Board */}
         <div className={styles.boardSection}>
           <GameBoard

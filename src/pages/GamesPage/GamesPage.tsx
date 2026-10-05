@@ -132,7 +132,7 @@ const GamesPage: React.FC = () => {
           {uiConfig.games.title} <span>{filteredDefenses.length}</span> <img src={uiConfig.icons.defense} width="32px" alt="" />
         </h1>
         <button className={styles.filterBtn} onClick={() => navigate('/history')}>
-          <Icon icon="timer" size={18} />
+          <Icon icon="timer" size={20} />
         </button>
       </motion.div>
 

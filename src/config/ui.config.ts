@@ -246,7 +246,9 @@ export const uiConfig = {
     radarError: 'Ошибка радара',
     genericError: 'Ошибка',
 
-    findBombs: (count: number) => `Осталось найти: ${count}`,
+    foundBombs: (found: number, total: number) => `Найдено ${found}/${total}`,
+    findBombs: (count: number) => `Найти ${count}`,
+    findBombsCallToAction: (count: number) => `Найди ${count}`,
 
     attack: 'Искать',
     attempts: 'Попытки',

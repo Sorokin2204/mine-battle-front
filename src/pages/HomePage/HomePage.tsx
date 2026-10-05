@@ -101,7 +101,7 @@ const HomePage: React.FC = () => {
         </div>
       </motion.div>
 
-      <motion.div className={styles.info} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.18, ease: 'easeOut' }}>
+      {/* <motion.div className={styles.info} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.18, ease: 'easeOut' }}>
         <h3 className={styles.infoTitle}>{uiConfig.home.howToPlay}</h3>
         <div className={styles.infoList}>
           {uiConfig.home.steps.map((step, index) => (
@@ -111,7 +111,7 @@ const HomePage: React.FC = () => {
             </div>
           ))}
         </div>
-      </motion.div>
+      </motion.div> */}
     </div>
   );
 };

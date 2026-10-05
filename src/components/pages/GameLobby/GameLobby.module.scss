@@ -179,9 +179,16 @@
   color: #fff;
 }
 
+.headerWinGroup {
+  align-self: start;
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
 .headerWin {
-  align-self: flex-start;
-  justify-self: start;
   width: 100px;
   height: 82px;
   display: flex;
@@ -290,14 +297,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: $spacing-sm;
-  font-size: $text-xl;
+  gap: $spacing-xs;
+  white-space: nowrap;
+  font-size: $text-sm;
   font-weight: 600;
   color: $text-primary;
 }
 
-.infoIcon {
-  font-size: $text-lg;
+.infoBombIcon {
+  margin-top: -2px;
 }
 
 .infoRow {
