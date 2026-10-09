@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-xl;
-  overflow: clip;
+  overflow: visible;
   // border-bottom: 1px solid #263041;
   padding-bottom: $spacing-lg;
 
@@ -58,6 +58,10 @@
   transition:
     transform $transition-fast,
     opacity $transition-fast;
+}
+
+.player:not(:has(.playerName)) {
+  opacity: 0.2;
 }
 
 .playerWinner {
@@ -111,7 +115,11 @@
 }
 
 .attackerRoleIcon {
-  transform: translateY(1px);
+  transform: translateY(0px);
+}
+
+.attackerRoleIconWaiting {
+  opacity: 0.2;
 }
 
 .playerInfo {
@@ -121,12 +129,20 @@
   min-width: 0;
 }
 
+.playerInfoMuted {
+  opacity: 0.2;
+}
+
 .playerName {
   font-size: $text-sm;
   font-weight: 700;
   line-height: 1.25;
   color: $text-primary;
   overflow-wrap: anywhere;
+}
+
+.playerNameWaiting {
+  opacity: 0.2;
 }
 
 .emptyAvatar {
@@ -158,8 +174,169 @@
   width: 100%;
 }
 
+.headerMetaGroup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.waitingHint {
+  position: absolute;
+  top: calc(100% + #{$spacing-md});
+  left: 50%;
+  z-index: 50;
+  box-sizing: border-box;
+  width: calc(100% - #{$spacing-2xl});
+  max-width: 320px;
+  margin: 0;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid rgba($primary-400, 0.2);
+  border-radius: $radius-md;
+  background: rgba($bg-card-2, 0.9);
+  color: $text-secondary;
+  font-size: $text-xs;
+  line-height: 1.4;
+  text-align: center;
+  white-space: pre-line;
+  transform: translateX(-50%);
+  cursor: pointer;
+  user-select: none;
+  animation: waitingHintAppear 300ms ease-out both;
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    border-top: 1px solid rgba($primary-400, 0.2);
+    border-left: 1px solid rgba($primary-400, 0.2);
+    background: rgba($bg-card-2, 0.9);
+    transform: translateY(50%) rotate(55deg);
+  }
+}
+
+.waitingHintDismissing {
+  animation: waitingHintDisappear 250ms ease-in forwards;
+}
+
+@keyframes waitingHintAppear {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes waitingHintDisappear {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+}
+
 .headerTimer {
   flex: 0 0 auto;
+}
+
+.resultIcon {
+  font-size: 32px;
+}
+
+.actionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // width: 40px;
+  // height: 40px;
+  flex: 0 0 40px;
+  // border-radius: $radius-full;
+  font-size: 24px;
+  color: $primary-400;
+  // background: rgba($primary-500, 0.2);
+
+  svg {
+    display: block;
+  }
+}
+
+.hourglass {
+  color: currentColor;
+}
+
+.hourglassMotion {
+  display: flex;
+  transform-origin: center;
+  will-change: transform;
+  animation: hourglassTurn 4s ease-in-out infinite;
+}
+
+.hourglassTop {
+  animation: hourglassTopSand 4s linear infinite;
+}
+
+.hourglassBottom {
+  animation: hourglassBottomSand 4s linear infinite;
+}
+
+@keyframes hourglassTurn {
+  0%,
+  37.5% {
+    transform: translateZ(0) rotate(0deg);
+  }
+
+  50%,
+  87.5% {
+    transform: translateZ(0) rotate(180deg);
+  }
+
+  100% {
+    transform: translateZ(0) rotate(360deg);
+  }
+}
+
+@keyframes hourglassTopSand {
+  0% {
+    opacity: 1;
+  }
+
+  37.5%,
+  50% {
+    opacity: 0;
+  }
+
+  87.5%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes hourglassBottomSand {
+  0% {
+    opacity: 0;
+  }
+
+  37.5%,
+  50% {
+    opacity: 1;
+  }
+
+  87.5%,
+  100% {
+    opacity: 0;
+  }
 }
 
 .headerStatus {
@@ -251,7 +428,7 @@
   outline: 0;
   background: transparent;
   box-shadow: none;
-  font-size: 34px;
+  font-size: 32px;
   font-weight: 900;
   line-height: 1;
   text-align: center;
@@ -369,6 +546,7 @@
 .tool {
   flex: 1;
   min-width: 0;
+  touch-action: none;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -426,9 +604,15 @@
 
 .toolIcon {
   display: block;
+  pointer-events: none;
+  user-select: none;
+
   & img {
     width: 40px;
     height: 40px;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
   }
 }
 

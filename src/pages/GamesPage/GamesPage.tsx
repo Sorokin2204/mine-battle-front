@@ -206,7 +206,7 @@ const GamesPage: React.FC = () => {
             ))
           ) : (
             <motion.div className={styles.empty} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <span className={styles.emptyIcon}>&#127919;</span>
+              <img className={styles.emptyIcon} src="/robber-with-money.png" alt="" />
               <p className={styles.emptyText}>{uiConfig.games.emptyTitle}</p>
               <p className={styles.emptyHint}>{uiConfig.games.emptyHint}</p>
             </motion.div>

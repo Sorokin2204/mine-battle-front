@@ -18,18 +18,51 @@ import { star } from '@/utils/icons';
 import BombIcon from '@/components/common/BombIcon';
 import { uiConfig } from '@/config/ui.config';
 
+type LobbyTool = 'click' | 'scanner' | 'radar';
+
+const WAITING_HINT_DELAY_MS = 5_000;
+
 const GameLobby: React.FC = () => {
   const dispatch = useAppDispatch();
   const { isOpen, defenseId } = useAppSelector((state) => state.ui.gameLobbyModal);
   const { activeDefense, isAttacking } = useAppSelector((state) => state.game);
   const { user } = useAppSelector((state) => state.auth);
 
-  const [activeTool, setActiveTool] = useState<'click' | 'scanner' | 'radar' | null>(null);
+  const [activeTool, setActiveTool] = useState<LobbyTool | null>(null);
+  const [isToolDragging, setIsToolDragging] = useState(false);
+  const toolDragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    tool: LobbyTool;
+    dragged: boolean;
+    scannerType: 'row' | 'column';
+  } | null>(null);
+  const suppressToolClickRef = useRef(false);
   const [isProcessingMove, setIsProcessingMove] = useState(false);
   const [isFinishingSequence, setIsFinishingSequence] = useState(false);
   const [revealFinishedBombs, setRevealFinishedBombs] = useState(true);
+  const [showWaitingHint, setShowWaitingHint] = useState(false);
+  const [isWaitingHintDismissing, setIsWaitingHintDismissing] = useState(false);
   const pendingClickRef = useRef<{ position: number; startedAt: number } | null>(null);
   const finishSequenceTimersRef = useRef<number[]>([]);
+
+  useEffect(() => {
+    setShowWaitingHint(false);
+    setIsWaitingHintDismissing(false);
+
+    if (!isOpen) return;
+
+    const timer = window.setTimeout(() => {
+      setShowWaitingHint(true);
+    }, WAITING_HINT_DELAY_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [isOpen, defenseId]);
+
+  const dismissWaitingHint = () => {
+    setIsWaitingHintDismissing(true);
+  };
 
   const clearFinishSequence = () => {
     finishSequenceTimersRef.current.forEach((timer) => window.clearTimeout(timer));
@@ -388,15 +421,6 @@ const GameLobby: React.FC = () => {
     }
   };
 
-  const handleTakeHalf = async () => {
-    if (!defenseId) return;
-    try {
-      await socketService.takeHalf(defenseId);
-    } catch (error: any) {
-      dispatch(showToast({ message: error.message || uiConfig.gameLobby.genericError, type: 'error' }));
-    }
-  };
-
   if (!activeDefense) return null;
 
   // Get config based on defense difficulty
@@ -417,7 +441,144 @@ const GameLobby: React.FC = () => {
   // The legacy API names these tool counters opposite to their UI names.
   const radarUsesLeft = Math.max(0, gameConfig.scanners - activeDefense.scannersUsed);
   const scannerUsesLeft = Math.max(0, gameConfig.radars - activeDefense.radarsUsed);
-  const canTakeHalf = activeDefense.bombsFound >= 1 && isAttackerRole && isGameActive;
+  const updateToolPreviewAtPosition = (tool: LobbyTool, position: number, scannerType: 'row' | 'column' = 'row') => {
+    const row = Math.floor(position / gameConfig.fieldSize);
+    const col = position % gameConfig.fieldSize;
+
+    if (tool === 'click') {
+      if (activeDefense.revealedCells.includes(position)) return;
+      handleAttemptPreview(position);
+      return;
+    }
+
+    if (tool === 'radar') {
+      const top = Math.min(row, gameConfig.fieldSize - 2);
+      const left = Math.min(col, gameConfig.fieldSize - 2);
+      const positions = [top * gameConfig.fieldSize + left, top * gameConfig.fieldSize + left + 1, (top + 1) * gameConfig.fieldSize + left, (top + 1) * gameConfig.fieldSize + left + 1];
+      setScannerPreview(positions);
+      socketService.updateToolPreview(activeDefense.id, { moveType: 'SCANNER', positions });
+      return;
+    }
+
+    const index = scannerType === 'row' ? row : col;
+    setRadarPreview({ type: scannerType, index, bombCount: -1 });
+    socketService.updateToolPreview(activeDefense.id, { moveType: 'RADAR', radarType: scannerType, index });
+  };
+
+  const selectTool = (tool: LobbyTool, position?: number, scannerType: 'row' | 'column' = 'row') => {
+    setActiveTool(tool);
+
+    if (tool === 'click') {
+      setScannerPreview(null);
+      setRadarPreview(null);
+      const firstClosedCell = Array.from({ length: gameConfig.fieldSize ** 2 }, (_, cell) => cell).find((cell) => !activeDefense.revealedCells.includes(cell)) ?? 0;
+      updateToolPreviewAtPosition(tool, position ?? firstClosedCell, scannerType);
+      return;
+    }
+
+    if (tool === 'radar') {
+      setAttemptPreview(null);
+      setRadarPreview(null);
+    } else {
+      setAttemptPreview(null);
+      setScannerPreview(null);
+    }
+
+    updateToolPreviewAtPosition(tool, position ?? 0, scannerType);
+  };
+
+  const getBoardPositionAtPoint = (clientX: number, clientY: number) => {
+    const cell = document.elementsFromPoint(clientX, clientY).find((element) => element instanceof HTMLElement && element.dataset.boardPosition !== undefined) as HTMLElement | undefined;
+    if (!cell) return null;
+
+    const position = Number(cell.dataset.boardPosition);
+    return Number.isInteger(position) ? position : null;
+  };
+
+  const getBottomBoardPositionAtX = (clientX: number) => {
+    const bottomRowStart = gameConfig.fieldSize * (gameConfig.fieldSize - 1);
+    const bottomRowCells = Array.from(document.querySelectorAll<HTMLElement>('[data-board-position]')).filter((cell) => {
+      const position = Number(cell.dataset.boardPosition);
+      return Number.isInteger(position) && position >= bottomRowStart;
+    });
+
+    const nearestCell = bottomRowCells.reduce<HTMLElement | null>((nearest, cell) => {
+      if (!nearest) return cell;
+
+      const cellCenterX = cell.getBoundingClientRect().left + cell.getBoundingClientRect().width / 2;
+      const nearestRect = nearest.getBoundingClientRect();
+      const nearestCenterX = nearestRect.left + nearestRect.width / 2;
+      return Math.abs(clientX - cellCenterX) < Math.abs(clientX - nearestCenterX) ? cell : nearest;
+    }, null);
+
+    const position = Number(nearestCell?.dataset.boardPosition);
+    return Number.isInteger(position) ? position : bottomRowStart;
+  };
+
+  const handleToolPointerDown = (event: React.PointerEvent<HTMLButtonElement>, tool: LobbyTool) => {
+    if (event.button !== 0) return;
+    suppressToolClickRef.current = false;
+    toolDragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      tool,
+      dragged: false,
+      scannerType: tool === 'scanner' && activeTool === 'scanner' ? radarPreview?.type || 'row' : 'row',
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleToolPointerMove = (event: React.PointerEvent<HTMLButtonElement>) => {
+    const drag = toolDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    if (!drag.dragged && Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < 8) return;
+
+    event.preventDefault();
+    const position = getBoardPositionAtPoint(event.clientX, event.clientY);
+
+    if (!drag.dragged) {
+      drag.dragged = true;
+      suppressToolClickRef.current = true;
+      setIsToolDragging(true);
+      // The controls sit below the board, so a drag starts outside its cells.
+      // Anchor the initial preview to the nearest cell in the bottom row instead
+      // of falling back to position 0 at the top of the board.
+      selectTool(drag.tool, position ?? getBottomBoardPositionAtX(event.clientX), drag.scannerType);
+      return;
+    }
+
+    if (position !== null) updateToolPreviewAtPosition(drag.tool, position, drag.scannerType);
+  };
+
+  const finishToolDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
+    const drag = toolDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    if (drag.dragged) {
+      const position = getBoardPositionAtPoint(event.clientX, event.clientY);
+      if (position !== null) updateToolPreviewAtPosition(drag.tool, position, drag.scannerType);
+      suppressToolClickRef.current = true;
+    }
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    toolDragRef.current = null;
+    setIsToolDragging(false);
+  };
+
+  const handleToolClick = (tool: LobbyTool) => {
+    if (suppressToolClickRef.current) {
+      suppressToolClickRef.current = false;
+      return;
+    }
+
+    if (activeTool === tool) {
+      placeTool();
+    } else {
+      selectTool(tool);
+    }
+  };
 
   // Calculate potential win - net profit is defender's bet (attacker gets their bet back + defender's bet)
   // No commission currently applied
@@ -554,9 +715,17 @@ const GameLobby: React.FC = () => {
                 [styles.playerWinner]: isFinished && Boolean(activeDefense.attacker) && resolvedWinnerId === activeDefense.attacker?.id,
                 [styles.playerLoser]: isFinished && Boolean(activeDefense.attacker) && Boolean(resolvedWinnerId) && resolvedWinnerId !== activeDefense.attacker?.id,
               })}>
-              <div className={styles.playerInfo}>
-                <span className={styles.playerName}>{activeDefense.attacker ? activeDefense.attacker.firstName || activeDefense.attacker.username || uiConfig.common.attacker : uiConfig.common.waiting}</span>
-                <img className={clsx(styles.roleIcon, styles.attackerRoleIcon)} src={uiConfig.icons.attack} alt="" />
+              <div className={clsx(styles.playerInfo, { [styles.playerInfoMuted]: isExpired })}>
+                <span className={clsx(styles.playerName, { [styles.playerNameWaiting]: isWaiting && !isExpired })}>
+                  {activeDefense.attacker ? activeDefense.attacker.firstName || activeDefense.attacker.username || uiConfig.common.attacker : uiConfig.common.waiting}
+                </span>
+                <img
+                  className={clsx(styles.roleIcon, styles.attackerRoleIcon, {
+                    [styles.attackerRoleIconWaiting]: isWaiting && !isExpired,
+                  })}
+                  src={uiConfig.icons.attack}
+                  alt=""
+                />
               </div>
               <div
                 className={clsx(styles.avatarWrap, styles.attackerAvatarWrap, {
@@ -568,17 +737,53 @@ const GameLobby: React.FC = () => {
             </div>
           </div>
 
-          <div className={styles.headerMeta}>
-            <div className={styles.headerStatus}>
-              <div className={styles.statusValue}>
-                {/* {(isFinished || isExpired) && finishedTime && <span className={styles.finishedTime}>{finishedTime}</span>} */}
-                {getStatusBadge()}
+          <div className={styles.headerMetaGroup}>
+            <div className={styles.headerMeta}>
+              <div className={styles.headerStatus}>
+                <div className={styles.statusValue}>
+                  {/* {(isFinished || isExpired) && finishedTime && <span className={styles.finishedTime}>{finishedTime}</span>} */}
+                  {getStatusBadge()}
+                </div>
               </div>
+              {isGameActive && activeDefense.moveDeadline && (
+                <div className={styles.headerTimer}>
+                  <Timer endTime={new Date(activeDefense.moveDeadline).getTime()} type="countdown" onExpire={() => void loadDefense()} />
+                </div>
+              )}
+              {isWaiting && !isExpired && (
+                <div className={styles.resultIcon}>
+                  <span className={styles.actionIcon} aria-hidden="true">
+                    <span className={styles.hourglassMotion}>
+                      <svg className={styles.hourglass} xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24">
+                        <g fill="currentColor">
+                          <path className={styles.hourglassTop} d="M7 3H17V7.2L12 12L7 7.2V3Z" />
+                          <path className={styles.hourglassBottom} d="M17 21H7V16.8L12 12L17 16.8V21Z" />
+                          <path d="M6 2V8H6.01L6 8.01L10 12L6 16L6.01 16.01H6V22H18V16.01H17.99L18 16L14 12L18 8.01L17.99 8H18V2H6ZM16 16.5V20H8V16.5L12 12.5L16 16.5ZM12 11.5L8 7.5V4H16V7.5L12 11.5Z" />
+                        </g>
+                      </svg>
+                    </span>
+                  </span>
+                </div>
+              )}
             </div>
-            {isGameActive && activeDefense.moveDeadline && (
-              <div className={styles.headerTimer}>
-                <Timer endTime={new Date(activeDefense.moveDeadline).getTime()} type="countdown" onExpire={() => void loadDefense()} />
-              </div>
+            {isWaiting && !isExpired && showWaitingHint && (
+              <p
+                className={clsx(styles.waitingHint, {
+                  [styles.waitingHintDismissing]: isWaitingHintDismissing,
+                })}
+                role="button"
+                tabIndex={0}
+                onClick={dismissWaitingHint}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') dismissWaitingHint();
+                }}
+                onAnimationEnd={() => {
+                  if (!isWaitingHintDismissing) return;
+                  setShowWaitingHint(false);
+                  setIsWaitingHintDismissing(false);
+                }}>
+                {uiConfig.gameLobby.waitingHint}
+              </p>
             )}
           </div>
         </header>
@@ -600,6 +805,8 @@ const GameLobby: React.FC = () => {
             onAttemptConfirmed={canMakeMove ? confirmAttempt : undefined}
             onScannerConfirmed={canMakeMove ? confirmScanner : undefined}
             onRadarConfirmed={canMakeMove ? confirmRadar : undefined}
+            onToolCancel={canMakeMove ? cancelTool : undefined}
+            isToolDragging={isToolDragging}
             scannerPositions={scannerPreview || []}
             scannerResults={activeDefense.scannerResults || []}
             radarResult={radarPreview}
@@ -622,15 +829,15 @@ const GameLobby: React.FC = () => {
           <div className={styles.gameInfo}>
             <div className={styles.summary}>
               <div className={styles.summaryRow}>
-                <span>{uiConfig.gameLobby.attempts}</span>
-                <span>
-                  <img src={uiConfig.icons.attempt} alt="" /> {attemptsLeft}
-                </span>
-              </div>
-              <div className={styles.summaryRow}>
                 <span>{uiConfig.gameLobby.radars}</span>
                 <span>
                   <img src={uiConfig.icons.radar} alt="" /> {radarUsesLeft}
+                </span>
+              </div>
+              <div className={styles.summaryRow}>
+                <span>{uiConfig.gameLobby.attempts}</span>
+                <span>
+                  <img src={uiConfig.icons.attempt} alt="" /> {attemptsLeft}
                 </span>
               </div>
               <div className={styles.summaryRow}>
@@ -652,19 +859,11 @@ const GameLobby: React.FC = () => {
                 <button
                   className={clsx(styles.tool, styles.toolRadar, { [styles.toolPlace]: activeTool === 'radar' })}
                   aria-label={activeTool === 'radar' ? uiConfig.common.place : undefined}
-                  onClick={() => {
-                    if (activeTool === 'radar') {
-                      placeTool();
-                    } else {
-                      setActiveTool('radar');
-                      setAttemptPreview(null);
-                      setRadarPreview(null);
-                      // The radar covers a movable 2x2 area.
-                      const positions = [0, 1, gameConfig.fieldSize, gameConfig.fieldSize + 1];
-                      setScannerPreview(positions);
-                      socketService.updateToolPreview(activeDefense.id, { moveType: 'SCANNER', positions });
-                    }
-                  }}
+                  onPointerDown={(event) => handleToolPointerDown(event, 'radar')}
+                  onPointerMove={handleToolPointerMove}
+                  onPointerUp={finishToolDrag}
+                  onPointerCancel={finishToolDrag}
+                  onClick={() => handleToolClick('radar')}
                   disabled={radarUsesLeft <= 0 || isProcessingMove}>
                   {activeTool === 'radar' ? (
                     <span className={styles.toolPlaceLabel}>
@@ -681,7 +880,7 @@ const GameLobby: React.FC = () => {
                   ) : (
                     <>
                       <span className={styles.toolIcon}>
-                        <img src={uiConfig.icons.radar} alt="" />
+                        <img src={uiConfig.icons.radar} alt="" draggable={false} />
                       </span>
                       <span className={styles.toolName}>{uiConfig.gameLobby.radar}</span>
                       <span className={styles.toolCount}>{radarUsesLeft}</span>
@@ -691,18 +890,11 @@ const GameLobby: React.FC = () => {
                 <button
                   className={clsx(styles.tool, styles.toolAttempt, { [styles.toolPlace]: activeTool === 'click' })}
                   aria-label={activeTool === 'click' ? uiConfig.common.place : undefined}
-                  onClick={() => {
-                    if (activeTool === 'click') {
-                      placeTool();
-                    } else {
-                      const firstClosedCell = Array.from({ length: gameConfig.fieldSize ** 2 }, (_, position) => position).find((position) => !activeDefense.revealedCells.includes(position)) ?? 0;
-                      setActiveTool('click');
-                      setScannerPreview(null);
-                      setRadarPreview(null);
-                      setAttemptPreview(firstClosedCell);
-                      socketService.updateToolPreview(activeDefense.id, { moveType: 'CLICK', position: firstClosedCell });
-                    }
-                  }}
+                  onPointerDown={(event) => handleToolPointerDown(event, 'click')}
+                  onPointerMove={handleToolPointerMove}
+                  onPointerUp={finishToolDrag}
+                  onPointerCancel={finishToolDrag}
+                  onClick={() => handleToolClick('click')}
                   disabled={attemptsLeft <= 0 || isProcessingMove}>
                   {activeTool === 'click' ? (
                     <span className={styles.toolPlaceLabel}>
@@ -719,7 +911,7 @@ const GameLobby: React.FC = () => {
                   ) : (
                     <>
                       <span className={styles.toolIcon}>
-                        <img src={uiConfig.icons.attempt} alt="" />
+                        <img src={uiConfig.icons.attempt} alt="" draggable={false} />
                       </span>
                       <span className={styles.toolName}>{uiConfig.gameLobby.attempt}</span>
                       <span className={styles.toolCount}>{attemptsLeft}</span>
@@ -729,18 +921,11 @@ const GameLobby: React.FC = () => {
                 <button
                   className={clsx(styles.tool, styles.toolScanner, { [styles.toolPlace]: activeTool === 'scanner' })}
                   aria-label={activeTool === 'scanner' ? uiConfig.common.place : undefined}
-                  onClick={() => {
-                    if (activeTool === 'scanner') {
-                      placeTool();
-                    } else {
-                      setActiveTool('scanner');
-                      setAttemptPreview(null);
-                      setScannerPreview(null);
-                      // The scanner starts on the first row.
-                      setRadarPreview({ type: 'row', index: 0, bombCount: -1 });
-                      socketService.updateToolPreview(activeDefense.id, { moveType: 'RADAR', radarType: 'row', index: 0 });
-                    }
-                  }}
+                  onPointerDown={(event) => handleToolPointerDown(event, 'scanner')}
+                  onPointerMove={handleToolPointerMove}
+                  onPointerUp={finishToolDrag}
+                  onPointerCancel={finishToolDrag}
+                  onClick={() => handleToolClick('scanner')}
                   disabled={scannerUsesLeft <= 0 || isProcessingMove}>
                   {activeTool === 'scanner' ? (
                     <span className={styles.toolPlaceLabel}>
@@ -757,7 +942,7 @@ const GameLobby: React.FC = () => {
                   ) : (
                     <>
                       <span className={styles.toolIcon}>
-                        <img src={uiConfig.icons.scanner} alt="" />
+                        <img src={uiConfig.icons.scanner} alt="" draggable={false} />
                       </span>
                       <span className={styles.toolName}>{uiConfig.gameLobby.scanner}</span>
                       <span className={styles.toolCount}>{scannerUsesLeft}</span>

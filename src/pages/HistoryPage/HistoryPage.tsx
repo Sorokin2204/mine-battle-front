@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import styles from './HistoryPage.module.scss';
 import HistoryCard from './HistoryCard';
 import { useAppSelector, useAppDispatch } from '@/hooks/useAppDispatch';
@@ -9,6 +10,7 @@ import { DefensePublic } from '@/types';
 import { uiConfig } from '@/config/ui.config';
 
 const HistoryPage: React.FC = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const [finishedGames, setFinishedGames] = useState<DefensePublic[]>([]);
@@ -28,9 +30,7 @@ const HistoryPage: React.FC = () => {
       if (requestId !== requestIdRef.current) return;
 
       const knownIds = new Set(gamesRef.current.map((game) => game.id));
-      const nextGames = append
-        ? [...gamesRef.current, ...page.items.filter((game) => !knownIds.has(game.id))]
-        : page.items;
+      const nextGames = append ? [...gamesRef.current, ...page.items.filter((game) => !knownIds.has(game.id))] : page.items;
 
       gamesRef.current = nextGames;
       setFinishedGames(nextGames);
@@ -84,9 +84,16 @@ const HistoryPage: React.FC = () => {
   return (
     <div className={styles.page}>
       <motion.div className={styles.header} initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+        <button className={styles.filterBtn} type="button" aria-label={uiConfig.history.backToGames} onClick={() => navigate('/games')}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="m15 6l-6 6l6 6" />
+          </svg>
+        </button>
         <h1 className={styles.title}>
           {uiConfig.history.title} <span>{total}</span> <img src={uiConfig.icons.history} alt="" />
         </h1>
+        <span className={styles.headerSpacer} aria-hidden="true" />
       </motion.div>
 
       <div className={styles.list}>

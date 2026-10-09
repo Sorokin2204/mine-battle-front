@@ -10,10 +10,16 @@
  * Меняйте здесь подписи, сообщения и пути к изображениям. Компоненты не
  * должны содержать пользовательские тексты или пути к графике напрямую.
  */
+
 export const uiConfig = {
   icons: {
     bomb: '/money.png',
     attack: '/search-1.png',
+    police: '/police.png',
+    policeMask: '/police-mask.png',
+    policeInCar: '/police-in-car.png',
+    robber: '/robber.png',
+    robberMask: '/robber-mask.png',
     autoMatch: '/search-1.png',
     defense: '/money.png',
     money: '/money.png',
@@ -31,7 +37,7 @@ export const uiConfig = {
     player: 'Игрок',
     defender: 'Прячущий',
     attacker: 'Искатель',
-    waiting: 'Ожидание',
+    waiting: 'Соперник',
     bet: 'Ставка',
     winnings: 'Выигрыш',
     loss: 'Проигрыш',
@@ -40,7 +46,7 @@ export const uiConfig = {
     refund: 'Возврат',
     completed: 'Завершена',
     expired: 'Истекла',
-    waitingForAttack: 'Ожидание поиска',
+    waitingForAttack: 'Поиск соперника',
     attackInProgress: 'Идет поиск',
     cancel: 'Отмена',
     close: 'Закрыть',
@@ -52,15 +58,15 @@ export const uiConfig = {
   difficulty: {
     EASY: {
       label: 'Легкий',
-      description: '3×3, 2 бомбы',
+      description: '3×3, 2 ценности',
     },
     MEDIUM: {
       label: 'Средний',
-      description: '4×4, 1 бомба',
+      description: '4×4, 1 ценность',
     },
     HARD: {
       label: 'Сложный',
-      description: '5×5, 3 бомбы',
+      description: '5×5, 3 ценности',
     },
   },
 
@@ -78,7 +84,7 @@ export const uiConfig = {
 
     items: {
       home: 'Главная',
-      games: 'Тайники',
+      games: 'Лобби',
       leaders: 'Лидеры',
     },
 
@@ -89,20 +95,30 @@ export const uiConfig = {
     },
   },
 
+  defenseAttackAlert: {
+    title: 'Соперник найден!',
+    message: (name: string) => `${name} атакует вашу защиту`,
+    hint: 'Нажмите, чтобы открыть игру',
+    openGame: 'Открыть атакованную защиту',
+  },
+
   home: {
     attackTitle: 'Искать',
-    attackDescription: 'Выбери тайник и найди спрятанное',
+    attackDescription: 'Найди спрятанные ценности',
+
+    autoMatchTitle: 'Автопоиск',
+    autoMatchDescription: 'Автоматический подбор игры',
 
     defenseTitle: 'Спрятать',
-    defenseDescription: 'Спрячь предметы и поставь ставку',
+    defenseDescription: 'Спрячь ценности и поставь ставку',
 
     howToPlay: 'Как играть?',
 
-    steps: ['Создай тайник: поставь ставку и спрячь предметы на поле', 'Или выбери чужой тайник и попробуй найти спрятанное', 'Используй сканер и радар для поиска', 'Найди всё спрятанное — выиграй ставку!'],
+    steps: ['Поставь ставку и спрячь ценности на поле', 'Или найди ценности, спрятанные другим игроком', 'Используй сканер и радар для поиска', 'Найди все ценности — выиграй ставку!'],
   },
 
   games: {
-    title: 'Тайники',
+    title: 'Лобби',
 
     tabs: {
       all: 'Все',
@@ -119,8 +135,8 @@ export const uiConfig = {
     to: 'До',
     resetFilters: 'Сбросить фильтры',
 
-    emptyTitle: 'Нет доступных тайников',
-    emptyHint: 'Создайте первый тайник!',
+    emptyTitle: 'Нет доступных лобби',
+    emptyHint: 'Создайте лобби первым',
     createDefense: 'Спрятать',
   },
 
@@ -131,29 +147,30 @@ export const uiConfig = {
         icon: '/controller.png',
       },
       attacks: {
-        title: 'Мои поиски',
-        icon: '/two-swords.webp',
+        title: 'Я искал',
+        icon: '/search-1.png',
       },
       defenses: {
-        title: 'Мои тайники',
-        icon: '/shield_small.webp',
+        title: 'Я спрятал',
+        icon: '/money.png',
       },
     },
 
     tabs: {
       all: 'Все',
-      attacks: 'Мои поиски',
-      defenses: 'Мои тайники',
+      attacks: 'Я искал',
+      defenses: 'Я спрятал',
     },
 
     emptyTitle: 'Нет игр',
-    emptyHint: 'Спрячьте предметы или начните поиск',
+    emptyHint: 'Спрячьте ценности или начните поиск',
     retry: 'Повторить',
     loadError: 'Не удалось загрузить игры',
   },
 
   history: {
     title: 'История игр',
+    backToGames: 'Вернуться к списку игр',
     emptyTitle: 'История пуста',
     emptyHint: 'Завершенные игры появятся здесь',
     loading: 'Загрузка...',
@@ -168,23 +185,23 @@ export const uiConfig = {
     bet: 'Ставка',
     betPlaceholder: 'Введите ставку',
 
-    placeBombs: 'Спрячьте предметы',
+    placeBombs: 'Спрячьте ценности',
 
     createRandom: 'Спрятать случайно',
-    create: 'Создать тайник',
+    create: 'Спрятать ценности',
 
     insufficientFunds: 'Недостаточно средств',
-    created: 'Тайник создан!',
-    createError: 'Ошибка создания тайника',
+    created: 'Ценности спрятаны!',
+    createError: 'Ошибка',
 
-    placeBombsError: (count: number) => `Разместите ${count} ${count === 1 ? 'предмет' : 'предмета'}`,
+    placeBombsError: (count: number) => `Разместите ${count} ${count === 1 ? 'ценность' : count >= 2 && count <= 4 ? 'ценности' : 'ценностей'}`,
 
     betRangeError: (min: number, max: number) => `Ставка должна быть от ${min} до ${max}`,
   },
 
   searchAttack: {
     title: 'Автопоиск',
-    subtitle: 'Автоматический подбор тайника',
+    subtitle: 'Автоматический подбор игры',
 
     betRange: 'Диапазон ставки',
     from: 'От',
@@ -194,15 +211,15 @@ export const uiConfig = {
     searching: 'Ищем...',
     cancelHint: 'Нажмите для отмены',
 
-    found: 'Тайник найден!',
+    found: 'Игра найдена!',
 
-    infoMatch: 'Когда найдется подходящий тайник, вы автоматически начнете поиск',
+    infoMatch: 'Когда найдется подходящая игра, вы автоматически начнете поиск',
 
-    infoCharge: 'Звезды спишутся автоматически при нахождении тайника',
+    infoCharge: 'Звезды спишутся автоматически после подбора игры',
 
     confirmTitle: 'Подтверждение поиска',
 
-    confirmText: 'Когда найдется подходящий тайник, звезды спишутся автоматически.',
+    confirmText: 'Когда найдется подходящая игра, звезды спишутся автоматически.',
 
     confirmRange: 'Диапазон ставки:',
 
@@ -219,7 +236,7 @@ export const uiConfig = {
     win: {
       emoji: '🤑',
       title: 'Вы победили',
-      subtitle: 'Всё найдено!',
+      subtitle: 'Все ценности найдены!',
     },
 
     lose: {
@@ -230,7 +247,7 @@ export const uiConfig = {
 
     half: {
       emoji: '🙂',
-      title: 'Вы нашли часть',
+      title: 'Вы нашли часть ценностей',
       subtitle: 'И забрали половину ставки',
     },
 
@@ -240,6 +257,7 @@ export const uiConfig = {
   gameLobby: {
     attackStarted: 'Поиск начался!',
     attackError: 'Ошибка начала поиска',
+    waitingHint: 'Это займёт некоторое время.\nМожно закрыть окно — о найденном сопернике придёт уведомление в Telegram.',
     moveError: 'Ошибка хода',
     scannerError: 'Ошибка сканера',
     selectClosedCell: 'Выберите закрытую клетку',
@@ -247,7 +265,9 @@ export const uiConfig = {
     genericError: 'Ошибка',
 
     foundBombs: (found: number, total: number) => `Найдено ${found}/${total}`,
+
     findBombs: (count: number) => `Найти ${count}`,
+
     findBombsCallToAction: (count: number) => `Найди ${count}`,
 
     attack: 'Искать',
@@ -284,7 +304,7 @@ export const uiConfig = {
   },
 
   accessibility: {
-    bomb: 'Спрятанный предмет',
+    bomb: 'Ценность',
 
     avatar: (name?: string | null) => (name ? `Аватар ${name}` : 'Аватар игрока'),
   },

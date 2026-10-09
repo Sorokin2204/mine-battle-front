@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import styles from './Layout.module.scss';
 import Header from '../Header';
 import BottomNav from '../BottomNav';
+import DefenseAttackAlert from '../DefenseAttackAlert';
 
 const Layout: React.FC = () => {
   return (
@@ -11,6 +12,7 @@ const Layout: React.FC = () => {
       <main className={styles.main}>
         <Outlet />
       </main>
+      <DefenseAttackAlert />
       <BottomNav />
     </div>
   );

@@ -269,7 +269,9 @@
   font-size: $text-sm;
   font-weight: 700;
   white-space: nowrap;
-  transition: box-shadow $transition-fast, transform $transition-fast;
+  transition:
+    box-shadow $transition-fast,
+    transform $transition-fast;
 
   img {
     display: block;
@@ -304,7 +306,10 @@
 }
 
 .emptyIcon {
-  font-size: 64px;
+  display: block;
+  width: 360px;
+  max-width: 60vw;
+  height: auto;
   margin-bottom: $spacing-lg;
   opacity: 0.5;
 }

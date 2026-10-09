@@ -12,6 +12,31 @@
   justify-content: space-between;
 }
 
+.filterBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  background: $bg-card;
+  border: 1px solid transparent;
+  border-radius: $radius-md;
+  color: $text-secondary;
+  transition: all $transition-fast;
+
+  svg {
+    display: block;
+  }
+}
+
+.headerSpacer {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+}
+
 .title {
   text-transform: uppercase;
   font-weight: 900;
@@ -19,7 +44,7 @@
   display: flex;
   align-items: center;
   color: $text-primary;
-  margin: 0 auto;
+  margin: 0;
   gap: 4px;
   & span {
     margin-left: 8px;

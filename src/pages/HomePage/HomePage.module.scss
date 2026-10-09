@@ -56,6 +56,19 @@
   }
 }
 
+.bannerAutoMatch {
+  background: linear-gradient(270deg, #ff8a00 0%, #ffb84d 100%);
+  box-shadow: 0 8px 28px rgba($yellow-500, 0.45);
+
+  &:hover {
+    box-shadow: 0 10px 32px rgba($yellow-500, 0.6);
+  }
+
+  &::before {
+    background: #ffd280;
+  }
+}
+
 // Attack section with split buttons
 .attackSection {
   position: relative;
@@ -143,7 +156,7 @@
   align-items: center;
   gap: $spacing-lg;
   position: relative;
-  z-index: 1;
+  z-index: 6;
 }
 
 .bannerIcon {
@@ -212,6 +225,27 @@
   position: absolute;
   bottom: 0;
   right: 0;
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+.searchBannerArrow {
+  width: 380px;
+  transform: translate(120px, -24px);
+}
+
+.autoMatchBannerArrow {
+  width: 280px;
+  transform: translate(-49px, -6px) scale(1.5);
+}
+
+.defenseBannerArrow {
+  width: 320px;
+  transform: translate(90px, -23px);
 }
 
 .info {

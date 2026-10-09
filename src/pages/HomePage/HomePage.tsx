@@ -83,8 +83,8 @@ const HomePage: React.FC = () => {
             <p className={styles.bannerDesc}>{uiConfig.home.attackDescription}</p>
           </div>
         </div>
-        <div className={styles.bannerArrow}>
-          <img src={uiConfig.icons.attack} alt="" />
+        <div className={`${styles.bannerArrow} ${styles.searchBannerArrow}`}>
+          <img src={uiConfig.icons.police} alt="" />
         </div>
       </motion.div>
 
@@ -96,8 +96,8 @@ const HomePage: React.FC = () => {
             <p className={styles.bannerDesc}>{uiConfig.home.defenseDescription}</p>
           </div>
         </div>
-        <div className={styles.bannerArrow}>
-          <img src={uiConfig.icons.money} alt="" />
+        <div className={`${styles.bannerArrow} ${styles.defenseBannerArrow}`}>
+          <img src={uiConfig.icons.robber} alt="" />
         </div>
       </motion.div>
 

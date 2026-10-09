@@ -28,6 +28,11 @@
   &--attempt-active {
     animation: activeGridBreathing 1.2s ease-in-out infinite;
   }
+
+  &--tool-dragging {
+    --active-cell-scale: 1;
+    animation: none;
+  }
 }
 
 .cell {
@@ -227,7 +232,7 @@
 }
 
 .hiddenBomb {
-  opacity: 0.3;
+  opacity: 1;
 }
 
 @keyframes failedCellReveal {
@@ -323,6 +328,86 @@
     width 220ms cubic-bezier(0.22, 1, 0.36, 1),
     height 220ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: left, top, width, height;
+}
+
+.toolActions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  display: flex;
+  gap: 8px;
+  width: max-content;
+  translate: -50% 0;
+  transform-origin: center top;
+  z-index: 120;
+  pointer-events: auto;
+
+  &--above {
+    top: auto;
+    bottom: calc(100% + 8px);
+    transform-origin: center bottom;
+  }
+
+  &--medium .toolAction {
+    width: 48px;
+    height: 48px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &--hard .toolAction {
+    width: 40px;
+    height: 40px;
+
+    svg {
+      width: 15px;
+      height: 15px;
+    }
+  }
+}
+
+.toolAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  border: 0;
+  border-radius: $radius-full;
+  color: $white;
+  cursor: pointer;
+  touch-action: manipulation;
+  box-shadow: 0 4px 20px rgba(#000, 0.28);
+
+  svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  &--cancel {
+    background: rgba($red-500, 0.96);
+  }
+
+  &--confirm {
+    background: rgba($green-500, 0.96);
+
+    svg {
+      width: 25px;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid $white;
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
 }
 
 .draggableScanner {

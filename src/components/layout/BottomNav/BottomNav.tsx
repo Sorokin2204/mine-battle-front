@@ -134,23 +134,15 @@ const BottomNav: React.FC = () => {
                 type="button"
                 className={clsx(styles.actionButton, styles.attackButton)}
                 onClick={() => goTo('/games')}>
-                <img src={uiConfig.icons.attack} alt="" />
+                <img src={uiConfig.icons.policeMask} alt="" />
                 <span>{uiConfig.navigation.actions.attack}</span>
-              </button>
-
-              <button
-                type="button"
-                className={clsx(styles.actionButton, styles.autoMatchButton)}
-                onClick={() => goTo('/search-attack')}>
-                <img src={uiConfig.icons.autoMatch} alt="" />
-                <span>{uiConfig.navigation.actions.autoMatch}</span>
               </button>
 
               <button
                 type="button"
                 className={styles.actionButton}
                 onClick={() => goTo('/create-defense')}>
-                <img src={uiConfig.icons.defense} alt="" />
+                <img src={uiConfig.icons.robberMask} alt="" />
                 <span>{uiConfig.navigation.actions.createDefense}</span>
               </button>
             </motion.div>

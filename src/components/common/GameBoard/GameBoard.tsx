@@ -5,6 +5,7 @@ import styles from './GameBoard.module.scss';
 import { gameConfig as defaultGameConfig } from '@/config/game.config';
 import type { RadarResult, ScannerResult } from '@/types';
 import BombIcon from '../BombIcon';
+import Icon from '../Icon/Icon';
 import { uiConfig } from '@/config/ui.config';
 
 interface GameBoardProps {
@@ -30,12 +31,15 @@ interface GameBoardProps {
   onScannerConfirmed?: () => void;
   onRadarConfirmed?: () => void;
   onAttemptConfirmed?: () => void;
+  onToolCancel?: () => void;
   onRadarTypeToggle?: () => void;
+  isToolDragging?: boolean;
   fieldSize?: number;
 }
 
 // Draggable Scanner Overlay
 interface DraggableScannerProps {
+  fieldSize: number;
   currentRow: number;
   currentCol: number;
   cellSize: number;
@@ -43,8 +47,66 @@ interface DraggableScannerProps {
   gap: number;
   onDragStart: (clientX: number, clientY: number) => void;
   onDragMove: (clientX: number, clientY: number) => void;
+  showActions: boolean;
   onActivate?: () => void;
+  onCancel?: () => void;
 }
+
+interface ToolActionsProps {
+  fieldSize: number;
+  placeAbove: boolean;
+  visible: boolean;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+}
+
+const ToolActions: React.FC<ToolActionsProps> = ({ fieldSize, placeAbove, visible, onConfirm, onCancel }) => {
+  const sizeClass = fieldSize === 4 ? styles['toolActions--medium'] : fieldSize >= 5 ? styles['toolActions--hard'] : undefined;
+
+  const stopPointerEvent = (event: React.PointerEvent<HTMLDivElement | HTMLButtonElement>) => {
+    event.stopPropagation();
+  };
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          className={clsx(styles.toolActions, sizeClass, { [styles['toolActions--above']]: placeAbove })}
+          initial={{ opacity: 0, scale: 0.75, y: placeAbove ? 6 : -6 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.75 }}
+          transition={{ duration: 0.16, ease: 'easeOut' }}
+          onPointerDown={stopPointerEvent}
+          onClick={(event) => event.stopPropagation()}>
+          <button
+            type="button"
+            className={clsx(styles.toolAction, styles['toolAction--cancel'])}
+            aria-label={uiConfig.common.cancel}
+            onPointerDown={stopPointerEvent}
+            onClick={(event) => {
+              event.stopPropagation();
+              onCancel?.();
+            }}>
+            <Icon icon="close" />
+          </button>
+          <button
+            type="button"
+            className={clsx(styles.toolAction, styles['toolAction--confirm'])}
+            aria-label={uiConfig.common.place}
+            onPointerDown={stopPointerEvent}
+            onClick={(event) => {
+              event.stopPropagation();
+              onConfirm?.();
+            }}>
+            <svg aria-hidden="true" viewBox="0 0 1600 1280">
+              <path fill="currentColor" d="M1575 310q0 40-28 68l-724 724l-136 136q-28 28-68 28t-68-28l-136-136L53 740q-28-28-28-68t28-68l136-136q28-28 68-28t68 28l294 295l656-657q28-28 68-28t68 28l136 136q28 28 28 68" />
+            </svg>
+          </button>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
 
 const usePointerDrag = (onDragStart: (clientX: number, clientY: number) => void, onDragMove: (clientX: number, clientY: number) => void, onActivate?: () => void) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -96,7 +158,7 @@ const usePointerDrag = (onDragStart: (clientX: number, clientY: number) => void,
   };
 };
 
-const DraggableScanner: React.FC<DraggableScannerProps> = ({ currentRow, currentCol, cellSize, gridPadding, gap, onDragStart, onDragMove, onActivate }) => {
+const DraggableScanner: React.FC<DraggableScannerProps> = ({ fieldSize, currentRow, currentCol, cellSize, gridPadding, gap, onDragStart, onDragMove, showActions, onActivate, onCancel }) => {
   const { isDragging, pointerHandlers } = usePointerDrag(onDragStart, onDragMove, onActivate);
   const animationControls = useAnimationControls();
   const hasAppeared = useRef(false);
@@ -139,6 +201,7 @@ const DraggableScanner: React.FC<DraggableScannerProps> = ({ currentRow, current
           <img src={uiConfig.icons.radar} alt="" draggable={false} />
         </span>
       </motion.div>
+      <ToolActions fieldSize={fieldSize} placeAbove={currentRow >= fieldSize - 2} visible={showActions && !isDragging} onConfirm={onActivate} onCancel={onCancel} />
     </motion.div>
   );
 };
@@ -154,10 +217,12 @@ interface DraggableRadarProps {
   onTypeToggle?: () => void;
   onDragStart: (clientX: number, clientY: number) => void;
   onDragMove: (clientX: number, clientY: number) => void;
+  showActions: boolean;
   onActivate?: () => void;
+  onCancel?: () => void;
 }
 
-const DraggableRadar: React.FC<DraggableRadarProps> = ({ fieldSize, type, index, cellSize, gridPadding, gap, onTypeToggle, onDragStart, onDragMove, onActivate }) => {
+const DraggableRadar: React.FC<DraggableRadarProps> = ({ fieldSize, type, index, cellSize, gridPadding, gap, onTypeToggle, onDragStart, onDragMove, showActions, onActivate, onCancel }) => {
   const { isDragging, pointerHandlers } = usePointerDrag(onDragStart, onDragMove, onActivate);
   const animationControls = useAnimationControls();
   const hasAppeared = useRef(false);
@@ -224,6 +289,7 @@ const DraggableRadar: React.FC<DraggableRadarProps> = ({ fieldSize, type, index,
           </svg>
         </button>
       </motion.div>
+      <ToolActions fieldSize={fieldSize} placeAbove={type === 'column' || index === fieldSize - 1} visible={showActions && !isDragging} onConfirm={onActivate} onCancel={onCancel} />
     </motion.div>
   );
 };
@@ -236,10 +302,12 @@ interface DraggableAttemptProps {
   gap: number;
   onDragStart: (clientX: number, clientY: number) => void;
   onDragMove: (clientX: number, clientY: number) => void;
+  showActions: boolean;
   onActivate?: () => void;
+  onCancel?: () => void;
 }
 
-const DraggableAttempt: React.FC<DraggableAttemptProps> = ({ position, fieldSize, cellSize, gridPadding, gap, onDragStart, onDragMove, onActivate }) => {
+const DraggableAttempt: React.FC<DraggableAttemptProps> = ({ position, fieldSize, cellSize, gridPadding, gap, onDragStart, onDragMove, showActions, onActivate, onCancel }) => {
   const { isDragging, pointerHandlers } = usePointerDrag(onDragStart, onDragMove, onActivate);
   const row = Math.floor(position / fieldSize);
   const col = position % fieldSize;
@@ -259,6 +327,7 @@ const DraggableAttempt: React.FC<DraggableAttemptProps> = ({ position, fieldSize
       <div className={clsx(styles.draggableAttempt, { [styles['draggableAttempt--dragging']]: isDragging })}>
         <img src={uiConfig.icons.attempt} alt="" draggable={false} />
       </div>
+      <ToolActions fieldSize={fieldSize} placeAbove={row === fieldSize - 1} visible={showActions && !isDragging} onConfirm={onActivate} onCancel={onCancel} />
     </motion.div>
   );
 };
@@ -286,7 +355,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
   onScannerConfirmed,
   onRadarConfirmed,
   onAttemptConfirmed,
+  onToolCancel,
   onRadarTypeToggle,
+  isToolDragging = false,
   fieldSize: fieldSizeProp,
 }) => {
   const fieldSize = fieldSizeProp ?? defaultGameConfig.fieldSize;
@@ -515,6 +586,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
           [styles['grid--scanner-active']]: showDraggableScanner,
           [styles['grid--radar-active']]: showDraggableRadar,
           [styles['grid--attempt-active']]: showDraggableAttempt,
+          [styles['grid--tool-dragging']]: isToolDragging,
         })}
         style={{
           gridTemplateColumns: `repeat(${fieldSize}, 1fr)`,
@@ -553,6 +625,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 whileTap={!disabled && mode !== 'view' && Boolean(onCellClick) && activeTool === null ? { scale: 0.9 } : undefined}
                 transition={{ type: 'spring', stiffness: 520, damping: 24, mass: 0.55 }}
                 onClick={() => handleCellClick(position)}
+                data-board-position={position}
                 disabled={disabled || mode === 'view'}>
                 {mode === 'setup' && isSelected && (
                   <motion.span className={styles.bombIcon} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
@@ -575,7 +648,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   </motion.span>
                 )}
                 {mode === 'view' && !isRevealed && isBomb && (!completed || revealFinishedBombs) && (
-                  <motion.span className={styles.hiddenBomb} initial={{ opacity: 0, scale: 0.25, rotate: -18 }} animate={{ opacity: completed ? 1 : 0.3, scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 360, damping: 17, mass: 0.75 }}>
+                  <motion.span
+                    className={styles.hiddenBomb}
+                    initial={{ scale: 0.25, rotate: -18 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: 'spring', stiffness: 360, damping: 17, mass: 0.75 }}>
                     <BombIcon size="75%" />
                   </motion.span>
                 )}
@@ -595,7 +672,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
               gap={gridDimensions.gap}
               onDragStart={handleAttemptDragStart}
               onDragMove={handleAttemptDragMove}
+              showActions={!isToolDragging && !disabled}
               onActivate={onAttemptConfirmed}
+              onCancel={onToolCancel}
             />
           )}
         </AnimatePresence>
@@ -603,7 +682,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         {/* Draggable Scanner */}
         <AnimatePresence>
           {showDraggableScanner && gridDimensions.cellSize > 0 && (
-            <DraggableScanner key="scanner-overlay" currentRow={scannerDragPos.row} currentCol={scannerDragPos.col} cellSize={gridDimensions.cellSize} gridPadding={gridDimensions.gridPadding} gap={gridDimensions.gap} onDragStart={handleScannerDragStart} onDragMove={handleScannerDragMove} onActivate={onScannerConfirmed} />
+            <DraggableScanner key="scanner-overlay" fieldSize={fieldSize} currentRow={scannerDragPos.row} currentCol={scannerDragPos.col} cellSize={gridDimensions.cellSize} gridPadding={gridDimensions.gridPadding} gap={gridDimensions.gap} onDragStart={handleScannerDragStart} onDragMove={handleScannerDragMove} showActions={!isToolDragging && !disabled} onActivate={onScannerConfirmed} onCancel={onToolCancel} />
           )}
         </AnimatePresence>
 
@@ -621,7 +700,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
               onTypeToggle={onRadarTypeToggle}
               onDragStart={handleRadarDragStart}
               onDragMove={handleRadarDragMove}
+              showActions={!isToolDragging && !disabled}
               onActivate={onRadarConfirmed}
+              onCancel={onToolCancel}
             />
           )}
         </AnimatePresence>

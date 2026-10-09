@@ -7,8 +7,8 @@ import Button from '@/components/common/Button';
 import GameBoard from '@/components/common/GameBoard';
 import { getConfigByDifficulty } from '@/config/game.config';
 import { useAppSelector, useAppDispatch } from '@/hooks/useAppDispatch';
-import { setSelectedBombs, clearSelectedBombs, setCreatingDefense } from '@/redux/slices/game.slice';
-import { showToast } from '@/redux/slices/ui.slice';
+import { setSelectedBombs, clearSelectedBombs, setCreatingDefense, setActiveDefense, updateDefense } from '@/redux/slices/game.slice';
+import { openGameLobby, showToast } from '@/redux/slices/ui.slice';
 import { socketService } from '@/services/socket';
 import { DifficultyLevel } from '@/types';
 import { star } from '@/utils/icons';
@@ -130,10 +130,13 @@ const CreateDefensePage: React.FC = () => {
 
     try {
       dispatch(setCreatingDefense(true));
-      await socketService.createDefense(bet, bombPositions, difficulty);
+      const createdDefense = await socketService.createDefense(bet, bombPositions, difficulty);
       dispatch(showToast({ message: uiConfig.createDefense.created, type: 'success' }));
       dispatch(clearSelectedBombs());
+      dispatch(updateDefense(createdDefense));
+      dispatch(setActiveDefense(createdDefense));
       navigate('/my-games?tab=defenses');
+      dispatch(openGameLobby(createdDefense.id));
     } catch (error: any) {
       dispatch(showToast({ message: error.message || uiConfig.createDefense.createError, type: 'error' }));
     } finally {

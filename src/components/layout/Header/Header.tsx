@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
+import WalletModal from '@/components/pages/WalletModal/WalletModal';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import styles from './Header.module.scss';
@@ -10,6 +11,8 @@ import { star } from '@/utils/icons';
 import { uiConfig } from '@/config/ui.config';
 
 const Header: React.FC = () => {
+  const [walletOpen, setWalletOpen] = useState(false);
+  const closeWallet = useCallback(() => setWalletOpen(false), []);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
@@ -55,11 +58,11 @@ const Header: React.FC = () => {
         <div className={styles.right}>
           {isAuthenticated && user ? (
             <>
-              <div className={styles.balance}>
+              <button type="button" className={styles.balance} onClick={() => setWalletOpen(true)} aria-label="Открыть баланс" aria-haspopup="dialog">
                 <span className={styles.balanceIcon}>{star()}</span>
                 <span className={styles.balanceAmount}>{user.balance}</span>
-                <div className={clsx(styles.plus)}>+</div>
-              </div>
+                <span className={clsx(styles.plus)}>+</span>
+              </button>
               <div className={clsx(styles.avatarWrap)}>
                 {' '}
                 <Avatar src={user.photoUrl} name={user.firstName || user.username} size="xs" />
@@ -80,6 +83,7 @@ const Header: React.FC = () => {
           )}
         </div>
       </div>
+      <WalletModal isOpen={walletOpen} onClose={closeWallet} />
     </header>
   );
 };

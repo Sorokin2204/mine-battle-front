@@ -127,6 +127,7 @@ const MyGameCard: React.FC<MyGameCardProps> = ({ defense, currentUserId, onClick
   const result = getResultInfo();
   const isActiveDefense = !result && isCreator;
   const isActiveAttack = !result && isAttacker && !isCreator;
+  const isDefenseUnderAttack = isActiveDefense && defense.status === 'IN_PROGRESS';
   const timerFill = calculateTimerFill(defense);
   const timerFillKey = defense.status === 'IN_PROGRESS' ? defense.moveDeadline : defense.expiresAt;
   const totalSecondsLeft = Math.ceil(timeLeft / 1000);
@@ -152,6 +153,7 @@ const MyGameCard: React.FC<MyGameCardProps> = ({ defense, currentUserId, onClick
         [styles['card--lose']]: result?.variant === 'lose',
         [styles['card--refund']]: result?.variant === 'refund',
         [styles['card--defense']]: isActiveDefense,
+        [styles['card--defense-attacked']]: isDefenseUnderAttack,
         [styles['card--attack']]: isActiveAttack,
       })}
       onClick={onClick}>
@@ -186,7 +188,7 @@ const MyGameCard: React.FC<MyGameCardProps> = ({ defense, currentUserId, onClick
               <div className={styles.resultRow}>
                 <span className={styles.resultLabel}>{result.label}</span>
                 <span className={clsx(styles.resultAmount, styles[`resultAmount--${result.variant}`])}>
-                  {result.variant === 'win' ? '+' : result.variant === 'refund' ? '+' : '-'}
+                  {result.variant === 'win' ? '+' : result.variant === 'lose' ? '-' : ''}
                   {result.amount}
                   {star(18)}
                 </span>
@@ -211,7 +213,10 @@ const MyGameCard: React.FC<MyGameCardProps> = ({ defense, currentUserId, onClick
 
         {!result && (
           <>
-            <span className={clsx(styles.timer, isActiveAttack ? styles['timer--attack'] : styles['timer--defense'])}>
+            <span
+              className={clsx(styles.timer, isActiveAttack ? styles['timer--attack'] : styles['timer--defense'], {
+                [styles['timer--alert']]: isDefenseUnderAttack,
+              })}>
               <NumberFlow value={timerMinutes} format={{ minimumIntegerDigits: 2 }} />
               <span className={styles.timerDivider}>:</span>
               <NumberFlow value={timerSeconds} format={{ minimumIntegerDigits: 2 }} />
@@ -228,8 +233,10 @@ const MyGameCard: React.FC<MyGameCardProps> = ({ defense, currentUserId, onClick
               </div>
             </div>
             <div className={styles.resultIcon}>
-              <span className={styles.actionIcon} aria-hidden="true">
-                {isActiveDefense ? (
+              <span className={clsx(styles.actionIcon, { [styles['actionIcon--alert']]: isDefenseUnderAttack })} aria-hidden="true">
+                {isDefenseUnderAttack ? (
+                  <img className={styles.searchIcon} src="/search-1.png" alt="" />
+                ) : isActiveDefense ? (
                   <svg className={styles.hourglass} xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24">
                     <g fill="currentColor">
                       <path className={styles.hourglassTop} d="M7 3H17V7.2L12 12L7 7.2V3Z" />
